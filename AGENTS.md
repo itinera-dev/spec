@@ -45,6 +45,7 @@ Use these words exactly. They were agreed and are not synonyms. When chapter 1, 
 7. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. Diagrams are Mermaid diagrams in fenced `mermaid` blocks; each declares `accTitle` and `accDescr` and is accompanied by text, usually a numbered list, that says everything it shows. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees.
 8. **One proposal per pull request.** A pull request that adds a proposal file says "Closes #NNNN" for its issue.
 9. **Nothing specific to a language here.** If the conformance suite could observe it, it belongs in the behaviour specification; if it is about how code is written in one language, it belongs in that language's tech spec. When a language-specific point comes up in a proposal, move it to that language's implementation issue (opening it early with the label `waiting for spec` if needed) and leave a link in the proposal.
+10. **No code in workflow YAML.** Automation is Python, standard library only, in [itinera-dev/actions](https://github.com/itinera-dev/actions), with tests; a workflow only declares triggers and permissions and calls an action at a released version. The full rule is the "Automation" section of the [contributing guide](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#automation).
 
 ## Commits and pull requests
 
