@@ -42,17 +42,28 @@ The `spec` repository never holds anything specific to one language. When a prop
 
 ## Summarising agreement
 
-When nothing is open, post one comment headed "Claude summary": the complete agreed design, written so that the proposal file can be produced from it alone, with every answered question folded in. End it by saying the proposal is ready for a maintainer to set `status: ready`. Do not set that label.
+When nothing is open:
+
+1. Rewrite the issue body as the agreed design: the complete design, written so that the proposal file can be produced from it alone, with every answered question folded in. Open it with the line "Agreed design as of YYYY-MM-DD. The original proposal is kept at the end." and keep the previous body, unchanged, at the end under the heading "Original proposal". If the previous body was already an agreed design, keep only its "Original proposal" section.
+2. Post a short comment headed "Claude summary" saying the body now holds the agreed design, and that the proposal is ready for a maintainer to set `status: ready`. Do not set that label.
+3. Hide earlier evaluation and summary comments that the agreed design replaces, as outdated: `gh api graphql -f query='mutation{minimizeComment(input:{subjectId:"<node id>",classifier:OUTDATED}){minimizedComment{isMinimized}}}'`. Never hide the maintainer's comments.
+
+Never rewrite the body of a closed issue: once a proposal is accepted, its issue is frozen.
 
 ## Writing the proposal pull request
 
 Only for an issue labelled `status: ready`.
 
 1. Branch from `main`: `proposal/NNNN-short-name`.
-2. Create `proposals/NNNN-short-name.md` from [TEMPLATE.md](../../../proposals/TEMPLATE.md), written from the latest "Claude summary" comment. Use RFC 2119 key words. The accepted date is left as `YYYY-MM-DD` for the maintainer to fill in when merging, or set to the merge date if the maintainer says so.
+2. Create `proposals/NNNN-short-name.md` from [TEMPLATE.md](../../../proposals/TEMPLATE.md), written from the agreed design in the issue body. If review of the pull request changes the design, update the issue body and the file together. Use RFC 2119 key words. The accepted date is left as `YYYY-MM-DD` for the maintainer to fill in when merging, or set to the merge date if the maintainer says so.
 3. Update `proposals/README.md`: move the proposal from "Under evaluation" to "Accepted".
 4. Update chapters under `spec/` if the maintainer asked for it in the same pull request; otherwise say in the description that a follow-up will.
-5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance.
+5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue.
+6. When the maintainer says it is merged, lock the issue as resolved, unless a workflow already did: `gh issue lock NNNN -R itinera-dev/spec --reason resolved`.
+
+## Changing an accepted proposal
+
+Never edit an accepted proposal's issue or file. A change is a new proposal whose body says "Amends #NNNN" or "Replaces #NNNN". When that new proposal is accepted, its pull request also adds one line to the old proposal file, "Amended by #MMMM" or "Replaced by #MMMM", and nothing else.
 
 ## Opening implementation issues for a language
 
