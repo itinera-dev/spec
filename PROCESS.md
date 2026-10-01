@@ -68,7 +68,7 @@ In this organisation, **"the specification"** or **"spec"** on its own means the
 4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. This is the only time the body is rewritten.
 5. **Ready.** A maintainer sets `status: ready`.
 6. **Specified.** A pull request in `spec` adds the proposal file `proposals/NNNN-short-name.md`, where `NNNN` is the issue number padded to four digits, written from the agreed design in the issue body, and says "Closes #NNNN". Reviewing that pull request is the final review. If the review changes the design, the issue body and the proposal file are updated together, so they stay the same text. **Merging it is the acceptance**, and GitHub closes the issue. The same pull request, or a follow-up, updates the behaviour specification under `spec/`.
-   After the merge, the issue is locked as resolved. From then on, the issue and the proposal file are frozen: others refer to them, so they never change (see "Changing an accepted proposal").
+   After the merge, the issue is closed and locked automatically: the `proposal-accepted` action from [itinera-dev/actions](https://github.com/itinera-dev/actions) finds each proposal file the pull request added, closes the issue with the same number as completed, if "Closes" did not already, and locks it as resolved. From then on, the issue and the proposal file are frozen: others refer to them, so they never change (see "Changing an accepted proposal").
 7. **Implemented.** Conformance cases are added in `conformance`, and each language writes its tech spec and implements it (see "Tracking implementation across languages").
 
 Issues and pull requests share one numbering sequence in each repository, so a proposal's number is the number of its issue, whatever pull requests came before it.
@@ -89,6 +89,19 @@ A proposal file is the accepted record of a proposal, its PRD. It follows [propo
 - the date it was accepted.
 
 Its status is not stored in the file. An open pull request means it is under review; a merged file means it is accepted. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
+
+## Every pull request has an issue
+
+In every repository, a pull request can be merged only when it is linked to at least one **open** issue in the same repository, by "Closes #N" in its description or through the Development box. The `pr-has-issue` check, from [itinera-dev/actions](https://github.com/itinera-dev/actions), also requires:
+
+- in `spec`, a pull request that adds `proposals/NNNN-*.md` is linked to issue NNNN, labelled `proposal` and `status: ready`; any other pull request is linked to an issue labelled `process`, `spec defect` or `proposal`;
+- in language and conformance repositories, a linked `implements-proposal` issue is no longer `waiting for spec`.
+
+The check re-runs when the pull request's description changes. After changing an issue's labels, re-run it from the pull request's Checks tab.
+
+## References between repositories
+
+A pull request only ever closes issues in its own repository. To mention an issue in another repository, write "Refs itinera-dev/spec#NNNN", never "Closes", "Fixes" or "Resolves" with another repository's issue. Every repository runs the `no-cross-repo-closing` check from [itinera-dev/actions](https://github.com/itinera-dev/actions), which fails a pull request whose description or commit messages do.
 
 ## Changing an accepted proposal
 
