@@ -1,0 +1,26 @@
+name: Spec defect
+description: Report specification text that is wrong, ambiguous or contradictory.
+title: "Spec defect: "
+labels: ["spec defect"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Where
+      description: The file and section, for example spec/05-hooks.md, "Default behaviour".
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What the text says, and why it is wrong, ambiguous or contradictory. Quote the text.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested correction
+      description: Optional. If the correction changes behaviour, it needs a proposal instead.
+    validations:
+      required: false
