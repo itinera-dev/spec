@@ -1,0 +1,44 @@
+name: Proposal
+description: Propose a change to how Itinera behaves. PROCESS.md describes what happens next.
+title: "Proposal: "
+labels: ["proposal", "status: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for proposing a change. A maintainer will triage it, it may be evaluated in this thread, and once agreed it becomes a file under proposals/. The full process is in PROCESS.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph saying what you propose.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: The problem, described as the needs of step authors, workflow authors, executor authors or operators. Why the current specification does not meet them.
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed design
+      description: How it should work. Describe flows as numbered lists. Diagrams, if any, are Mermaid; never ASCII art. Mention the outcomes, statuses, hooks, lifecycles or events involved, if you know them.
+    validations:
+      required: true
+  - type: input
+    id: tier
+    attributes:
+      label: Tier
+      description: The tier you think this belongs to, if you know. See ROADMAP.md.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other ways to solve the problem, and why you prefer this one.
+    validations:
+      required: false
