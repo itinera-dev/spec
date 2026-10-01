@@ -16,7 +16,7 @@ This repository contains documents only: no code and no build.
 
 ## Vocabulary
 
-Use these words exactly. They were agreed and are not synonyms. This list defines words only; what each thing does, and what it may return, is defined by accepted proposals and the chapters under [spec/](spec/).
+Use these words exactly. They were agreed and are not synonyms. When chapter 1, `spec/01-concepts.md`, is written, it becomes the single source of these definitions and this list is replaced by a link to it. This list defines words only; what each thing does, and what it may return, is defined by accepted proposals and the chapters under [spec/](spec/).
 
 - **Workflow:** the plan, an ordered list of steps plus policies.
 - **Step:** a business unit, uniquely named within its workflow.

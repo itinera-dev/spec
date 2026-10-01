@@ -23,7 +23,7 @@ The specification is the source of truth. Every language implementation follows 
 
 ## The life of a proposal
 
-1. **Proposed.** Anyone opens a Proposal issue in `spec` using the issue form. It gets the labels `proposal` and `status: triage`.
+1. **Proposed.** Anyone opens a Proposal issue in `spec` using the issue form. It gets the labels `proposal` and `status: triage`. Implementation ideas go in the issue; no implementation pull request is opened until step 6 is done, as the [contributing guide](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#please-do-not-open-a-pull-request-before-the-spec-exists) explains.
 2. **Triaged.** A maintainer decides:
    - `status: planned`: worth evaluating;
    - `status: declined`: not going ahead, with a one-line reason, and the issue is closed;
