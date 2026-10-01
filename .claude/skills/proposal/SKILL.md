@@ -61,6 +61,8 @@ Only for an issue labelled `status: ready`.
 5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue.
 6. Nothing to do after the merge: the `Proposal accepted` workflow closes and locks the issue. If it did not (check with `gh issue view NNNN -R itinera-dev/spec --json state,locked`), tell the maintainer rather than fixing it silently.
 
+Every pull request Claude opens, in any repository, says "Closes #N" for an open issue in the same repository; if there is none, ask the maintainer whether to open one. In `spec`, that issue is labelled `process`, `spec defect` or `proposal` (`proposal` and `status: ready` for a proposal file); the `Pull request has an issue` check enforces it.
+
 In any repository, never use "Closes", "Fixes" or "Resolves" with another repository's issue; write "Refs itinera-dev/<repo>#NNNN". The `No cross-repository closing` check fails pull requests that do.
 
 ## Changing an accepted proposal

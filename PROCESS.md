@@ -90,6 +90,15 @@ A proposal file is the accepted record of a proposal, its PRD. It follows [propo
 
 Its status is not stored in the file. An open pull request means it is under review; a merged file means it is accepted. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
 
+## Every pull request has an issue
+
+In every repository, a pull request can be merged only when it is linked to at least one **open** issue in the same repository, by "Closes #N" in its description or through the Development box. The `Pull request has an issue` check also requires:
+
+- in `spec`, a pull request that adds `proposals/NNNN-*.md` is linked to issue NNNN, labelled `proposal` and `status: ready`; any other pull request is linked to an issue labelled `process`, `spec defect` or `proposal`;
+- in language and conformance repositories, a linked `implements-proposal` issue is no longer `waiting for spec`.
+
+The check re-runs when the pull request's description changes. After changing an issue's labels, re-run it from the pull request's Checks tab.
+
 ## References between repositories
 
 A pull request only ever closes issues in its own repository. To mention an issue in another repository, write "Refs itinera-dev/spec#NNNN", never "Closes", "Fixes" or "Resolves" with another repository's issue. Every repository runs the `No cross-repository closing` check, which fails a pull request whose description or commit messages do.
