@@ -1,6 +1,8 @@
-# Specification
+# Behaviour specification
 
-The normative specification of Itinera. Its chapters are written from accepted proposals in [../proposals/](../proposals/), and use the key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY as described in RFC 2119.
+The normative behaviour specification of Itinera: exactly what every implementation must do, in terms the conformance suite can observe. Its chapters are written from accepted proposals in [../proposals/](../proposals/), and use the key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY as described in RFC 2119.
+
+Nothing here is specific to one language. How each language implements these chapters is described in that language's tech specs, in its own repository. See "The three kinds of document" in [PROCESS.md](../PROCESS.md).
 
 No chapters exist yet. The first ones will be written from the core model proposal ([#2](https://github.com/itinera-dev/spec/issues/2)) and will make up version 0.1.
 

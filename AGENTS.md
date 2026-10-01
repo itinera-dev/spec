@@ -6,6 +6,8 @@ The operating manual for anyone, human or agent, working in this repository. It 
 
 The language-neutral specification of Itinera, a workflow framework that keeps business rules separate from flow control. Implementations in each language follow it. Read [VISION.md](VISION.md) for why, and [PROCESS.md](PROCESS.md) for how work moves from an idea to an implementation.
 
+It holds two of the three kinds of document described in [PROCESS.md](PROCESS.md): **proposals** (the PRDs) and the **behaviour specification**. The third kind, **tech specs**, belongs to each language's repository and never to this one.
+
 This repository contains documents only: no code and no build.
 
 ## What to read, by kind of session
@@ -28,6 +30,9 @@ Use these words exactly. They were agreed and are not synonyms. When chapter 1, 
 - **Data bag:** the untyped store of a run's data.
 - **Adapter:** maps data between the bag and what a step or hook asks for.
 - **Tier:** a cumulative level of meaning. **Capability:** an independent property of an executor or language.
+- **Proposal:** the PRD of a feature: why it exists and what is wanted.
+- **Behaviour specification**, or **the specification:** what every implementation must do, in observable terms.
+- **Tech spec:** how one language implements a proposal. Lives in that language's repository.
 
 ## Hard rules
 
@@ -39,6 +44,7 @@ Use these words exactly. They were agreed and are not synonyms. When chapter 1, 
 6. **Normative text uses RFC 2119 key words.** MUST, MUST NOT, SHOULD, SHOULD NOT and MAY, in capitals, only in proposal files and spec chapters.
 7. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. Diagrams are Mermaid diagrams in fenced `mermaid` blocks; each declares `accTitle` and `accDescr` and is accompanied by text, usually a numbered list, that says everything it shows. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees.
 8. **One proposal per pull request.** A pull request that adds a proposal file says "Closes #NNNN" for its issue.
+9. **Nothing specific to a language here.** If the conformance suite could observe it, it belongs in the behaviour specification; if it is about how code is written in one language, it belongs in that language's tech spec. When a language-specific point comes up in a proposal, move it to that language's implementation issue (opening it early with the label `waiting for spec` if needed) and leave a link in the proposal.
 
 ## Commits and pull requests
 
