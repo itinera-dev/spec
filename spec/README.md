@@ -6,7 +6,7 @@ No chapters exist yet. The first ones will be written from the core model propos
 
 Planned chapters, which may change as proposals are accepted:
 
-1. Vocabulary
+1. Concepts: what each concept is and how they relate. The chapter to read first, and the single source of the vocabulary.
 2. Steps
 3. Workflows and the executor's scan
 4. Step statuses and retries

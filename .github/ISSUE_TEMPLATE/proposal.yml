@@ -36,6 +36,13 @@ body:
     validations:
       required: false
   - type: textarea
+    id: implementation-ideas
+    attributes:
+      label: Implementation ideas
+      description: Optional. How you would implement it, in any language, and whether you would like to implement it once the spec is merged. Please do not open a pull request before then.
+    validations:
+      required: false
+  - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered

@@ -4,6 +4,10 @@ Itinera is a workflow framework that keeps business rules separate from flow con
 
 This repository holds the language-neutral specification. Every Itinera implementation, starting with [itinera-rs](https://github.com/itinera-dev/itinera-rs), follows it, and the [conformance suite](https://github.com/itinera-dev/conformance) checks that they do.
 
+## Start here
+
+Read [spec/01-concepts.md](spec/01-concepts.md) first: what steps, workflows, hooks, lifecycles, executors, journeys and runs are, and how they fit together. That chapter is written from the core model proposal; until it exists, read [#2](https://github.com/itinera-dev/spec/issues/2).
+
 ## What is here
 
 - [VISION.md](VISION.md): why Itinera exists and the principles it keeps.
