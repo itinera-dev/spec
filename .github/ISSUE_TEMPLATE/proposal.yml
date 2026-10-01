@@ -25,7 +25,7 @@ body:
     id: design
     attributes:
       label: Proposed design
-      description: How it should work. Describe flows as numbered lists, not ASCII diagrams. Mention the outcomes, statuses, hooks, lifecycles or events involved, if you know them.
+      description: How it should work. Describe flows as numbered lists. Diagrams, if any, are Mermaid; never ASCII art. Mention the outcomes, statuses, hooks, lifecycles or events involved, if you know them.
     validations:
       required: true
   - type: input

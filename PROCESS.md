@@ -91,4 +91,11 @@ Changes to this process are issues labelled `process`. They are agreed in the is
 
 ## Writing style
 
-Every document in the organisation must be readable with a screen reader. Use headings, lists, prose and simple tables. Never use ASCII-art diagrams, arrows drawn with characters, or box-drawing trees. Describe a flow or a state machine as a numbered list.
+Every document in the organisation must be readable with a screen reader. Use headings, lists, prose and simple tables.
+
+Diagrams are Mermaid diagrams, written in fenced code blocks marked `mermaid`, which GitHub renders. Every diagram:
+
+- declares `accTitle` and `accDescr`, which are exposed to screen readers;
+- is accompanied by text, usually a numbered list, that says everything the diagram shows, so a diagram is never the only place a fact lives.
+
+Never use ASCII-art diagrams, arrows drawn with characters, or box-drawing trees.

@@ -25,7 +25,7 @@ Itinera makes the separation structural instead of a matter of discipline.
 3. Order is strict and visible. The list of steps you read is the order that runs.
 4. Executors differ in capability, never in meaning.
 5. Anything a step did not anticipate is abnormal, and abnormal is rare by design.
-6. Documentation is readable with a screen reader: headings, lists and prose, never ASCII-art diagrams.
+6. Documentation is readable with a screen reader: headings, lists and prose, with Mermaid diagrams that carry accessible descriptions and are always explained in text, and never ASCII-art diagrams.
 
 ## Not goals
 

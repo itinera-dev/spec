@@ -9,7 +9,7 @@ The process is defined in [PROCESS.md](../../../PROCESS.md); this skill is how C
 
 Every comment Claude posts starts with a level-2 heading, "Claude evaluation" or "Claude summary", followed by the line: *Posted by Claude (Claude Code) from a maintainer's account, as described in PROCESS.md.*
 
-Write everything screen-reader friendly: headings, lists, prose and simple tables, never ASCII-art diagrams.
+Write everything screen-reader friendly: headings, lists, prose and simple tables. Diagrams are Mermaid, with `accTitle` and `accDescr`, and the text around them says everything they show. Never ASCII-art diagrams.
 
 ## Evaluating a proposal
 

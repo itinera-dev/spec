@@ -37,7 +37,7 @@ Use these words exactly. They were agreed and are not synonyms.
 4. **Mark agent comments.** Every comment an agent posts starts with the heading "Claude evaluation" or "Claude summary" (or the equivalent for another agent) and a line saying who posted it.
 5. **Do not change labels to accept or decline.** Moving a proposal to `status: ready`, `status: declined` or `status: postponed` is a maintainer's decision. An agent may set `status: evaluating` when asked to evaluate.
 6. **Normative text uses RFC 2119 key words.** MUST, MUST NOT, SHOULD, SHOULD NOT and MAY, in capitals, only in proposal files and spec chapters.
-7. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees. Describe flows and state machines as numbered lists.
+7. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. Diagrams are Mermaid diagrams in fenced `mermaid` blocks; each declares `accTitle` and `accDescr` and is accompanied by text, usually a numbered list, that says everything it shows. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees.
 8. **One proposal per pull request.** A pull request that adds a proposal file says "Closes #NNNN" for its issue.
 
 ## Commits and pull requests
