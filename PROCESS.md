@@ -65,9 +65,10 @@ In this organisation, **"the specification"** or **"spec"** on its own means the
 
    The maintainer also adds the `tier: N` label the proposal belongs to.
 3. **Evaluated.** A maintainer asks Claude, manually, to evaluate the proposal. The label becomes `status: evaluating`. Claude posts one comment grouping its questions, concerns and conflicts with the existing specification, each with a recommendation.
-4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. Claude then posts a summary of everything agreed.
+4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. This is the only time the body is rewritten.
 5. **Ready.** A maintainer sets `status: ready`.
-6. **Specified.** A pull request in `spec` adds the proposal file `proposals/NNNN-short-name.md`, where `NNNN` is the issue number padded to four digits, written from the summary, and says "Closes #NNNN". Reviewing that pull request is the final review, and **merging it is the acceptance**. The same pull request, or a follow-up, updates the behaviour specification under `spec/`.
+6. **Specified.** A pull request in `spec` adds the proposal file `proposals/NNNN-short-name.md`, where `NNNN` is the issue number padded to four digits, written from the agreed design in the issue body, and says "Closes #NNNN". Reviewing that pull request is the final review. If the review changes the design, the issue body and the proposal file are updated together, so they stay the same text. **Merging it is the acceptance**, and GitHub closes the issue. The same pull request, or a follow-up, updates the behaviour specification under `spec/`.
+   After the merge, the issue is locked as resolved. From then on, the issue and the proposal file are frozen: others refer to them, so they never change (see "Changing an accepted proposal").
 7. **Implemented.** Conformance cases are added in `conformance`, and each language writes its tech spec and implements it (see "Tracking implementation across languages").
 
 Issues and pull requests share one numbering sequence in each repository, so a proposal's number is the number of its issue, whatever pull requests came before it.
@@ -87,7 +88,22 @@ A proposal file is the accepted record of a proposal, its PRD. It follows [propo
 - its tier;
 - the date it was accepted.
 
-Its status is not stored in the file. An open pull request means it is under review; a merged file means it is accepted. A proposal that is later replaced keeps its file and gains a line naming the proposal that replaced it. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
+Its status is not stored in the file. An open pull request means it is under review; a merged file means it is accepted. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
+
+## Changing an accepted proposal
+
+An accepted proposal, its issue and its file never change. To change what it decided:
+
+1. Open a new proposal issue that says what it changes: "Amends #NNNN" for a partial change, or "Replaces #NNNN" when it supersedes the whole proposal. It goes through the full process.
+2. When the new proposal is accepted, the behaviour specification chapters are updated, and the old proposal file gains one line, "Amended by #MMMM" or "Replaced by #MMMM". That line is the only edit ever made to an accepted proposal file.
+
+Wording that is wrong or unclear in a chapter, without changing behaviour, is a `spec defect` issue, not a new proposal.
+
+What to refer to afterwards:
+
+- **the proposal file**, for what was decided and why;
+- **the behaviour specification chapters**, for how Itinera behaves now;
+- **the issue**, for the discussion.
 
 ## The behaviour specification
 
