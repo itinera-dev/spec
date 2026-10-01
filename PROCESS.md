@@ -19,6 +19,7 @@ The specification is the source of truth. Every language implementation follows 
 - **A proposal file** under [proposals/](proposals/) is the accepted record of one feature: what was decided and why. Once merged it does not change, except to name a proposal that replaces it.
 - **The chapters** under [spec/](spec/) are the current, complete definition of every feature, consolidated from all accepted proposals. When a later proposal changes a feature, the chapters change and the earlier proposal file stays as history. If a chapter and a proposal file disagree, the chapter is right.
 - **[ROADMAP.md](ROADMAP.md)** says which tier a feature is planned for. It is not normative.
+- **Language-specific design**, meaning how one language realises the specification (macros, types, error conversions, compile-time checks), lives in that language's repository under `docs/design/`, never in proposals or chapters. Proposals and chapters may say that implementations SHOULD use a language feature where available, without naming a language.
 - **The other documents in this repository**, such as this one, [VISION.md](VISION.md) and [AGENTS.md](AGENTS.md), never define behaviour. They may name features and use the vocabulary, but what a feature does, what it accepts and what it returns belong only in proposals and chapters, so they can change through this process without editing anything else.
 
 ## The life of a proposal
