@@ -1,0 +1,48 @@
+name: Proposal accepted
+
+# When a pull request that adds proposals/NNNN-short-name.md is merged, the
+# proposal is accepted: close issue NNNN as completed and lock it as resolved.
+# Driven by the file name, so it works even if the description forgot "Closes".
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  close-and-lock:
+    name: close and lock accepted proposals
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close and lock the issue of each proposal file added
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          numbers=$(gh api "repos/$REPO/pulls/$PR/files" --paginate \
+            --jq '.[] | select(.status == "added") | .filename' \
+            | sed -nE 's#^proposals/([0-9]{4})-[^/]+\.md$#\1#p')
+          if [ -z "$numbers" ]; then
+            echo "No proposal file added; nothing to do."
+            exit 0
+          fi
+          for padded in $numbers; do
+            n=$((10#$padded))
+            labels=$(gh issue view "$n" -R "$REPO" --json labels --jq '[.labels[].name] | join(",")')
+            case ",$labels," in
+              *",proposal,"*) ;;
+              *) echo "#$n is not labelled proposal; skipped."; continue ;;
+            esac
+            state=$(gh issue view "$n" -R "$REPO" --json state --jq .state)
+            if [ "$state" = "OPEN" ]; then
+              gh issue close "$n" -R "$REPO" --reason completed --comment "Accepted in #$PR."
+            fi
+            gh issue lock "$n" -R "$REPO" --reason resolved || echo "#$n was already locked."
+            echo "#$n closed and locked."
+          done

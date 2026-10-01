@@ -59,7 +59,9 @@ Only for an issue labelled `status: ready`.
 3. Update `proposals/README.md`: move the proposal from "Under evaluation" to "Accepted".
 4. Update chapters under `spec/` if the maintainer asked for it in the same pull request; otherwise say in the description that a follow-up will.
 5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue.
-6. When the maintainer says it is merged, lock the issue as resolved, unless a workflow already did: `gh issue lock NNNN -R itinera-dev/spec --reason resolved`.
+6. Nothing to do after the merge: the `Proposal accepted` workflow closes and locks the issue. If it did not (check with `gh issue view NNNN -R itinera-dev/spec --json state,locked`), tell the maintainer rather than fixing it silently.
+
+In any repository, never use "Closes", "Fixes" or "Resolves" with another repository's issue; write "Refs itinera-dev/<repo>#NNNN". The `No cross-repository closing` check fails pull requests that do.
 
 ## Changing an accepted proposal
 
