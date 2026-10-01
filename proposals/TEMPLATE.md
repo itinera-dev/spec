@@ -2,7 +2,6 @@
 
 - Issue: [#NNNN](https://github.com/itinera-dev/spec/issues/NNNN)
 - Tier: N
-- Accepted: YYYY-MM-DD
 
 ## Summary
 

@@ -55,8 +55,8 @@ Never rewrite the body of a closed issue: once a proposal is accepted, its issue
 Only for an issue labelled `status: ready`.
 
 1. Branch from `main`: `proposal/NNNN-short-name`.
-2. Create `proposals/NNNN-short-name.md` from [TEMPLATE.md](../../../proposals/TEMPLATE.md), written from the agreed design in the issue body. If review of the pull request changes the design, update the issue body and the file together. Use RFC 2119 key words. The accepted date is left as `YYYY-MM-DD` for the maintainer to fill in when merging, or set to the merge date if the maintainer says so.
-3. Update `proposals/README.md`: move the proposal from "Under evaluation" to "Accepted".
+2. Create `proposals/NNNN-short-name.md` from [TEMPLATE.md](../../../proposals/TEMPLATE.md), written from the agreed design in the issue body. If review of the pull request changes the design, update the issue body and the file together. Use RFC 2119 key words. Do not write an acceptance date in the file: the acceptance date is the merge date.
+3. Update `proposals/README.md`: move the proposal from "Under evaluation" to "Accepted", ending its line with "Accepted in [#PR](link to this pull request)." (open the pull request first to know its number, then push the index change).
 4. Update chapters under `spec/` if the maintainer asked for it in the same pull request; otherwise say in the description that a follow-up will.
 5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue.
 6. Nothing to do after the merge: the `proposal-accepted` action closes and locks the issue. If it did not (check with `gh issue view NNNN -R itinera-dev/spec --json state,locked`), tell the maintainer rather than fixing it silently.

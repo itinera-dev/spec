@@ -85,10 +85,9 @@ Issues and pull requests share one numbering sequence in each repository, so a p
 A proposal file is the accepted record of a proposal, its PRD. It follows [proposals/TEMPLATE.md](proposals/TEMPLATE.md) and starts with:
 
 - the issue it came from;
-- its tier;
-- the date it was accepted.
+- its tier.
 
-Its status is not stored in the file. An open pull request means it is under review; a merged file means it is accepted. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
+Neither its status nor its acceptance date is stored in the file. An open pull request means it is under review; a merged file means it is accepted, and **the acceptance date is the merge date**. The merge records it, the `proposal-accepted` action writes it in the comment that closes the issue ("Accepted on YYYY-MM-DD in #N."), and the proposals index links each accepted proposal to its pull request. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
 
 ## Every pull request has an issue
 
