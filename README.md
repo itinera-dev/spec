@@ -21,6 +21,8 @@ Two more rules:
 
 [PROCESS.md](PROCESS.md) has the details.
 
+**If this looks like bureaucracy:** all that is asked of you is one Proposal issue saying what you need and why. Everything after it, from evaluation to code in every language, is done by the maintainers with agents when the proposal is planned, and you can join wherever you like. Why the documents exist at all is explained in [This is not bureaucracy](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#this-is-not-bureaucracy).
+
 ## Start here
 
 Read [spec/01-concepts.md](spec/01-concepts.md) first: what steps, workflows, hooks, lifecycles, executors, journeys and runs are, and how they fit together. That chapter is written from the core model proposal; until it exists, read [#2](https://github.com/itinera-dev/spec/issues/2).
