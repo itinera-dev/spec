@@ -17,6 +17,8 @@ This repository holds the language-neutral specification. Every Itinera implemen
 
 Open a Proposal issue in this repository. [PROCESS.md](PROCESS.md) describes what happens next.
 
+Built with AI under the terms of [A manifesto for software engineering with AI](https://marlon-sousa.com/blog/manifesto/); see [how Itinera is built](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#how-itinera-is-built).
+
 ## License
 
 Licensed under either of
