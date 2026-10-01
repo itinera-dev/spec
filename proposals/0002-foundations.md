@@ -2,7 +2,6 @@
 
 - Issue: [#2](https://github.com/itinera-dev/spec/issues/2)
 - Tier: 1
-- Accepted: YYYY-MM-DD
 
 ## Summary
 
