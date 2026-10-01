@@ -59,20 +59,26 @@ Policies MUST be evaluated in the order they are declared. In tier 1 the order h
 
 ### 6. Data from the workflow, through input adapters
 
-A step requests each input from the workflow by a key, local to the step, and a type.
+A step requests each input from the workflow by a key, local to the step, and a type. Each input is either **required** or **optional**.
 
-1. An **input adapter** is declared on the workflow and associated with one or more pairs of step and key. When the step is built, the adapter receives the step's name and the key, MAY obtain the data from anywhere, and MUST return the value in the requested type.
+1. An **input adapter** is declared on the workflow and associated with one or more pairs of step and key. When the step is built, the adapter receives the step's name and the key, MAY obtain the data from anywhere, and MUST either return the value in the requested type or report that it has no value.
 2. Input adapters belong to the workflow that declares them, and MAY serve several of its steps.
 3. When no input adapter is declared for a step and key, the value MUST be read from the workflow's data bag under that key.
-4. If an adapter fails, or the value is missing or of the wrong type, the journey MUST be aborted. A step that cannot be built makes the run unsafe.
+4. When no value can be supplied, because the adapter reports none or the data bag has no such key:
+   - for a **required** input, the journey MUST be aborted;
+   - for an **optional** input, the step MUST be built with that input absent.
+5. If an adapter fails, or a value is of the wrong type, the journey MUST be aborted, whether the input is required or optional. A step that cannot be built makes the run unsafe.
 
 ### 7. Data from the step, without adapters
 
 Only step hooks receive data from a step.
 
-1. A step hook requests data from the step it acts on by a key and a type, and MUST receive exactly the value that step contributed under that key.
+1. A step hook requests data from the step it acts on by a key and a type, as **required** or **optional**, and MUST receive exactly the value that step contributed under that key.
 2. There is no adapter in this direction, so the data is guaranteed to come from the step. Any transformation happens inside the hook.
-3. If the step did not contribute the key, or the value is of the wrong type, the journey MUST be aborted.
+3. If the step did not contribute the key:
+   - for a **required** request, the journey MUST be aborted;
+   - for an **optional** request, the hook MUST be called with that data absent.
+4. If the value is of the wrong type, the journey MUST be aborted, whether the request is required or optional.
 
 ### 8. Language-specific forms
 
@@ -83,7 +89,8 @@ How a language expresses steps, policies, hooks and adapters, such as annotation
 This proposal adds two engine events, whose fields and place in the catalogue are defined with the event model ([#11](https://github.com/itinera-dev/spec/issues/11)):
 
 - an input adapter supplied a value for a step and key;
-- an input adapter failed for a step and key.
+- an input adapter failed for a step and key;
+- an optional input was absent: no value could be supplied for a step and key.
 
 ## Conformance
 
@@ -92,10 +99,12 @@ The conformance cases for this proposal must check that:
 1. a hook defined twice for the same step, or for the same workflow, is rejected at admission, before any step runs, and is reported together with other violations;
 2. an input with no adapter is read from the data bag under its key;
 3. an input with an adapter receives the adapter's value, and the adapter-supplied event is emitted;
-4. a failing adapter, a missing input and an input of the wrong type each abort the journey, and the adapter-failed event is emitted where an adapter was involved;
-5. a step hook receives exactly the value the step contributed under the requested key;
-6. a step hook requesting a key the step did not contribute, or requesting the wrong type, aborts the journey;
-7. the steps, order, policies and adapters of a workflow can be listed without running it.
+4. a failing adapter, a missing required input and an input of the wrong type each abort the journey, and the adapter-failed event is emitted where an adapter was involved;
+5. a missing optional input, whether the adapter reports no value or the data bag has no such key, builds the step with that input absent, and the optional-input-absent event is emitted;
+6. a step hook receives exactly the value the step contributed under the requested key;
+7. a step hook requesting, as required, a key the step did not contribute aborts the journey; requesting it as optional calls the hook with the data absent;
+8. a step hook requesting the wrong type aborts the journey, whether the request is required or optional;
+9. the steps, order, policies and adapters of a workflow can be listed without running it.
 
 ## Alternatives considered
 
@@ -104,6 +113,7 @@ The conformance cases for this proposal must check that:
 - **Adapters for data from the step.** Rejected: an adapter could supply data the step never contributed. Without one, data from the step is guaranteed to come from the step, and the hook can transform it itself.
 - **Checking at admission that policies only read contributed data.** Rejected: contributions are dynamic, so a missing contribution is detected at run time and aborts the journey.
 - **Policies mixing step hooks and workflow hooks.** Rejected: one type per policy keeps where it can be attached unambiguous.
+- **Every request required.** Rejected during review: a step or hook that can work without a value would have to be split, or the workflow would have to supply placeholder data. Optional requests say so explicitly instead, while a value of the wrong type still aborts the journey.
 
 ## Open questions
 
