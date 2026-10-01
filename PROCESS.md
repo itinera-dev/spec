@@ -13,6 +13,14 @@ The specification is the source of truth. Every language implementation follows 
 - **[itinera-dev/conformance](https://github.com/itinera-dev/conformance)** receives issues about missing or wrong conformance cases.
 - **[itinera-dev/.github](https://github.com/itinera-dev/.github)** holds the organisation profile and the community files shared by every repository.
 
+## Where features are defined
+
+- **A proposal issue** is where a feature is proposed and discussed. It is not normative.
+- **A proposal file** under [proposals/](proposals/) is the accepted record of one feature: what was decided and why. Once merged it does not change, except to name a proposal that replaces it.
+- **The chapters** under [spec/](spec/) are the current, complete definition of every feature, consolidated from all accepted proposals. When a later proposal changes a feature, the chapters change and the earlier proposal file stays as history. If a chapter and a proposal file disagree, the chapter is right.
+- **[ROADMAP.md](ROADMAP.md)** says which tier a feature is planned for. It is not normative.
+- **The other documents in this repository**, such as this one, [VISION.md](VISION.md) and [AGENTS.md](AGENTS.md), never define behaviour. They may name features and use the vocabulary, but what a feature does, what it accepts and what it returns belong only in proposals and chapters, so they can change through this process without editing anything else.
+
 ## The life of a proposal
 
 1. **Proposed.** Anyone opens a Proposal issue in `spec` using the issue form. It gets the labels `proposal` and `status: triage`.

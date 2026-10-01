@@ -16,12 +16,12 @@ This repository contains documents only: no code and no build.
 
 ## Vocabulary
 
-Use these words exactly. They were agreed and are not synonyms.
+Use these words exactly. They were agreed and are not synonyms. This list defines words only; what each thing does, and what it may return, is defined by accepted proposals and the chapters under [spec/](spec/).
 
 - **Workflow:** the plan, an ordered list of steps plus policies.
 - **Step:** a business unit, uniquely named within its workflow.
-- **Hook:** a policy the executor calls. Step hooks return a lifecycle or nothing; workflow hooks return nothing.
-- **Lifecycle:** what a step hook returns to tell the executor what to do next.
+- **Hook:** a policy the executor calls. Step hooks are called in response to a step's outcome; workflow hooks are called by the executor managing the workflow or journey.
+- **Lifecycle:** what a hook may return to tell the executor what to do next.
 - **Executor:** runs workflows and carries out lifecycles.
 - **Journey:** one end-to-end execution, including every switch and transfer.
 - **Run:** one workflow executed within a journey.
