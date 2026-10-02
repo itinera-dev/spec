@@ -67,9 +67,15 @@ In this organisation, **"the specification"** or **"spec"** on its own means the
 3. **Evaluated.** A maintainer asks Claude, manually, to evaluate the proposal. The label becomes `status: evaluating`. Claude posts one comment grouping its questions, concerns and conflicts with the existing specification, each with a recommendation.
 4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. This is the only time the body is rewritten.
 5. **Ready.** A maintainer sets `status: ready`.
-6. **Specified.** A pull request in `spec` adds the proposal file `proposals/NNNN-short-name.md`, where `NNNN` is the issue number padded to four digits, written from the agreed design in the issue body, and says "Closes #NNNN". Reviewing that pull request is the final review. If the review changes the design, the issue body and the proposal file are updated together, so they stay the same text. **Merging it is the acceptance**, and GitHub closes the issue. The same pull request, or a follow-up, updates the behaviour specification under `spec/`.
+6. **Specified, with its cases.** Two pull requests are opened together and reviewed together:
+   - in `conformance`, the proposal's **cases**, closing the conformance issue "Cases for spec#NNNN" (opened at this point if it does not exist yet);
+   - in `spec`, the **proposal file** `proposals/NNNN-short-name.md`, where `NNNN` is the issue number padded to four digits, written from the agreed design in the issue body, saying "Closes #NNNN".
+
+   If the review changes the design, the issue body, the proposal file and the cases are updated together. Writing the cases tests the proposal: a case that cannot be written because the text does not say what happens is a gap in the proposal, found before it is accepted.
+
+   **The cases pull request is merged first**; the `pr-has-issue` check allows it once the proposal is `status: ready`. **Then the proposal pull request is merged, which is the acceptance**; the check refuses it until "Cases for spec#NNNN" is closed. The same pull request, or a follow-up, updates the behaviour specification under `spec/`. Proposal 0002 (Foundations) was accepted before this rule and is the only exception.
    After the merge, the issue is closed and locked automatically: the `proposal-accepted` action from [itinera-dev/actions](https://github.com/itinera-dev/actions) finds each proposal file the pull request added, closes the issue with the same number as completed, if "Closes" did not already, and locks it as resolved. From then on, the issue and the proposal file are frozen: others refer to them, so they never change (see "Changing an accepted proposal").
-7. **Implemented.** Conformance cases are added in `conformance`, and each language writes its tech spec and implements it (see "Tracking implementation across languages").
+7. **Implemented.** Each language writes its tech spec and implements the proposal (see "Tracking implementation across languages").
 
 Issues and pull requests share one numbering sequence in each repository, so a proposal's number is the number of its issue, whatever pull requests came before it.
 
@@ -89,12 +95,34 @@ A proposal file is the accepted record of a proposal, its PRD. It follows [propo
 
 Neither its status nor its acceptance date is stored in the file. An open pull request means it is under review; a merged file means it is accepted, and **the acceptance date is the merge date**. The merge records it, the `proposal-accepted` action writes it in the comment that closes the issue ("Accepted on YYYY-MM-DD in #N."), and the proposals index links each accepted proposal to its pull request. If a proposal file and the behaviour specification disagree, the behaviour specification is right.
 
-## Every pull request has an issue
+## How work is merged
 
-In every repository, a pull request can be merged only when it is linked to at least one **open** issue in the same repository, by "Closes #N" in its description or through the Development box. The `pr-has-issue` check, from [itinera-dev/actions](https://github.com/itinera-dev/actions), also requires:
+### Trunk-based development
 
-- in `spec`, a pull request that adds `proposals/NNNN-*.md` is linked to issue NNNN, labelled `proposal` and `status: ready`; any other pull request is linked to an issue labelled `process`, `spec defect` or `proposal`;
-- in language and conformance repositories, a linked `implements-proposal` issue is no longer `waiting for spec`.
+Every repository works directly on `main`, in small pull requests. There are no long-lived branches per feature or per proposal: they collect conflicts and end in one large pull request, which is what small pull requests avoid.
+
+Unfinished work on `main` is safe, because nothing reaches users until a release (see "Releases"), and because a proposal's conformance cases only run once the proposal is switched on in the language's manifest. Public types and functions of an unfinished proposal stay unexported, or behind an `unstable` feature, until the proposal is complete.
+
+### Every pull request says which issue it belongs to
+
+Every pull request names at least one **open** issue in the same repository, in its description:
+
+- **`Closes #N`** when it finishes that issue;
+- **`Refs #N`** when it contributes to that issue without finishing it.
+
+There is no need to open an issue for each piece of work: refer to the issue the work belongs to. To mention an issue in another repository, see "References between repositories".
+
+### Large work is stacked
+
+When a change is too large for one pull request, it is split into a **stack**: a chain of pull requests, each building on the one before, using GitHub's native stacked pull requests (on github.com, or with `gh stack` from the command line). Every layer says `Refs #N`, the last one says `Closes #N`, and the layers are reviewed and merged in order. Every layer is held to `main`'s rules and checks.
+
+### What the checks enforce
+
+The `pr-has-issue` check, from [itinera-dev/actions](https://github.com/itinera-dev/actions), requires every pull request to close or refer to an open issue in its own repository, and also, depending on the repository:
+
+- in `spec`, a pull request that adds `proposals/NNNN-*.md` closes issue NNNN, labelled `proposal` and `status: ready`, and the conformance issue "Cases for spec#NNNN" is already closed; any other pull request is linked to an issue labelled `process`, `spec defect` or `proposal`;
+- in `conformance`, an issue still `waiting for spec` is accepted once its proposal is `status: ready` or accepted;
+- in language repositories, a linked `implements-proposal` issue is no longer `waiting for spec`; a pull request that closes an implementation issue adds its proposal to `conformance.json`, and a pull request that adds a proposal there closes its implementation issue.
 
 The check re-runs when the pull request's description changes. After changing an issue's labels, re-run it from the pull request's Checks tab.
 
@@ -135,10 +163,10 @@ The contents of a tier are fixed for a given version of the specification. New f
 
 ## Tracking implementation across languages
 
-1. When a language starts a tier, it opens one **implementation issue** per accepted proposal of that tier in its own repository, labelled `implements-proposal` and `tier: N`, linking to the proposal. For example: "Implement spec#2 (core model)".
-2. The implementation issue is where that language's **tech spec** is agreed.
-3. The implementing pull request adds the tech spec as `docs/specs/NNNN-short-name.md` together with the code, and closes the issue.
-4. An open implementation issue means not done; a closed one means done. It closes only when that proposal's conformance cases pass in that language.
+1. When a language starts a tier, it opens one **implementation issue** per accepted proposal of that tier in its own repository, labelled `implements-proposal` and `tier: N`, linking to the proposal. For example: "Implement spec#8 (Steps)".
+2. The implementation issue is where that language's **tech spec** is agreed. The tech spec is added as `docs/specs/NNNN-short-name.md` in the pull requests that implement it.
+3. **Pull requests that contribute** to the proposal say `Refs #N` for the implementation issue, or form a stack. Their conformance check runs only the proposals already finished, so unfinished work merges freely while nothing finished breaks.
+4. **The pull request that completes the proposal** says `Closes #N` for the implementation issue and adds the proposal's number to `proposals` in the language's `conformance.json`. From then on the proposal's cases run on every pull request, and they must pass for this one to merge. The check refuses either half without the other, so a closed implementation issue always means the proposal's cases pass.
 5. Each language commits a conformance report produced by its conformance runner, listing passing and failing cases by proposal.
 
 This is what lets a new language start late: the behaviour specification and the conformance cases already describe everything, and the language's work is to write its tech specs and make the cases pass, tier by tier.
@@ -146,6 +174,19 @@ This is what lets a new language start late: the behaviour specification and the
 ### Implementation issues opened early
 
 When language-specific design comes up while a proposal is still being discussed, the language's implementation issue may be opened before the proposal is accepted, so the design has a home outside the `spec` repository. It carries the extra label `waiting for spec`, and no pull request is opened for it until the proposal is accepted and the label is removed.
+
+The conformance issue "Cases for spec#NNNN" is also opened early, holding the list of what the cases must check, with the label `waiting for spec`. In `conformance` that label only means the proposal is not accepted yet: the cases pull request may be merged as soon as the proposal is `status: ready` (step 6 of "The life of a proposal").
+
+## Releases
+
+Package registries do not know about git tags: `cargo publish` and `npm publish` upload whatever is run, with the version written in `Cargo.toml` or `package.json`, and a published version can never be changed. So in every language:
+
+1. **A release is requested by pushing a version tag**, such as `v0.1.0`, on `main`. Only maintainers can create release tags.
+2. **A release workflow decides whether the tag becomes a release.** It checks that the tag matches the package version, that the commit is on `main`, that every proposal in `conformance.json` passes its cases, and that every proposal of the tier being claimed is listed. If anything fails, nothing is published and the run fails visibly.
+3. **Only that workflow can publish**, through the registry's trusted publishing for GitHub Actions, with no long-lived publishing token. A manual `cargo publish` or `npm publish` simply fails.
+4. **A release carries its conformance report** as an asset, which is the proof of what it claims, and the compatibility table in `conformance` is built from those reports.
+
+The release workflow is built with the first release of the first language ([itinera-dev/conformance#6](https://github.com/itinera-dev/conformance/issues/6)).
 
 ## Conformance
 
@@ -159,7 +200,7 @@ Conformance cases are data, not code. Each case contains a workflow, scripted st
 - `status: triage`, `status: planned`, `status: evaluating`, `status: ready`, `status: declined`, `status: postponed`: where a proposal is in its life.
 - `tier: 1` to `tier: 4`: the tier a proposal, implementation issue or conformance issue belongs to. More are added as tiers are planned.
 - `implements-proposal`: in language and conformance repositories, an issue that implements an accepted proposal.
-- `waiting for spec`: in language and conformance repositories, an implementation issue opened before its proposal is accepted; no pull request until the label is removed.
+- `waiting for spec`: an implementation issue opened before its proposal is accepted. In language repositories, no pull request until the label is removed; in `conformance`, the cases may be merged once the proposal is `status: ready`.
 
 ## Changing this process
 
