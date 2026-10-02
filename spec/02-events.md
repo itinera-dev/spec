@@ -54,7 +54,7 @@ The executor MUST emit exactly these engine events, and no others, in tier 1.
 | `journey_started` | the journey starts | the initial keys of the data bag, never their values |
 | `attempt_started` | an attempt of a step starts | step, attempt |
 | `input_adapter_supplied` | an input adapter supplies a value | step, key |
-| `input_adapter_failed` | an input adapter fails | step, key |
+| `input_adapter_failed` | an input adapter fails | step, key, and the policy and hook when resolving a hook's request |
 | `optional_input_absent` | an optional request has no value | step, key |
 | `step_succeeded` | an attempt ends in Success | step, attempt |
 | `step_failed` | an attempt ends in Failure | step, attempt, retriable, reason (code, message, details) |
@@ -66,7 +66,7 @@ The executor MUST emit exactly these engine events, and no others, in tier 1.
 | `data_overwritten` | a committed key replaces an earlier value | key, source |
 | `journey_succeeded` | the journey succeeds | |
 | `journey_failed` | the journey fails | the step and its reason or cause; or the step whose hook returned `FailWorkflow` and its reason |
-| `journey_aborted` | the journey is aborted | the step, if any, the abort reason, and its details, including every violation for `invalid configuration` |
+| `journey_aborted` | the journey is aborted | the step, if any, the abort reason, and its details: every violation for `invalid configuration`; for `hook threw`, the policy and hook, and the key being resolved if the hook failed while its data was resolved |
 
 1. Each attempt has exactly one outcome event: `step_succeeded`, `step_failed`, `step_skipped` or `abnormal_termination`. An abnormal termination is never also reported as `step_failed`.
 2. There are no separate events for step status changes: every step status follows from the events above.

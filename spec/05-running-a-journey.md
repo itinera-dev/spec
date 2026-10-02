@@ -86,12 +86,12 @@ The diagram shows these transitions:
 
    | Abort reason | When | Defined in |
    |---|---|---|
-   | `step could not be built` | a step's constructor failed, or an input adapter failed while building the step or resolving one of its step hooks' requests | chapters 4 and 6 |
+   | `step could not be built` | a step's constructor, or an input adapter resolving one of its inputs, failed | chapter 4 |
    | `required data missing` | a required request has no value | chapters 4 and 6 |
    | `wrong type` | a requested value has the wrong type | chapters 4 and 6 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |
    | `invalid configuration` | an error in how the workflow is put together was found only when the journey ran; carries every violation | chapter 3 |
-   | `hook threw` | a hook threw or panicked | chapter 6 |
+   | `hook threw` | a hook threw or panicked, or an input adapter failed while resolving a hook's request | chapter 6 |
    | `reporter threw` | a reporter threw or panicked | chapter 2 |
 
    The first five are configuration errors. `hook threw` and `reporter threw` are faults while running, with the same rules for the event stream.

@@ -68,7 +68,7 @@ After each attempt's outcome, the executor MUST call:
 3. **Data from the workflow**, exactly as steps request it: by key and type, required or optional, with the rules of chapter 4 for missing values and wrong types.
    - A step hook's request MUST be resolved as an input of the step it acts on would be: through the workflow's input adapter for that step and key if there is one, otherwise from the data bag.
    - A workflow hook's request MUST be resolved from the data bag.
-   - An input adapter is part of building the step it serves, so one that fails while resolving a step hook's request MUST abort the journey with the abort reason `step could not be built`. A workflow hook's requests use no input adapter.
+   - An input adapter that fails while resolving a step hook's request MUST abort the journey with the abort reason `hook threw`: the step has already run, and it is the hook that could not run. `input_adapter_failed` carries the policy and hook as well as the step and key, and `journey_aborted` names the policy, the hook and the key being resolved, so the stream says the hook failed while resolving that data. A workflow hook's requests use no input adapter.
 4. **Everything a hook requests is resolved before it runs.** If resolving a request aborts the journey, the hook does not run: it emits no event and has no `hook_called`.
 5. A hook MUST NOT be given the data bag itself.
 6. **Received data is read-only.** Everything a hook receives (data from the step, data from the workflow, a reason, an error, the journey ID) is read-only for it. Changing it, where the language allows it at all, MUST NOT change the data bag, any contribution, or what any other step or hook receives.
