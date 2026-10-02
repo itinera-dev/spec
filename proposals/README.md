@@ -5,10 +5,10 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 ## Accepted
 
 - [0002: Foundations](0002-foundations.md) (tier 1): step isolation, declarative workflows, policies and data flow. Accepted in [#18](https://github.com/itinera-dev/spec/pull/18).
+- [0008: Steps](0008-steps.md) (tier 1): building, outcomes (success, failure retriable or not, skipped), contributions and identity. Accepted in [#23](https://github.com/itinera-dev/spec/pull/23).
 
 ## Under evaluation
 
-- [#8](https://github.com/itinera-dev/spec/issues/8): steps (tier 1).
 - [#9](https://github.com/itinera-dev/spec/issues/9): running a workflow (tier 1).
 - [#10](https://github.com/itinera-dev/spec/issues/10): hooks and lifecycles (tier 1).
 - [#11](https://github.com/itinera-dev/spec/issues/11): events (tier 1).
