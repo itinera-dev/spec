@@ -65,7 +65,7 @@ In this organisation, **"the specification"** or **"spec"** on its own means the
 
    The maintainer also adds the `tier: N` label the proposal belongs to.
 3. **Evaluated.** A maintainer asks Claude, manually, to evaluate the proposal. The label becomes `status: evaluating`. Claude posts one comment grouping its questions, concerns and conflicts with the existing specification, each with a recommendation.
-4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. This is the only time the body is rewritten.
+4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. While the proposal is open, the agreed design **may be revised** as decisions change: each revision updates the date line at the top of the body (for example "amended the same day: the Skipped outcome") and is announced by a short comment saying what changed, so the history reads without the edit history. The original proposal at the end of the body is never changed.
 5. **Ready.** A maintainer sets `status: ready`.
 6. **Specified, with its cases.** Two pull requests are opened together and reviewed together:
    - in `conformance`, the proposal's **cases**, closing the conformance issue "Cases for spec#NNNN" (opened at this point if it does not exist yet);
@@ -134,8 +134,15 @@ A pull request only ever closes issues in its own repository. To mention an issu
 
 An accepted proposal, its issue and its file never change. To change what it decided:
 
-1. Open a new proposal issue that says what it changes: "Amends #NNNN" for a partial change, or "Replaces #NNNN" when it supersedes the whole proposal. It goes through the full process.
-2. When the new proposal is accepted, the behaviour specification chapters are updated, and the old proposal file gains one line, "Amended by #MMMM" or "Replaced by #MMMM". That line is the only edit ever made to an accepted proposal file.
+1. Open a new proposal issue whose title starts with what it changes: "Amends #NNNN" for a partial change, or "Replaces #NNNN" when it supersedes the whole proposal. Label it `amends: NNNN` (created the first time proposal NNNN is amended). It goes through the full process.
+2. Its proposal file says "Amends: NNNN" (or "Replaces: NNNN") in its header.
+3. When the new proposal is accepted, the behaviour specification chapters are updated, and the old proposal file gains one line, "Amended by #MMMM" or "Replaced by #MMMM". That line is the only edit ever made to an accepted proposal file.
+
+### Finding everything that happened to a proposal
+
+1. **The proposal file**, `proposals/NNNN-*.md`: what was decided, and its "Amended by" or "Replaced by" lines, for amendments already accepted.
+2. **The issues labelled `amends: NNNN`**, open or closed: every amendment, including those still under evaluation.
+3. **The behaviour specification chapters**: how Itinera behaves now, with every accepted amendment applied.
 
 Wording that is wrong or unclear in a chapter, without changing behaviour, is a `spec defect` issue, not a new proposal.
 
@@ -200,6 +207,7 @@ Conformance cases are data, not code. Each case contains a workflow, scripted st
 - `status: triage`, `status: planned`, `status: evaluating`, `status: ready`, `status: declined`, `status: postponed`: where a proposal is in its life.
 - `tier: 1` to `tier: 4`: the tier a proposal, implementation issue or conformance issue belongs to. More are added as tiers are planned.
 - `implements-proposal`: in language and conformance repositories, an issue that implements an accepted proposal.
+- `amends: NNNN`: a proposal that amends or replaces accepted proposal NNNN.
 - `waiting for spec`: an implementation issue opened before its proposal is accepted. In language repositories, no pull request until the label is removed; in `conformance`, the cases may be merged once the proposal is `status: ready`.
 
 ## Changing this process
