@@ -158,7 +158,11 @@ What to refer to afterwards:
 
 The chapters under [spec/](spec/) are the behaviour specification, written from accepted proposals. Chapter 1, Concepts, is the chapter to read first and the single source of the vocabulary.
 
-The specification has a version, for example 0.1. A version is cut when a set of accepted proposals has been written into the chapters.
+The specification has a version, for example 0.1. A version is a set of chapters together with the conformance cases that check them.
+
+1. **Written:** the accepted proposals of the version are written into the chapters, in one pull request reviewed by a maintainer.
+2. **Proven:** the version is tagged, for example `spec-v0.1`, in this repository and in `conformance`, only when a first implementation passes every case of the version. Until then the chapters may still be corrected through `spec defect` issues without a new version, and an implementation pins a pre-release, such as `v0.1.0-rc.1`.
+3. **Fixed:** once tagged, a version's chapters and cases never change. A later change, including adding to a tier, makes a new version, so existing claims stay true.
 
 ## Tiers and capabilities
 

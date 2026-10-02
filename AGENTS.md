@@ -18,20 +18,10 @@ This repository contains documents only: no code and no build.
 
 ## Vocabulary
 
-Use these words exactly. They were agreed and are not synonyms. When chapter 1, `spec/01-concepts.md`, is written, it becomes the single source of these definitions and this list is replaced by a link to it. This list defines words only; what each thing does, and what it may return, is defined by accepted proposals and the chapters under [spec/](spec/).
+Use the words defined in chapter 1 of the specification, [spec/01-concepts.md](spec/01-concepts.md), exactly as defined there. That chapter is the single source of the vocabulary; the words are agreed and are not synonyms. Three terms belong to this process rather than to the specification:
 
-- **Workflow:** the plan, an ordered list of steps plus policies.
-- **Step:** a business unit, uniquely named within its workflow.
-- **Hook:** a policy the executor calls. Step hooks are called in response to a step's outcome; workflow hooks are called by the executor managing the workflow or journey.
-- **Lifecycle:** what a hook may return to tell the executor what to do next.
-- **Executor:** runs workflows and carries out lifecycles.
-- **Journey:** one end-to-end execution, including every switch and transfer.
-- **Run:** one workflow executed within a journey.
-- **Data bag:** the untyped store of a run's data.
-- **Adapter:** maps data between the bag and what a step or hook asks for.
-- **Tier:** a cumulative level of meaning. **Capability:** an independent property of an executor or language.
 - **Proposal:** the PRD of a feature: why it exists and what is wanted.
-- **Behaviour specification**, or **the specification:** what every implementation must do, in observable terms.
+- **Behaviour specification**, or **the specification:** what every implementation must do, in observable terms: the chapters under [spec/](spec/).
 - **Tech spec:** how one language implements a proposal. Lives in that language's repository.
 
 ## Hard rules
