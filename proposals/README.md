@@ -6,11 +6,11 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 
 - [0002: Foundations](0002-foundations.md) (tier 1): step isolation, declarative workflows, policies and data flow. Accepted in [#18](https://github.com/itinera-dev/spec/pull/18).
 - [0008: Steps](0008-steps.md) (tier 1): building, outcomes (success, failure retriable or not, skipped), contributions and identity. Accepted in [#23](https://github.com/itinera-dev/spec/pull/23).
+- [0009: Running a workflow](0009-running-a-workflow.md) (tier 1): the workflow instance, journey IDs, step descriptors, the scan, retries and the result. Accepted in [#26](https://github.com/itinera-dev/spec/pull/26).
 - [0024: Abnormal terminations are retried only when the step allows it](0024-abnormal-termination-retriable.md) (tier 1, amends 0008). Accepted in [#25](https://github.com/itinera-dev/spec/pull/25).
 
 ## Under evaluation
 
-- [#9](https://github.com/itinera-dev/spec/issues/9): running a workflow (tier 1).
 - [#10](https://github.com/itinera-dev/spec/issues/10): hooks and lifecycles (tier 1).
 - [#11](https://github.com/itinera-dev/spec/issues/11): events (tier 1).
 - [#12](https://github.com/itinera-dev/spec/issues/12): the local executor (tier 1).
