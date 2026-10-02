@@ -44,16 +44,16 @@ The `spec` repository never holds anything specific to one language. When a prop
 
 When nothing is open:
 
-1. Rewrite the issue body as the agreed design: the complete design, written so that the proposal file can be produced from it alone, with every answered question folded in. Open it with the line "Agreed design as of YYYY-MM-DD. The original proposal is kept at the end." and keep the previous body, unchanged, at the end under the heading "Original proposal". If the previous body was already an agreed design, keep only its "Original proposal" section.
+1. Rewrite the issue body as the agreed design: the complete design, written so that the proposal file can be produced from it alone, with every answered question folded in. Open it with the line "Agreed design as of YYYY-MM-DD. Proposed by @name; the original text is in this issue's edit history." Do not keep the original text in the body: two designs in one body conflict, and the edit history keeps it.
 2. Post a short comment headed "Claude summary" saying the body now holds the agreed design, and that the proposal is ready for a maintainer to set `status: ready`. Do not set that label.
 3. Hide earlier evaluation and summary comments that the agreed design replaces, as outdated: `gh api graphql -f query='mutation{minimizeComment(input:{subjectId:"<node id>",classifier:OUTDATED}){minimizedComment{isMinimized}}}'`. Never hide the maintainer's comments.
 
 ### Revising an agreed design
 
-While the proposal is open, decisions may change after the agreed design was written. For each revision:
+While the proposal is open, decisions may change after the agreed design was written. The body must always be the single, current source of truth, because agents read it:
 
-1. Update the agreed design in the body, and its first line: "Agreed design as of YYYY-MM-DD, amended YYYY-MM-DD (what changed)." Never change the "Original proposal" section.
-2. Post a short comment headed "Claude summary" listing what changed in this revision.
+1. Edit the agreed design in the body directly. Do not add revision notes to it, and leave its first line unchanged.
+2. Do not post "what changed" comments. Hide as outdated any comment that the new design supersedes.
 3. Update the conformance checklist ("Cases for spec#NNNN") to match.
 
 Never rewrite the body of a closed issue: once a proposal is accepted, its issue is frozen.
@@ -98,7 +98,7 @@ Before evaluating a proposal that touches an accepted one, or when asked about a
 1. Read `proposals/NNNN-*.md`, including its "Amended by" and "Replaced by" lines.
 2. List every amendment, open or closed: `gh issue list -R itinera-dev/spec --state all --label "amends: NNNN"`.
 3. Read the behaviour specification chapters for the current behaviour, once they exist.
-4. For an open proposal, read the "Claude summary" comments, which list each revision of its agreed design.
+4. For an open proposal, read its issue body: it always holds the current agreed design. Ignore comments hidden as outdated.
 
 ## Opening implementation issues for a language
 

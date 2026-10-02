@@ -65,7 +65,7 @@ In this organisation, **"the specification"** or **"spec"** on its own means the
 
    The maintainer also adds the `tier: N` label the proposal belongs to.
 3. **Evaluated.** A maintainer asks Claude, manually, to evaluate the proposal. The label becomes `status: evaluating`. Claude posts one comment grouping its questions, concerns and conflicts with the existing specification, each with a recommendation.
-4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed, and the original proposal is kept unchanged at the end of the body under the heading "Original proposal". A short summary comment points to the updated body. While the proposal is open, the agreed design **may be revised** as decisions change: each revision updates the date line at the top of the body (for example "amended the same day: the Skipped outcome") and is announced by a short comment saying what changed, so the history reads without the edit history. The original proposal at the end of the body is never changed.
+4. **Discussed.** Answers and follow-up questions go back and forth in the issue thread until nothing is open. Points specific to one language are moved to that language's implementation issue, opened early if needed (see "Implementation issues opened early" below), and the proposal keeps only a link. When nothing is open, the issue body is rewritten as the **agreed design**, opening with the date it was agreed and a line crediting who proposed it ("Proposed by @name; the original text is in this issue's edit history"). The original text is not kept in the body: GitHub's edit history keeps every earlier version. A short summary comment points to the updated body. While the proposal is open, the agreed design **is edited directly** whenever a decision changes, so the body always states the current design and nothing else. No revision notes are added to the body and no "what changed" comments are posted: the body is the single source of truth, and comments it supersedes are hidden as outdated, so whoever reads the issue, most often an agent, never has to reconcile conflicting versions.
 5. **Ready.** A maintainer sets `status: ready`.
 6. **Specified, with its cases.** Two pull requests are opened together and reviewed together:
    - in `conformance`, the proposal's **cases**, closing the conformance issue "Cases for spec#NNNN" (opened at this point if it does not exist yet);
@@ -143,6 +143,8 @@ An accepted proposal, its issue and its file never change. To change what it dec
 1. **The proposal file**, `proposals/NNNN-*.md`: what was decided, and its "Amended by" or "Replaced by" lines, for amendments already accepted.
 2. **The issues labelled `amends: NNNN`**, open or closed: every amendment, including those still under evaluation.
 3. **The behaviour specification chapters**: how Itinera behaves now, with every accepted amendment applied.
+
+For a proposal that is still open, its issue body is all there is to read: it always holds the current agreed design.
 
 Wording that is wrong or unclear in a chapter, without changing behaviour, is a `spec defect` issue, not a new proposal.
 
