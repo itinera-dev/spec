@@ -10,7 +10,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0010: Hooks, lifecycles and workflow roles](0010-hooks-lifecycles-and-roles.md) (tier 1): the order of hooks, the lifecycles they return, what they read and write, and workflow roles. Accepted in [#31](https://github.com/itinera-dev/spec/pull/31).
 - [0024: Abnormal terminations are retried only when the step allows it](0024-abnormal-termination-retriable.md) (tier 1, amends 0008). Accepted in [#25](https://github.com/itinera-dev/spec/pull/25).
 - [0027: Data a step or hook receives is read-only](0027-received-data-read-only.md) (tier 1, amends 0002). Accepted in [#30](https://github.com/itinera-dev/spec/pull/30).
-- [0032: Configuration errors found while running](0032-configuration-errors.md) (tier 1, amends 0009). Accepted in [#PR](PRLINK).
+- [0032: Configuration errors found while running](0032-configuration-errors.md) (tier 1, amends 0009). Accepted in [#35](https://github.com/itinera-dev/spec/pull/35).
 
 ## Under evaluation
 
