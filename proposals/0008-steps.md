@@ -2,6 +2,7 @@
 
 - Issue: [#8](https://github.com/itinera-dev/spec/issues/8)
 - Tier: 1
+- Amended by [#24](https://github.com/itinera-dev/spec/issues/24): abnormal terminations are retried only when the step allows it.
 
 ## Summary
 
