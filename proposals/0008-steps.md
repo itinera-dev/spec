@@ -57,10 +57,14 @@ A step is where business rules live. For flow control to stay out of it, the ste
 18. **Overwriting the data bag.** A committed contribution MAY replace a key already in the data bag. The last committed value wins, and an event MUST record the overwrite.
 19. **Values.** A contribution MAY be any value the language can hold. A value of the wrong type is detected when it is read, which aborts the journey (proposal 0002).
 
+### Time
+
+20. **The executor never interrupts a running step.** It does not cancel futures, stop threads or impose time limits on a step while it runs. A step handles its own time limits, for example a timeout on a call it makes, and reports a failure, retriable or not, when it runs out of time.
+
 ### Identity and execution mode
 
-20. **Names.** A step's name is a non-empty, case-sensitive string, unique within its workflow. A workflow with two steps of the same name MUST be refused at admission.
-21. **Execution mode.** A step is either synchronous or asynchronous; which executors accept which mode is defined by the local executor proposal.
+21. **Names.** A step's name is a non-empty, case-sensitive string, unique within its workflow. A workflow with two steps of the same name MUST be refused at admission.
+22. **Execution mode.** A step is either synchronous or asynchronous; which executors accept which mode is defined by the local executor proposal.
 
 ## Events
 
@@ -99,11 +103,11 @@ The cases are in [itinera-dev/conformance](https://github.com/itinera-dev/confor
 - **A failure retriable by default.** Rejected: a forgotten flag would cause retry loops; with "not retriable" as the default, it causes a clear failure.
 - **A hook reacting to skipped steps.** Rejected: a step that decides to skip leaves the flow.
 - **Treating a step that cannot be built as an abnormal termination of the attempt.** Rejected: a step that cannot be built makes the run unsafe, so the journey is aborted.
-- **Timeouts in tier 1.** Deferred: a synchronous step cannot be interrupted in most languages, so timeouts need their own rules.
+- **Timeouts enforced by the executor.** Rejected: Itinera's executor is not a low-level runtime that cancels futures or kills threads. A step owns its time limits and reports a failure when they are exceeded.
 
 ## Open questions
 
-- Timeouts, for synchronous and asynchronous steps.
+- A measured time limit, in a later tier: after a step returns, the executor compares how long it took with an allowed duration and fails the step or the workflow if it was exceeded. It never interrupts the step.
 - The Pending outcome, with durable runs.
-- A hook that runs before a step and may decide it does not run; it would have to change the rule that hooks cannot skip steps, and record such skips as decided by policy.
+- A hook that runs before a step and may decide it does not run, in a later tier; it would have to change the rule that hooks cannot skip steps, and record such skips as decided by policy.
 - Declaring each step's set of failure codes in advance.
