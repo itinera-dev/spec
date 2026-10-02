@@ -2,6 +2,7 @@
 
 - Issue: [#12](https://github.com/itinera-dev/spec/issues/12)
 - Tier: 1
+- Amended by [#42](https://github.com/itinera-dev/spec/issues/42): configuration errors are caught before a journey starts.
 
 ## Summary
 
