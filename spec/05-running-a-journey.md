@@ -86,7 +86,7 @@ The diagram shows these transitions:
 
    | Abort reason | When | Defined in |
    |---|---|---|
-   | `step could not be built` | a step's constructor or an input adapter failed | chapter 4 |
+   | `step could not be built` | a step's constructor failed, or an input adapter failed while building the step or resolving one of its step hooks' requests | chapters 4 and 6 |
    | `required data missing` | a required request has no value | chapters 4 and 6 |
    | `wrong type` | a requested value has the wrong type | chapters 4 and 6 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |

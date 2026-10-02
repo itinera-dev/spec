@@ -17,7 +17,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 
 1. **Built on demand, once per attempt.** An implementation MUST build a fresh step for every attempt. Nothing MUST carry over from one attempt to the next.
 2. **Declared inputs.** A step declares each input by a **key**, local to the step, a **type**, and whether it is **required** or **optional**.
-3. **Resolving an input.** Each input is resolved outside the step, when the step is built:
+3. **Resolving an input.** Resolving inputs is part of building the step: every input is resolved, outside the step, before the step is created, so a built step has all its inputs. For each input:
    1. If the workflow declares an input adapter for this step and key, the adapter receives the step's name and the key. It MAY obtain the data from anywhere, and MUST either return the value in the requested type or report that it has no value. When it returns a value, `input_adapter_supplied` is emitted; when it fails, `input_adapter_failed`.
    2. Otherwise the value MUST be read from the data bag under the key.
 4. **No value.** When no value can be supplied, because the adapter reports none or the data bag has no such key:
