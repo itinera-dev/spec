@@ -3,6 +3,7 @@
 - Issue: [#32](https://github.com/itinera-dev/spec/issues/32)
 - Tier: 1
 - Amends: [0009: Running a workflow](0009-running-a-workflow.md)
+- Amended by [#42](https://github.com/itinera-dev/spec/issues/42): configuration errors are caught before a journey starts.
 
 ## Summary
 

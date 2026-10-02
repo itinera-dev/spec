@@ -2,6 +2,7 @@
 
 - Issue: [#10](https://github.com/itinera-dev/spec/issues/10)
 - Tier: 1
+- Amended by [#41](https://github.com/itinera-dev/spec/issues/41): hooks read data from the workflow without input adapters.
 
 ## Summary
 
