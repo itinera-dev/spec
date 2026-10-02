@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -73,8 +73,8 @@ The diagram shows these transitions:
 ## 5.6 Attempts and retries
 
 1. **Attempts are counted from 1.** The first execution of a step is attempt 1. A step with a retry budget of N MUST be attempted at most N + 1 times.
-2. **What is retried.** A retriable failure, or an abnormal termination when the step descriptor sets `abnormal termination retriable`, MUST put the step in `MustRetry` while its retry budget allows another attempt. Both use the same budget.
-3. **When the budget is exhausted**, the step becomes `Failed`, and its failure hook is called with the cause `retries exhausted`.
+2. **What is retried.** A retriable failure, or an abnormal termination when the step descriptor sets `abnormal termination retriable`, MUST put the step in `MustRetry` while its retry budget allows another attempt. Both use the same budget. The decision is recorded by `step_retrying` (chapter 2).
+3. **When the budget is exhausted**, the step becomes `Failed`, and its failure hook is called with the cause `retries exhausted`. Whenever a step becomes `Failed`, the decision is recorded by `step_given_up`, with its cause (chapter 2).
 4. **What is not retried.** A failure that is not retriable makes the step `Failed` at once, with the cause `failure`. An abnormal termination that is not retriable makes the step `Failed` at once, with the cause `abnormal termination`.
 5. **A retry happens immediately.** The executor MUST NOT wait between attempts. A step that needs to wait before reporting a failure does so itself.
 
@@ -90,11 +90,10 @@ The diagram shows these transitions:
    | `required data missing` | a required request has no value | chapters 4 and 6 |
    | `wrong type` | a requested value has the wrong type | chapters 4 and 6 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |
-   | `invalid configuration` | an error in how the workflow is put together was found only when the journey ran; carries every violation | chapter 3 |
-   | `hook threw` | a hook threw or panicked, or an input adapter failed while resolving a hook's request | chapter 6 |
+   | `hook threw` | a hook threw or panicked | chapter 6 |
    | `reporter threw` | a reporter threw or panicked | chapter 2 |
 
-   The first five are configuration errors. `hook threw` and `reporter threw` are faults while running, with the same rules for the event stream.
+   The first four are configuration errors that can only show up during a journey. `hook threw` and `reporter threw` are faults while running, with the same rules for the event stream.
 
 ## 5.8 The result
 
@@ -109,7 +108,7 @@ The diagram shows these transitions:
 
 1. **Executors differ in capability, never in meaning.** A lifecycle, an outcome, a status or an event MUST mean the same under every executor.
 2. **The local executor** runs a journey in process, with no persistence: a journey lives only as long as the call that runs it.
-3. **`run(workflow instance)`** MUST run exactly one journey and return its result. It MUST NOT throw for anything that happens inside the journey: failures and aborts are in the result. An asynchronous executor returns the same result asynchronously. A configuration error caught when the workflow is built (chapter 3) is reported to the developer instead, with no journey.
+3. **`run(workflow instance)`** MUST run exactly one journey and return its result. It MUST NOT throw for anything that happens inside the journey: failures and aborts are in the result. An asynchronous executor returns the same result asynchronously. A workflow refused at admission (chapter 3), when it is built or because the executor does not accept a mode, is reported to the developer as a refusal instead: no journey, no journey ID and no event.
 4. **Stateless between journeys.** When `run` returns, nothing of that journey MUST remain in the executor: no data, no statuses, no reporters. An executor MAY run many journeys, one after another.
 5. **One journey at a time.** An executor MUST NOT run two journeys concurrently. A call to `run` while another journey is running on the same executor MUST be refused before anything starts, with no journey and no events. Implementations SHOULD make this impossible to write where their language allows it. Parallelism comes from creating several executors.
 6. **One dispatcher per journey**, as chapter 2 defines.
@@ -117,9 +116,9 @@ The diagram shows these transitions:
 ## 5.10 Execution modes
 
 1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks and reporters alike.
-2. Anything in a mode the executor does not accept is a configuration error, the violation `mode not accepted` (chapter 3).
+2. Anything in a mode the executor does not accept is the violation `mode not accepted`, refused at admission when the instance is handed to `run`, before the journey starts (chapter 3).
 3. Whether an asynchronous executor also accepts synchronous steps, hooks and reporters is each language's choice, stated as a capability.
-4. A language claims its capabilities alongside its tier, and its conformance runner runs the cases tagged with them.
+4. A language claims its capabilities, the modes its executors accept, alongside its tier, and its conformance runner runs the cases tagged with them.
 
 ## 5.11 Checked by
 

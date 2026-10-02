@@ -42,7 +42,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 
 ## 4.4 Abnormal termination
 
-1. If a built step lets an error, an exception or a panic escape while running, the attempt MUST end with an **abnormal termination**, and `abnormal_termination` is emitted. The error is all the hooks receive about it.
+1. If a built step lets an error, an exception or a panic escape while running, the attempt MUST end with an **abnormal termination**, and `step_abnormal_termination` is emitted. The error is all the hooks receive about it.
 2. Whether it is retried depends on the step descriptor's `abnormal termination retriable` setting (chapter 5). By default it is not: an error the step did not anticipate may already have had side effects.
 3. An abnormal termination MUST NOT abort the journey. It always ends as a failure of the step, at once or after its retries.
 4. An abnormal termination carries no contributions.

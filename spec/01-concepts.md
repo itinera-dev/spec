@@ -1,6 +1,6 @@
 # 1. Concepts
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md), with their amendments [0040](../proposals/0040-events-facts-and-decisions.md), [0041](../proposals/0041-hook-data-from-the-data-bag.md) and [0042](../proposals/0042-configuration-errors-before-the-journey.md).
 
 This chapter is the single source of Itinera's vocabulary. Every other chapter, every proposal and every implementation uses these words with these meanings; they are not synonyms of each other. This chapter defines what each thing is and how the things relate. What each one does, exactly, is defined by the chapters that follow.
 
@@ -53,6 +53,7 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 ## 1.6 Events
 
 - **Event:** a record of something that happened in a journey, with fixed fields. **Engine events** are emitted by the executor; steps emit `step_*` events and hooks emit `journey_*` events.
+- **Fact** and **decision:** the two kinds of engine event. A fact records something that happened; a decision records what the executor decided to do next, such as retrying a step or failing the journey, and who decided it.
 - **Event stream:** every event of one journey, in order. It is never rolled back or rewritten. It is how a journey is observed, and how conformance judges implementations.
 - **Reporter:** receives events, one at a time, and decides on its own what to do with them. The workflow lists its reporters; a step receives a **step reporter** to emit its own events.
 - **Dispatcher:** owned by the executor; holds reporters and delivers each event to them.
@@ -61,12 +62,12 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 
 - **Configuration error:** anything wrong with how a workflow is put together or supplied, which its author is responsible for.
 - **Violation:** one configuration error, by name, such as `duplicate step name`.
-- **Admission:** checking a workflow's configuration before anything runs. It happens when the workflow is built where the language can do it, and otherwise when the journey runs.
+- **Admission:** checking how a workflow is put together before any journey: when the workflow is built, and, for what depends on the executor, when the instance is handed to it. A workflow refused at admission has no journey and no events.
 
 ## 1.8 Tiers and capabilities
 
 - **Tier:** a cumulative level of meaning. Tier 1 is a single workflow; each later tier includes everything before it. The contents of a tier are fixed for a given version of this specification.
-- **Capability:** an independent property of an executor or a language: in tier 1, the execution modes `sync` and `async`, and exactly one of `build-time-configuration-check` or `run-time-configuration-check`.
+- **Capability:** an independent property of an executor or a language: in tier 1, the execution modes `sync` and `async` an executor accepts.
 - **Execution mode:** whether a step, hook or reporter is synchronous or asynchronous.
 
 ## 1.9 How the concepts fit together
