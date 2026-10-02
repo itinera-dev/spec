@@ -15,6 +15,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0032: Configuration errors found while running](0032-configuration-errors.md) (tier 1, amends 0009). Accepted in [#35](https://github.com/itinera-dev/spec/pull/35).
 - [0040: Events record facts and decisions](0040-events-facts-and-decisions.md) (tier 1, amends 0011). Accepted in [#43](https://github.com/itinera-dev/spec/pull/43).
 - [0041: Hooks read data from the workflow without input adapters](0041-hook-data-from-the-data-bag.md) (tier 1, amends 0010). Accepted in [#44](https://github.com/itinera-dev/spec/pull/44).
+- [0042: Configuration errors are caught before a journey starts](0042-configuration-errors-before-the-journey.md) (tier 1, amends 0032 and 0012). Accepted in [#45](https://github.com/itinera-dev/spec/pull/45).
 
 ## Under evaluation
 
