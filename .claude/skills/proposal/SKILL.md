@@ -48,6 +48,14 @@ When nothing is open:
 2. Post a short comment headed "Claude summary" saying the body now holds the agreed design, and that the proposal is ready for a maintainer to set `status: ready`. Do not set that label.
 3. Hide earlier evaluation and summary comments that the agreed design replaces, as outdated: `gh api graphql -f query='mutation{minimizeComment(input:{subjectId:"<node id>",classifier:OUTDATED}){minimizedComment{isMinimized}}}'`. Never hide the maintainer's comments.
 
+### Revising an agreed design
+
+While the proposal is open, decisions may change after the agreed design was written. For each revision:
+
+1. Update the agreed design in the body, and its first line: "Agreed design as of YYYY-MM-DD, amended YYYY-MM-DD (what changed)." Never change the "Original proposal" section.
+2. Post a short comment headed "Claude summary" listing what changed in this revision.
+3. Update the conformance checklist ("Cases for spec#NNNN") to match.
+
 Never rewrite the body of a closed issue: once a proposal is accepted, its issue is frozen.
 
 ## Writing the proposal and its cases
@@ -76,7 +84,21 @@ In any repository, never use "Closes", "Fixes" or "Resolves" with another reposi
 
 ## Changing an accepted proposal
 
-Never edit an accepted proposal's issue or file. A change is a new proposal whose body says "Amends #NNNN" or "Replaces #NNNN". When that new proposal is accepted, its pull request also adds one line to the old proposal file, "Amended by #MMMM" or "Replaced by #MMMM", and nothing else.
+Never edit an accepted proposal's issue or file. A change is a new proposal:
+
+1. Its title starts with "Amends #NNNN" or "Replaces #NNNN".
+2. Label it `amends: NNNN`, creating the label if this is the first amendment of NNNN: `gh label create "amends: NNNN" -R itinera-dev/spec --color C5DEF5 --description "Amends accepted proposal NNNN"`.
+3. Open its conformance issue "Cases for spec#MMMM", listing which existing cases change.
+4. Its proposal file says "Amends: NNNN" in its header. When it is accepted, its pull request also adds one line to the old proposal file, "Amended by #MMMM" or "Replaced by #MMMM", and nothing else.
+
+## Finding what happened to a proposal
+
+Before evaluating a proposal that touches an accepted one, or when asked about a proposal's history:
+
+1. Read `proposals/NNNN-*.md`, including its "Amended by" and "Replaced by" lines.
+2. List every amendment, open or closed: `gh issue list -R itinera-dev/spec --state all --label "amends: NNNN"`.
+3. Read the behaviour specification chapters for the current behaviour, once they exist.
+4. For an open proposal, read the "Claude summary" comments, which list each revision of its agreed design.
 
 ## Opening implementation issues for a language
 
