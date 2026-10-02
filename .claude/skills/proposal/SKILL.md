@@ -50,18 +50,27 @@ When nothing is open:
 
 Never rewrite the body of a closed issue: once a proposal is accepted, its issue is frozen.
 
-## Writing the proposal pull request
+## Writing the proposal and its cases
 
-Only for an issue labelled `status: ready`.
+Only for an issue labelled `status: ready`. The proposal and its conformance cases are written and reviewed together; the cases are merged first.
+
+### The cases, in itinera-dev/conformance
+
+1. Find the conformance issue "Cases for spec#NNNN" (`gh issue list -R itinera-dev/conformance --search "Cases for spec#NNNN in:title" --state all`). If there is none, open it with the checklist from the proposal's Conformance section, labelled `implements-proposal`, `tier: N` and `waiting for spec`.
+2. Branch from `main` in `conformance`: `cases/NNNN-short-name`. Write the scenarios under `cases/tier-N/NNNN-short-name/` following `FORMAT.md`, adding to `STEPS.md` every sentence they need, with its exact meaning.
+3. If a scenario cannot be written because the agreed design does not say what happens, stop and raise it in the spec issue: it is a gap in the proposal, to be settled before acceptance.
+4. Open the pull request with "Closes #M" for the conformance issue. It may be merged once the proposal is `status: ready`; merging it is the maintainer's decision.
+
+### The proposal file, in itinera-dev/spec
 
 1. Branch from `main`: `proposal/NNNN-short-name`.
 2. Create `proposals/NNNN-short-name.md` from [TEMPLATE.md](../../../proposals/TEMPLATE.md), written from the agreed design in the issue body. If review of the pull request changes the design, update the issue body and the file together. Use RFC 2119 key words. Do not write an acceptance date in the file: the acceptance date is the merge date.
 3. Update `proposals/README.md`: move the proposal from "Under evaluation" to "Accepted", ending its line with "Accepted in [#PR](link to this pull request)." (open the pull request first to know its number, then push the index change).
 4. Update chapters under `spec/` if the maintainer asked for it in the same pull request; otherwise say in the description that a follow-up will.
-5. Open the pull request with "Closes #NNNN" in its description. Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue.
+5. Open the pull request with "Closes #NNNN" in its description, and mention the cases pull request with "Refs itinera-dev/conformance#M". Do not merge it; merging is the maintainer's acceptance, and GitHub then closes the issue. The `pr-has-issue` check refuses it until the cases are merged.
 6. Nothing to do after the merge: the `proposal-accepted` action closes and locks the issue. If it did not (check with `gh issue view NNNN -R itinera-dev/spec --json state,locked`), tell the maintainer rather than fixing it silently.
 
-Every pull request Claude opens, in any repository, says "Closes #N" for an open issue in the same repository; if there is none, ask the maintainer whether to open one. In `spec`, that issue is labelled `process`, `spec defect` or `proposal` (`proposal` and `status: ready` for a proposal file); the `pr-has-issue` check enforces it.
+Every pull request Claude opens, in any repository, names an open issue in the same repository: "Closes #N" when it finishes it, "Refs #N" when it only contributes. If there is none, ask the maintainer whether to open one. In `spec`, that issue is labelled `process`, `spec defect` or `proposal` (`proposal` and `status: ready` for a proposal file); the `pr-has-issue` check enforces it. Work is merged trunk-based, in small pull requests to `main`; when a change is too large for one, make a stack with `gh stack`, each layer saying `Refs #N` and the last `Closes #N`.
 
 In any repository, never use "Closes", "Fixes" or "Resolves" with another repository's issue; write "Refs itinera-dev/<repo>#NNNN". The `no-cross-repo-closing` check fails pull requests that do.
 
