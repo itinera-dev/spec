@@ -50,10 +50,10 @@ When nothing is open:
 
 ### Revising an agreed design
 
-While the proposal is open, decisions may change after the agreed design was written. For each revision:
+While the proposal is open, decisions may change after the agreed design was written. The body must always be the single, current source of truth, because agents read it:
 
-1. Update the agreed design in the body, and its first line: "Agreed design as of YYYY-MM-DD, amended YYYY-MM-DD (what changed)." Never change the "Original proposal" section.
-2. Post a short comment headed "Claude summary" listing what changed in this revision.
+1. Edit the agreed design in the body directly. Do not add revision notes to it, and leave its first line as "Agreed design as of YYYY-MM-DD. The original proposal is kept at the end." Never change the "Original proposal" section.
+2. Do not post "what changed" comments. Hide as outdated any comment that the new design supersedes.
 3. Update the conformance checklist ("Cases for spec#NNNN") to match.
 
 Never rewrite the body of a closed issue: once a proposal is accepted, its issue is frozen.
@@ -98,7 +98,7 @@ Before evaluating a proposal that touches an accepted one, or when asked about a
 1. Read `proposals/NNNN-*.md`, including its "Amended by" and "Replaced by" lines.
 2. List every amendment, open or closed: `gh issue list -R itinera-dev/spec --state all --label "amends: NNNN"`.
 3. Read the behaviour specification chapters for the current behaviour, once they exist.
-4. For an open proposal, read the "Claude summary" comments, which list each revision of its agreed design.
+4. For an open proposal, read its issue body: it always holds the current agreed design. Ignore comments hidden as outdated.
 
 ## Opening implementation issues for a language
 
