@@ -25,7 +25,7 @@ Two more rules:
 
 ## Start here
 
-Read [spec/01-concepts.md](spec/01-concepts.md) first: what steps, workflows, hooks, lifecycles, executors, journeys and runs are, and how they fit together. That chapter is written from the core model proposal; until it exists, read [#2](https://github.com/itinera-dev/spec/issues/2).
+Read [spec/01-concepts.md](spec/01-concepts.md) first: what steps, workflows, hooks, lifecycles, executors, journeys and runs are, and how they fit together. The other chapters of the specification are listed in [spec/README.md](spec/README.md).
 
 ## What is here
 
