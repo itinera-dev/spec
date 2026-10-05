@@ -3,6 +3,7 @@
 - Issue: [#9](https://github.com/itinera-dev/spec/issues/9)
 - Tier: 1
 - Amended by [#32](https://github.com/itinera-dev/spec/issues/32): configuration errors found while running.
+- Amended by [#49](https://github.com/itinera-dev/spec/issues/49): custom code that throws.
 
 ## Summary
 

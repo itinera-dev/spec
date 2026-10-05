@@ -3,6 +3,7 @@
 - Issue: [#11](https://github.com/itinera-dev/spec/issues/11)
 - Tier: 1
 - Amended by [#40](https://github.com/itinera-dev/spec/issues/40): events record facts and decisions.
+- Amended by [#49](https://github.com/itinera-dev/spec/issues/49): custom code that throws.
 
 ## Summary
 
