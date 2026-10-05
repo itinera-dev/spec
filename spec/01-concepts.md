@@ -1,6 +1,6 @@
 # 1. Concepts
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md), with their amendments [0040](../proposals/0040-events-facts-and-decisions.md), [0041](../proposals/0041-hook-data-from-the-data-bag.md) and [0042](../proposals/0042-configuration-errors-before-the-journey.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md), with their amendments [0040](../proposals/0040-events-facts-and-decisions.md), [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md) and [0049](../proposals/0049-custom-code-that-throws.md).
 
 This chapter is the single source of Itinera's vocabulary. Every other chapter, every proposal and every implementation uses these words with these meanings; they are not synonyms of each other. This chapter defines what each thing is and how the things relate. What each one does, exactly, is defined by the chapters that follow.
 
@@ -62,6 +62,7 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 
 - **Configuration error:** anything wrong with how a workflow is put together or supplied, which its author is responsible for.
 - **Violation:** one configuration error, by name, such as `duplicate step name`.
+- **Refusal:** what `run` reports instead of a journey result when a journey cannot start: the workflow is refused at admission, or custom code called before the journey starts throws. A refusal has no journey and no events.
 - **Admission:** checking how a workflow is put together before any journey: when the workflow is built, and, for what depends on the executor, when the instance is handed to it. A workflow refused at admission has no journey and no events.
 
 ## 1.8 Tiers and capabilities

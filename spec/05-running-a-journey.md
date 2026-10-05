@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -16,6 +16,7 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
 1. In tier 1 a journey has exactly one run, so it has one ID, the **journey ID**.
 2. If the workflow defines a custom ID generator, the executor MUST call it; otherwise the workflow's default generator MUST produce a UUID v4. A custom generator belongs to the instance, so it MAY derive the ID from the instance's own data.
 3. The caller does not pass an ID to the executor.
+4. **A generator that throws** is a refusal: no journey starts, no event is emitted, and `run` reports the generator's error message to the developer (5.10).
 
 ## 5.3 The data bag
 
@@ -99,7 +100,7 @@ The diagram shows these transitions:
 
 1. The result MUST carry:
    - the **final status**: succeeded, failed or aborted;
-   - every step's **status** and **attempt count**;
+   - every step's **status** and **attempt count**. An attempt counts from its `attempt_started`, so a step aborted while being built for attempt N has an attempt count of N;
    - the **data bag** as it stood at the end: the initial data plus every committed contribution. The data bag is the journey's output;
    - for a **failed** journey: the step that failed and its failure reason or cause, or the step whose hook returned `FailWorkflow` and that lifecycle's reason;
    - for an **aborted** journey: the step during which it was aborted, if any, the abort reason, and its details.
@@ -108,18 +109,35 @@ The diagram shows these transitions:
 
 1. **Executors differ in capability, never in meaning.** A lifecycle, an outcome, a status or an event MUST mean the same under every executor.
 2. **The local executor** runs a journey in process, with no persistence: a journey lives only as long as the call that runs it.
-3. **`run(workflow instance)`** MUST run exactly one journey and return its result. It MUST NOT throw for anything that happens inside the journey: failures and aborts are in the result. An asynchronous executor returns the same result asynchronously. A workflow refused at admission (chapter 3), when it is built or because the executor does not accept a mode, is reported to the developer as a refusal instead: no journey, no journey ID and no event.
+3. **`run(workflow instance)`** MUST run exactly one journey and return its result. It MUST NOT throw for anything that happens inside the journey: failures and aborts are in the result. An asynchronous executor returns the same result asynchronously. A workflow refused at admission (chapter 3), when it is built or because the executor does not accept a mode, and a failure before the journey starts (5.10), are reported to the developer as a refusal instead: no journey and no event.
 4. **Stateless between journeys.** When `run` returns, nothing of that journey MUST remain in the executor: no data, no statuses, no reporters. An executor MAY run many journeys, one after another.
 5. **One journey at a time.** An executor MUST NOT run two journeys concurrently. A call to `run` while another journey is running on the same executor MUST be refused before anything starts, with no journey and no events. Implementations SHOULD make this impossible to write where their language allows it. Parallelism comes from creating several executors.
 6. **One dispatcher per journey**, as chapter 2 defines.
 
-## 5.10 Execution modes
+## 5.10 Custom code that throws
+
+1. **Custom code** is any code the executor calls that the workflow's developer supplies. **Throwing** means any failure that escapes it: an exception, a panic, or an error returned through the language's signature, wherever this specification does not give that error another meaning. Implementations MUST catch every one of them.
+2. **Nothing custom code throws MAY escape `run`.** In tier 1, the executor calls custom code at exactly these points, with these outcomes:
+
+   | Custom code | When it throws |
+   |---|---|
+   | the journey ID generator, custom or default | a refusal: no journey, no event, and `run` reports the generator's error message |
+   | a dispatcher given to the executor, while adding the journey's reporters | a refusal, as for the ID generator |
+   | a step's constructor, or an input adapter for one of its inputs | the journey is aborted with `step could not be built` (chapter 4) |
+   | a running step | an abnormal termination of the attempt; the journey is not aborted (chapter 4) |
+   | a hook, including a role operation the hook calls | the journey is aborted with `hook threw` (chapter 6) |
+   | a reporter, or a given dispatcher while dispatching, on any event except `journey_aborted` | the journey is aborted with `reporter threw` (chapter 2) |
+   | a reporter, or a given dispatcher, while `journey_aborted` is being delivered | ignored: the first abort reason stands and no further event is emitted (chapter 2) |
+
+3. **The list is exhaustive for tier 1.** A later proposal that adds a call into custom code adds it here, with its outcome.
+
+## 5.11 Execution modes
 
 1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks and reporters alike.
 2. Anything in a mode the executor does not accept is the violation `mode not accepted`, refused at admission when the instance is handed to `run`, before the journey starts (chapter 3).
 3. Whether an asynchronous executor also accepts synchronous steps, hooks and reporters is each language's choice, stated as a capability.
 4. A language claims its capabilities, the modes its executors accept, alongside its tier, and its conformance runner runs the cases tagged with them.
 
-## 5.11 Checked by
+## 5.12 Checked by
 
-In the conformance repository: [`0009-running-a-workflow/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0009-running-a-workflow), [`0012-local-executor/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0012-local-executor), and the retry cases of [`0008-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0008-steps) and [`0024-abnormal-termination-retriable/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0024-abnormal-termination-retriable). Running an instance twice and calling `run` concurrently are checked by each language's own tests, since many languages make both impossible to write.
+In the conformance repository: [`0009-running-a-workflow/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0009-running-a-workflow), [`0012-local-executor/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0012-local-executor), [`0049-custom-code-that-throws/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0049-custom-code-that-throws), and the retry cases of [`0008-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0008-steps) and [`0024-abnormal-termination-retriable/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0024-abnormal-termination-retriable). Running an instance twice and calling `run` concurrently are checked by each language's own tests, since many languages make both impossible to write.

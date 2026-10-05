@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md) and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md) the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that throw, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -21,10 +21,16 @@ Events come first because every conformance case observes a journey through its 
 6. **With no reporter at all**, events are still produced, and go nowhere.
 7. **Calling reporters is all a dispatcher does.** A slow reporter slows the journey; that is the workflow author's choice.
 
-## 2.3 A reporter that throws
+## 2.3 A reporter or dispatcher that throws
 
-1. A reporter that throws or panics MUST abort the journey with the abort reason `reporter threw`, whatever the dispatcher.
-2. The dispatcher MUST still deliver `journey_aborted` to every other reporter it holds.
+"Throws" means any failure that escapes custom code (chapter 5, 5.10).
+
+1. A reporter that throws on any event except `journey_aborted` MUST abort the journey with the abort reason `reporter threw`, whatever the dispatcher.
+2. The event it threw on MUST still be delivered to every reporter after it. Then `journey_aborted` MUST be delivered to every reporter the dispatcher holds except the one that threw.
+3. A dispatcher given to the executor that throws while dispatching an event other than `journey_aborted` aborts the journey in the same way, with `reporter threw`.
+4. A reporter or a given dispatcher that throws while `journey_aborted` is being delivered MUST be ignored: the journey is already aborted, its first abort reason stands, no further event is emitted, and delivery continues to the remaining reporters.
+5. A given dispatcher that throws while the journey's reporters are added is a refusal, before any event (chapter 5, 5.10).
+6. Reporters and dispatchers SHOULD be written so that they never throw.
 
 ## 2.4 The event stream
 
@@ -66,7 +72,7 @@ Facts:
 | `attempt_started` | an attempt of a step starts | step, attempt |
 | `input_adapter_supplied` | an input adapter supplies a value for a step's input | step, key |
 | `input_adapter_failed` | an input adapter fails for a step's input | step, key |
-| `optional_input_absent` | an optional request has no value | step, key; the policy and hook when the request is a hook's |
+| `optional_input_absent` | an optional request has no value: a step's input, or a hook's data from the workflow or from the step | step, key; the policy and hook when the request is a hook's |
 | `step_succeeded` | the attempt reported Success | step, attempt |
 | `step_failed` | the attempt reported Failure | step, attempt, retriable, reason (code, message, details) |
 | `step_skipped` | the attempt reported Skipped | step, attempt, the reason, if any |
@@ -104,7 +110,7 @@ Events MUST follow what happens, in this order:
    - on Success, one `contribution_committed` per committed key, each followed by `data_overwritten` when it replaced a value;
    - on Skipped, `contributions_discarded`.
 4. Then the hooks and the step decision, in the order chapter 6 defines. Each hook called contributes, in order:
-   1. `optional_input_absent` for each optional data from the workflow it requested that had no value;
+   1. `optional_input_absent` for each optional request it made, for data from the workflow or from the step, that had no value;
    2. the `journey_*` events it emits, in the order emitted;
    3. its `hook_called`;
    4. its own `contribution_committed` events, each followed by `data_overwritten` when it replaced a value.

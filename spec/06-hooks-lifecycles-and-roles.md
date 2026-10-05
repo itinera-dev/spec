@@ -65,7 +65,7 @@ The failure hook comes after `step_given_up` because it is called because the st
    - the cause of the call, for `on step failure` and `on step retry`;
    - the error, for an abnormal termination.
 
-   Data from the step MUST be exactly what that step contributed under the key; there is no adapter in this direction. If the step did not contribute the key, a required request MUST abort the journey with `required data missing`, and an optional request is answered with the data absent. A value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional.
+   Data from the step MUST be exactly what that step contributed under the key; there is no adapter in this direction. If the step did not contribute the key, a required request MUST abort the journey with `required data missing`, and an optional request is answered with the data absent, and `optional_input_absent` is emitted, naming the policy and hook. A value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional.
 2. **The step's name, the attempt number and the journey ID.** A step hook MAY request the name of the step it acts on and the attempt number. Every hook MAY request the journey ID.
 3. **Data from the workflow.** Every hook, step hook or workflow hook, MAY request data from the workflow by key and type, required or optional. It MUST be read from the data bag under the key; input adapters MUST NOT be used for a hook's request, since they adapt data for steps and a policy acts on behalf of the workflow.
    - A required value not found MUST abort the journey with `required data missing`.
