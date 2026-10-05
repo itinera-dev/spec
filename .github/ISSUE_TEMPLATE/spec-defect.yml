@@ -7,7 +7,7 @@ body:
     id: location
     attributes:
       label: Where
-      description: The file and section, for example spec/05-hooks.md, "Default behaviour".
+      description: The file and section, for example spec/06-hooks-lifecycles-and-roles.md, 6.3.
     validations:
       required: true
   - type: textarea
@@ -21,6 +21,6 @@ body:
     id: suggestion
     attributes:
       label: Suggested correction
-      description: Optional. If the correction changes behaviour, it needs a proposal instead.
+      description: Optional. If the text never addresses the situation, so the correction would add a new rule, it needs a proposal instead.
     validations:
       required: false

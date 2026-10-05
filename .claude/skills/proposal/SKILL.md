@@ -91,6 +91,23 @@ Never edit an accepted proposal's issue or file. A change is a new proposal:
 3. Open its conformance issue "Cases for spec#MMMM", listing which existing cases change.
 4. Its proposal file says "Amends: NNNN" in its header. When it is accepted, its pull request also adds one line to the old proposal file, "Amended by #MMMM" or "Replaced by #MMMM", and nothing else.
 
+## Handling a spec defect
+
+The rules are "Spec defects" in [PROCESS.md](../../../PROCESS.md).
+
+1. **Classify.** If the text contradicts itself or allows several readings, it is a defect. If it never addresses the situation, the correction would be a new rule: move that part to a proposal issue (usually an amendment) and leave only the rest in the defect.
+2. **Agree** the correction with a maintainer, then edit the issue body to hold only the agreed correction. Do not set `status: ready`; the maintainer does.
+3. **Observable corrections get cases first:** open "Cases for spec#NNNN" in `conformance`, labelled `waiting for spec` and the tier, merge its cases pull request once the defect is `status: ready`, then open the chapters pull request with `Closes #NNNN`.
+4. **Release:** before the version is proven, tag `conformance` with the next release candidate once the cases change, only when a maintainer asks. After it, the correction belongs to the next patch version.
+
+## Following a change into languages
+
+When a defect correction or an amendment that changes cases is merged:
+
+1. For each language repository, read `conformance.json` and check whether `proposals` lists a proposal whose cases changed.
+2. For each one that does, open an issue there: title "Update to spec X.Y.Z (spec#NNNN)", label `spec update` (create it if missing), and a body linking the change, the changed cases and the conformance tag to move to.
+3. Comment on the spec issue with the list of those issues, by reference only, never with closing keywords.
+
 ## Finding what happened to a proposal
 
 Before evaluating a proposal that touches an accepted one, or when asked about a proposal's history:
