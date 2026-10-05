@@ -146,23 +146,45 @@ An accepted proposal, its issue and its file never change. To change what it dec
 
 For a proposal that is still open, its issue body is all there is to read: it always holds the current agreed design.
 
-Wording that is wrong or unclear in a chapter, without changing behaviour, is a `spec defect` issue, not a new proposal.
-
 What to refer to afterwards:
 
 - **the proposal file**, for what was decided and why;
 - **the behaviour specification chapters**, for how Itinera behaves now;
 - **the issue**, for the discussion.
 
+## Spec defects
+
+A **spec defect** is specification text that is wrong, ambiguous or contradictory. Implementers find most of them, while writing their tech specs.
+
+### Defect or proposal
+
+- **A defect** is text that contradicts itself, or that is ambiguous between readings it already allows. Its correction states one of those readings and decides nothing new. Wording that is wrong or unclear without any effect on behaviour is also a defect.
+- **A proposal** is needed when the text never addresses the situation at all, so the correction would create a new rule. It usually amends an accepted proposal (see "Changing an accepted proposal").
+
+When one report holds both, the part that needs a proposal moves to a proposal issue, and the defect keeps only the rest.
+
+### The life of a defect
+
+1. **Opened** with the "Spec defect" issue template, labelled `spec defect`: where, what the text says, and a suggested correction.
+2. **Agreed.** A maintainer agrees the correction in the issue, whose body is then edited to hold only the agreed correction, as for proposals, and sets `status: ready`.
+3. **Cases first, when the correction is observable.** Its conformance issue "Cases for spec#NNNN" is opened and its cases pull request merged first, as for proposals.
+4. **Fixed.** The pull request that corrects the chapters says `Closes #NNNN`. A correction that only changes wording needs no cases.
+5. **Released** according to the version rules below, and followed into the languages that already implemented the affected proposals (see "When the specification changes after a language implemented it").
+
 ## The behaviour specification
 
 The chapters under [spec/](spec/) are the behaviour specification, written from accepted proposals. Chapter 1, Concepts, is the chapter to read first and the single source of the vocabulary.
 
-The specification has a version, for example 0.1. A version is a set of chapters together with the conformance cases that check them.
+The specification has a version in three parts, for example `0.1.0`. A version is a set of chapters together with the conformance cases that check them, and both repositories, this one and `conformance`, are tagged with the same version, for example `v0.1.0`.
 
 1. **Written:** the accepted proposals of the version are written into the chapters, in one pull request reviewed by a maintainer.
-2. **Proven:** the version is tagged, for example `spec-v0.1`, in this repository and in `conformance`, only when a first implementation passes every case of the version. Until then the chapters may still be corrected through `spec defect` issues without a new version, and an implementation pins a pre-release, such as `v0.1.0-rc.1`.
-3. **Fixed:** once tagged, a version's chapters and cases never change. A later change, including adding to a tier, makes a new version, so existing claims stay true.
+2. **Release candidates:** until the version is proven, defect corrections and accepted amendments go straight into the chapters and the cases. Each time the cases change, `conformance` is tagged with a new release candidate, `v0.1.0-rc.1`, then `v0.1.0-rc.2`, and so on, which implementations pin. A tag is never moved.
+3. **Proven:** the version is tagged `v0.1.0`, in both repositories, only when a first implementation passes every case of the version.
+4. **Fixed:** once tagged, a version's chapters and cases never change. After that:
+   - **a patch version**, such as `0.1.1`, holds defect corrections only: readings the text already allowed;
+   - **a minor version**, such as `0.2.0`, holds accepted proposals, including amendments and anything added to a tier. While the specification is below 1.0, every change of behaviour is a minor version.
+
+A tier's contents are the same across the patch versions of one minor version, so a claim such as "tier 1 of spec 0.1" stays true across `0.1.x`. Implementations SHOULD follow the latest patch.
 
 ## Tiers and capabilities
 
@@ -181,6 +203,15 @@ The contents of a tier are fixed for a given version of the specification. New f
 3. **Pull requests that contribute** to the proposal say `Refs #N` for the implementation issue, or form a stack. Their conformance check runs only the proposals already finished, so unfinished work merges freely while nothing finished breaks.
 4. **The pull request that completes the proposal** says `Closes #N` for the implementation issue and adds the proposal's number to `proposals` in the language's `conformance.json`. From then on the proposal's cases run on every pull request, and they must pass for this one to merge. The check refuses either half without the other, so a closed implementation issue always means the proposal's cases pass.
 5. Each language commits a conformance report produced by its conformance runner, listing passing and failing cases by proposal.
+
+### When the specification changes after a language implemented it
+
+A defect correction or an amendment may change cases that a language already runs.
+
+1. **Which languages:** those whose `conformance.json` lists a proposal whose cases changed. Languages that have not reached it yet simply follow the new text.
+2. **One issue per language**, in the language's repository, titled "Update to spec X.Y.Z (spec#NNNN)" and labelled `spec update`. It links the defect or amendment, the changed cases and the new conformance tag.
+3. **It closes** when the language moves `cases` in its `conformance.json` to the new tag and every case passes.
+4. **The defect or amendment issue lists these issues**, by reference only, never with closing keywords, so anyone can see where the change has landed.
 
 This is what lets a new language start late: the behaviour specification and the conformance cases already describe everything, and the language's work is to write its tech specs and make the cases pass, tier by tier.
 
@@ -209,8 +240,9 @@ Conformance cases are data, not code. Each case contains a workflow, scripted st
 
 - `proposal`: a proposed change to Itinera's behaviour.
 - `process`: a change to this process or to how the project works.
-- `spec defect`: the specification text is wrong, ambiguous or contradictory.
-- `status: triage`, `status: planned`, `status: evaluating`, `status: ready`, `status: declined`, `status: postponed`: where a proposal is in its life.
+- `spec defect`: the specification text is wrong, ambiguous or contradictory. It uses `status: ready` once its correction is agreed.
+- `spec update`: in language repositories, an issue that brings the language up to a corrected or amended specification.
+- `status: triage`, `status: planned`, `status: evaluating`, `status: ready`, `status: declined`, `status: postponed`: where a proposal, or a spec defect, is in its life.
 - `tier: 1` to `tier: 4`: the tier a proposal, implementation issue or conformance issue belongs to. More are added as tiers are planned.
 - `implements-proposal`: in language and conformance repositories, an issue that implements an accepted proposal.
 - `amends: NNNN`: a proposal that amends or replaces accepted proposal NNNN.
