@@ -6,6 +6,7 @@
 - Amended by [#54](https://github.com/itinera-dev/spec/issues/54): how custom code fails.
 - Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
 - Amended by [#61](https://github.com/itinera-dev/spec/issues/61): the workflow instance carries its journey ID and its reporters.
+- Amended by [#81](https://github.com/itinera-dev/spec/issues/81): a reporter that fails stops the delivery of the event it failed on.
 
 ## Summary
 
