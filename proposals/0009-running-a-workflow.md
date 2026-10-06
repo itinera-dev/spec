@@ -7,6 +7,7 @@
 - Amended by [#56](https://github.com/itinera-dev/spec/issues/56): everything in the data bag is a value.
 - Amended by [#61](https://github.com/itinera-dev/spec/issues/61): the workflow instance carries its journey ID and its reporters.
 - Amended by [#62](https://github.com/itinera-dev/spec/issues/62): workflow descriptors, and executors independent of how workflows are written.
+- Amended by [#65](https://github.com/itinera-dev/spec/issues/65): the journey result is a business outcome.
 
 ## Summary
 
