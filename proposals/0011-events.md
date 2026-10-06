@@ -6,6 +6,7 @@
 - Amended by [#49](https://github.com/itinera-dev/spec/issues/49): custom code that throws.
 - Amended by [#55](https://github.com/itinera-dev/spec/issues/55): a reporter that fails while a step or hook runs.
 - Amended by [#63](https://github.com/itinera-dev/spec/issues/63): the executor is given a dispatcher factory.
+- Amended by [#64](https://github.com/itinera-dev/spec/issues/64): event data and reason details are values, serialized only by reporters.
 
 ## Summary
 
