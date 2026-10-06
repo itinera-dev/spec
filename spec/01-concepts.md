@@ -1,6 +1,6 @@
 # 1. Concepts
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md), with their amendments [0040](../proposals/0040-events-facts-and-decisions.md), [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md) and [0049](../proposals/0049-custom-code-that-throws.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0011](../proposals/0011-events.md), [0012](../proposals/0012-local-executor.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0027](../proposals/0027-received-data-read-only.md) and [0032](../proposals/0032-configuration-errors.md), with their amendments [0040](../proposals/0040-events-facts-and-decisions.md), [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md) and [0065](../proposals/0065-business-result.md).
 
 This chapter is the single source of Itinera's vocabulary. Every other chapter, every proposal and every implementation uses these words with these meanings; they are not synonyms of each other. This chapter defines what each thing is and how the things relate. What each one does, exactly, is defined by the chapters that follow.
 
@@ -12,22 +12,25 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 
 - **Workflow:** the plan. An ordered list of steps, plus the policies, input adapters, roles and reporters attached to it. A workflow is declarative: everything in it is fixed before anything runs, and it can be listed without running it.
 - **Step:** a business unit, identified by a name unique within its workflow. A step declares the data it needs, does its work, contributes data back, and reports an **outcome**. It knows nothing of the workflow, the executor or other steps, and it does not know its own name.
-- **Step descriptor:** what the workflow holds for each step: its name, how to build it, its retry budget, whether an abnormal termination may be retried, and the step policies and input adapters attached to it.
+- **Workflow descriptor:** the workflow's declaration: its name, its step descriptors, its workflow policy descriptors and its input adapters. It is fixed, and shared by every instance of the workflow.
+- **Step descriptor:** what the workflow holds for each step: its name, how to build it, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, and its input adapter, if any.
+- **Policy descriptor:** the description of one policy: its name, the hooks it defines, and how to build an instance of it.
 - **Outcome:** what a step reports when it runs to the end: **Success**, **Failure** or **Skipped**. An outcome says what happened, never what to do next.
   - **Failure** carries a **reason** (a code, an optional message and optional details) and a **retriable** flag: whether the step believes trying again might help.
   - **Skipped** means the step decided, from what it knows of its domain, not to do its work. A skipped step leaves the flow.
-- **Abnormal termination:** an error, exception or panic that escapes a running step. It is not an outcome the step chose; it ends the attempt as a failure.
+- **Abnormal termination:** a recoverable failure that escapes a running step: an exception, or an error returned through the step's signature. It is not an outcome the step chose; it ends the attempt as a failure.
 - **Attempt:** one execution of a step. The first is attempt 1. A **retry** is any attempt after the first; a step's **retry budget** is how many retries it allows.
 - **Step status:** where a step stands in a journey: `NotExecuted`, `Executing`, `MustRetry`, `Succeeded`, `Failed`, `Skipped` or `Aborted`.
 
 ## 1.3 Data
 
+- **Value:** data that can be serialized: null, booleans, numbers, strings, lists, objects, and any type of the language that serializes to them. Functions, closures, connections and handles are not values.
 - **Data bag:** the untyped store of a journey's data, a map from string keys to values. It starts with the workflow instance's initial data and changes only through committed contributions. At the end of a journey it is the journey's output.
 - **Data from the workflow:** a value a step or hook requests by a key and a type, as **required** or **optional**. Where it comes from is decided by the workflow, never by the requester.
-- **Input adapter:** an object declared on the workflow and associated with pairs of step and key. It supplies data from the workflow for those pairs from anywhere it likes. Without one, the value is read from the data bag under the key.
+- **Input adapter:** part of the workflow, named, and attached to one or more of its steps; a step has at most one. When the step is built, it is asked for each of the step's inputs and returns a value, or nothing, in which case the input is read from the data bag. Without an adapter, every input is read from the data bag under its key.
 - **Adapter:** in tier 1, an input adapter. There are no adapters for data from a step.
 - **Data from the step:** a value a step hook requests from the step it acts on, by key and type, as required or optional. It is exactly what that step contributed.
-- **Contributor:** the object through which a step or a hook contributes data, as key and value pairs. It is the only way to change the data bag.
+- **Contributor:** the object through which a step or a hook contributes data, as key and value pairs. It is the only way to change the data bag, and is valid only during the attempt or hook it was given for.
 - **Contribution:** a key and value given to a contributor. A step's contributions are **committed** to the data bag only when its attempt succeeds; a hook's are committed when the hook returns.
 
 ## 1.4 Policies, hooks and lifecycles
@@ -40,15 +43,17 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 
 ## 1.5 Running
 
-- **Workflow instance:** created by the developer's own code for each journey, from a workflow, with the journey's initial data. It holds the data bag and all other journey state.
+- **Workflow instance:** created by the developer's own code for each journey, from a workflow, with the journey's initial data, its journey ID and its reporters. It holds the data bag and all other journey state.
+- **Custom code:** any code the executor calls that the workflow's developer supplies: step constructors and steps, input adapters, policies and their hooks, role operations, reporters, and dispatcher factories and dispatchers.
 - **Executor:** runs a workflow instance and carries out what hooks decide. The **local executor** runs a journey in process, with no persistence.
 - **Journey:** one end-to-end execution of a workflow instance, from the first step to its result. In later tiers a journey may move between workflows through switches and transfers.
 - **Run:** one workflow executed within a journey. In tier 1 a journey has exactly one run, so the two coincide.
-- **Journey ID:** the identifier of a journey, produced by the workflow's ID generator.
+- **Journey ID:** the identifier of a journey, produced while the workflow instance is created; by default a UUID v4.
 - **The scan:** how the executor chooses what to do next: it repeatedly considers the first step that is not finished.
-- **Result:** what running a journey returns: its final status (succeeded, failed or aborted), every step's status and attempt count, the data bag, and, for a journey that did not succeed, where and why.
+- **Result:** what running a journey returns, a business outcome: the journey ID, the final status (succeeded, failed or aborted) with what explains it, and the data bag. Which steps ran, and how, is in the event stream.
 - **Failed journey:** a journey that ended because a step failed or a hook returned `FailWorkflow`. A failure is a legitimate end, decided by the outcomes and the policies.
-- **Aborted journey:** a journey stopped because something illegal happened: a configuration error found while running, a hook that threw, or a reporter that threw. No hook runs after an abort. Each abort has an **abort reason**.
+- **Aborted journey:** a journey stopped because something illegal happened: a configuration error found while running, a hook or reporter that failed, or something stored or emitted that is not a value. No hook runs after an abort. Each abort has an **abort reason**.
+- **Unrecoverable failure:** a failure the language itself treats as unrecoverable, such as a panic in Rust. It is outside the model: the journey stops as if the process had crashed.
 
 ## 1.6 Events
 
@@ -56,7 +61,7 @@ Itinera separates two kinds of decision. **Business rules** decide what the busi
 - **Fact** and **decision:** the two kinds of engine event. A fact records something that happened; a decision records what the executor decided to do next, such as retrying a step or failing the journey, and who decided it.
 - **Event stream:** every event of one journey, in order. It is never rolled back or rewritten. It is how a journey is observed, and how conformance judges implementations.
 - **Reporter:** receives events, one at a time, and decides on its own what to do with them. The workflow lists its reporters; a step receives a **step reporter** to emit its own events.
-- **Dispatcher:** owned by the executor; holds reporters and delivers each event to them.
+- **Dispatcher:** holds a journey's reporters and delivers each event to them. The executor creates one per journey, from a **dispatcher factory**.
 
 ## 1.7 Configuration and admission
 
