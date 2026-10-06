@@ -23,6 +23,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0057: Contributors and step reporters are valid only during their attempt or hook](0057-handles-valid-during-their-attempt.md) (tier 1, amends 0008 and 0010). Accepted in [#71](https://github.com/itinera-dev/spec/pull/71).
 - [0058: Workflow policies are built per journey, step policies per attempt](0058-building-policies.md) (tier 1, amends 0002 and 0010 and 0049). Accepted in [#72](https://github.com/itinera-dev/spec/pull/72).
 - [0060: Input adapters are attached to steps, and leave unknown inputs to the data bag](0060-input-adapters-attached-to-steps.md) (tier 1, amends 0002 and 0042). Accepted in [#73](https://github.com/itinera-dev/spec/pull/73).
+- [0061: The workflow instance carries its journey ID and its reporters](0061-instance-carries-journey-id-and-reporters.md) (tier 1, amends 0009 and 0049). Accepted in [#74](https://github.com/itinera-dev/spec/pull/74).
 
 ## Under evaluation
 
