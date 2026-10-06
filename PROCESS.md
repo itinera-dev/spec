@@ -227,7 +227,7 @@ Package registries do not know about git tags: `cargo publish` and `npm publish`
 
 1. **A release is requested by pushing a version tag**, such as `v0.1.0`, on `main`. Only maintainers can create release tags.
 2. **A release workflow decides whether the tag becomes a release.** It checks that the tag matches the package version, that the commit is on `main`, that every proposal in `conformance.json` passes its cases, and that every proposal of the tier being claimed is listed. If anything fails, nothing is published and the run fails visibly.
-3. **Only that workflow can publish**, through the registry's trusted publishing for GitHub Actions, with no long-lived publishing token. A manual `cargo publish` or `npm publish` simply fails.
+3. **Only that workflow can publish**, through the registry's trusted publishing for GitHub Actions wherever the registry allows it, with no long-lived publishing token. A manual `cargo publish` or `npm publish` simply fails. When a registry needs something else for a step it cannot do through trusted publishing, such as the first release of a package, the language's repository documents that exception, keeps any credential it needs as short-lived as possible, and still publishes only through the release workflow.
 4. **A release carries its conformance report** as an asset, which is the proof of what it claims, and the compatibility table in `conformance` is built from those reports.
 
 The release workflow is built with the first release of the first language ([itinera-dev/conformance#6](https://github.com/itinera-dev/conformance/issues/6)).
