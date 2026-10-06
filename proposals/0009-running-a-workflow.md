@@ -5,6 +5,7 @@
 - Amended by [#32](https://github.com/itinera-dev/spec/issues/32): configuration errors found while running.
 - Amended by [#49](https://github.com/itinera-dev/spec/issues/49): custom code that throws.
 - Amended by [#56](https://github.com/itinera-dev/spec/issues/56): everything in the data bag is a value.
+- Amended by [#61](https://github.com/itinera-dev/spec/issues/61): the workflow instance carries its journey ID and its reporters.
 
 ## Summary
 
