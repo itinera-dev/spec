@@ -4,6 +4,7 @@
 - Tier: 1
 - Amended by [#24](https://github.com/itinera-dev/spec/issues/24): abnormal terminations are retried only when the step allows it.
 - Amended by [#56](https://github.com/itinera-dev/spec/issues/56): everything in the data bag is a value.
+- Amended by [#57](https://github.com/itinera-dev/spec/issues/57): contributors and step reporters are valid only during their attempt or hook.
 
 ## Summary
 

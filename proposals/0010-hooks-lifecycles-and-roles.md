@@ -3,6 +3,7 @@
 - Issue: [#10](https://github.com/itinera-dev/spec/issues/10)
 - Tier: 1
 - Amended by [#41](https://github.com/itinera-dev/spec/issues/41): hooks read data from the workflow without input adapters.
+- Amended by [#57](https://github.com/itinera-dev/spec/issues/57): contributors and step reporters are valid only during their attempt or hook.
 
 ## Summary
 

@@ -20,6 +20,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0054: How custom code fails](0054-how-custom-code-fails.md) (tier 1, amends 0049). Accepted in [#68](https://github.com/itinera-dev/spec/pull/68).
 - [0055: A reporter that fails while a step or hook runs](0055-reporter-fails-while-custom-code-runs.md) (tier 1, amends 0011). Accepted in [#69](https://github.com/itinera-dev/spec/pull/69).
 - [0056: Everything in the data bag is a value](0056-data-bag-values.md) (tier 1, amends 0008 and 0009). Accepted in [#70](https://github.com/itinera-dev/spec/pull/70).
+- [0057: Contributors and step reporters are valid only during their attempt or hook](0057-handles-valid-during-their-attempt.md) (tier 1, amends 0008 and 0010). Accepted in [#71](https://github.com/itinera-dev/spec/pull/71).
 
 ## Under evaluation
 
