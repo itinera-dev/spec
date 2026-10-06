@@ -3,6 +3,7 @@
 - Issue: [#55](https://github.com/itinera-dev/spec/issues/55)
 - Tier: 1
 - Amends: [0011](0011-events.md)
+- Amended by [#81](https://github.com/itinera-dev/spec/issues/81): a reporter that fails stops the delivery of the event it failed on.
 
 ## Summary
 

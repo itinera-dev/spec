@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md) and [0064](../proposals/0064-event-data-values.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md) and [0081](../proposals/0081-reporter-failure-stops-delivery.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -9,14 +9,14 @@ Events come first because every conformance case observes a journey through its 
 1. A **reporter** has one operation, **report**, which receives one event. It decides on its own what to do with it: filter it, map it, forward it or ignore it.
 2. A workflow lists its reporters. Which reporters a journey is reported to is the workflow's decision, never the executor's.
 3. A reporter MAY be synchronous or asynchronous, under the executor's execution modes (chapter 5).
-4. Reporters SHOULD be written so that they never fail.
+4. **Reporters handle their own trouble.** A reporter SHOULD NOT fail. A reporter that cannot report an event SHOULD handle that itself, as it chooses (logging it, dropping the event, keeping it to retry later), and return normally, so that the reporters after it still receive the event. A failure that escapes a reporter aborts the journey (2.3).
 
 ## 2.2 The dispatcher
 
 1. An **event dispatcher** has two operations: **add a reporter**, and **dispatch an event** to the reporters it holds.
 2. **A dispatcher factory** creates dispatchers. An executor is given a dispatcher factory when it is created, or uses the default factory, which creates the default dispatcher.
 3. **One dispatcher per journey.** For each journey, the executor MUST call its factory once, before the journey starts, add the workflow instance's reporters to the dispatcher it returns, and dispatch every event of the journey through it. When the journey ends, the executor drops that dispatcher, with every reporter added to it, so a reporter never receives another journey's events.
-4. **The default dispatcher** MUST call reporters in the order they were added, with every event in sequence order, and every reporter it holds MUST receive the same events.
+4. **The default dispatcher** MUST call reporters in the order they were added, with every event in sequence order, and every reporter it holds MUST receive the same events, except as 2.3 defines when a reporter fails.
 5. **Other dispatchers** decide what adding a reporter means and how they deliver; for example, a test's factory may return dispatchers that all hold the test's recording reporter and ignore the workflow's reporters.
 6. **With no reporter at all**, events are still produced, and go nowhere.
 7. **Calling reporters is all a dispatcher does.** A slow reporter slows the journey; that is the workflow author's choice.
@@ -26,7 +26,7 @@ Events come first because every conformance case observes a journey through its 
 Custom code fails by throwing or by returning an error (chapter 5, 5.10). A reporter or a dispatcher cannot report an error and carry on, so its failure aborts the journey.
 
 1. A reporter that fails on any event except `journey_aborted` MUST abort the journey with the abort reason `reporter failed`, whatever the dispatcher.
-2. The event it failed on MUST still be delivered to every reporter after it. Then `journey_aborted` MUST be delivered to every reporter the dispatcher holds except the one that failed.
+2. The event it failed on MUST NOT be delivered to the reporters after it. Then `journey_aborted` MUST be delivered to every reporter the dispatcher holds except the one that failed. This holds whatever the dispatcher, for the reporters added to it for the journey: once a reporter has failed, none of them receives any further event except `journey_aborted`, and the one that failed receives nothing more, even if the dispatcher would go on delivering.
 3. A dispatcher that fails while dispatching an event other than `journey_aborted` aborts the journey in the same way, with `reporter failed`.
 4. A reporter or a dispatcher that fails while `journey_aborted` is being delivered MUST be ignored: the journey is already aborted, its first abort reason stands, no further event is emitted, and delivery continues to the remaining reporters.
 5. A dispatcher factory that fails, or a dispatcher that fails while the journey's reporters are added, is a refusal, before any event (chapter 5, 5.10).
@@ -127,7 +127,7 @@ Events MUST follow what happens, in this order:
 4. **Data that is not a value is illegal.** Where a language can express it, the event is not delivered, the journey is aborted with `not a value`, naming the step, or the policy and hook, and the event kind, and the emit call ends the step or hook as point 5 describes.
 5. **Delivery is blocking.** An event a step or hook emits MUST be delivered to every reporter before the emit call returns: it blocks for a synchronous step or hook and is awaited for an asynchronous one. If a reporter fails during that delivery:
    1. the journey is aborted with `reporter failed`, and the abort is recorded at once;
-   2. the event is still delivered to the reporters after it (2.3);
+   2. the event is not delivered to the reporters after it (2.3);
    3. the emit call ends the step or hook, by throwing an exception that belongs to the executor or, in a language without exceptions, by returning the executor's error, which the step or hook propagates. Implementations SHOULD make it impossible to catch by name;
    4. the abort stands whatever the step or hook does afterwards: nothing more it emits is delivered, and its outcome, lifecycle and contributions are ignored. There is no outcome fact, no `hook_called` and no commit, and it is never an abnormal termination;
    5. when it returns, `journey_aborted` is delivered, naming the step, whose status becomes `Aborted`.

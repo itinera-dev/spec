@@ -28,6 +28,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0063: The executor is given a dispatcher factory](0063-dispatcher-factory.md) (tier 1, amends 0011 and 0012). Accepted in [#76](https://github.com/itinera-dev/spec/pull/76).
 - [0064: Event data and reason details are values, serialized only by reporters](0064-event-data-values.md) (tier 1, amends 0008 and 0011). Accepted in [#77](https://github.com/itinera-dev/spec/pull/77).
 - [0065: The journey result is a business outcome](0065-business-result.md) (tier 1, amends 0009). Accepted in [#78](https://github.com/itinera-dev/spec/pull/78).
+- [0081: A reporter that fails stops the delivery of the event it failed on](0081-reporter-failure-stops-delivery.md) (tier 1, amends 0049 and 0055). Accepted in [#82](https://github.com/itinera-dev/spec/pull/82).
 
 ## Under evaluation
 
