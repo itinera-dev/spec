@@ -5,6 +5,7 @@
 - Amended by [#40](https://github.com/itinera-dev/spec/issues/40): events record facts and decisions.
 - Amended by [#49](https://github.com/itinera-dev/spec/issues/49): custom code that throws.
 - Amended by [#55](https://github.com/itinera-dev/spec/issues/55): a reporter that fails while a step or hook runs.
+- Amended by [#63](https://github.com/itinera-dev/spec/issues/63): the executor is given a dispatcher factory.
 
 ## Summary
 

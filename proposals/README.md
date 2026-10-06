@@ -25,6 +25,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0060: Input adapters are attached to steps, and leave unknown inputs to the data bag](0060-input-adapters-attached-to-steps.md) (tier 1, amends 0002 and 0042). Accepted in [#73](https://github.com/itinera-dev/spec/pull/73).
 - [0061: The workflow instance carries its journey ID and its reporters](0061-instance-carries-journey-id-and-reporters.md) (tier 1, amends 0009 and 0049). Accepted in [#74](https://github.com/itinera-dev/spec/pull/74).
 - [0062: Workflow descriptors, and executors independent of how workflows are written](0062-workflow-descriptors.md) (tier 1, amends 0009). Accepted in [#75](https://github.com/itinera-dev/spec/pull/75).
+- [0063: The executor is given a dispatcher factory](0063-dispatcher-factory.md) (tier 1, amends 0011 and 0012). Accepted in [#76](https://github.com/itinera-dev/spec/pull/76).
 
 ## Under evaluation
 
