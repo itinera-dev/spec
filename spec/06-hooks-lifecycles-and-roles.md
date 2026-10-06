@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md) and [0040](../proposals/0040-events-facts-and-decisions.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md) and [0065](../proposals/0065-business-result.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -9,6 +9,10 @@ Which hooks the executor calls and in what order, what each may return, what hoo
 1. **Step hooks:** `on step success`, `on step failure`, `on step retry` and `on step abnormal termination`. They act on one attempt of the step whose policies define them.
 2. **Workflow hooks:** `on workflow success` and `on workflow failure`.
 3. Each hook is defined at most once per step or per workflow (chapter 3). A hook that no attached policy defines is not called, and its default applies.
+4. **Workflow policies are built once per journey.** One instance of each workflow policy attached to the workflow MUST be built before the journey starts, before its dispatcher is created. It serves the whole journey and is discarded when the journey ends. A workflow policy that fails while being built is a refusal: no journey and no event (chapter 5, 5.10).
+5. **Step policies are built for every attempt.** For each attempt of a step, one new instance of each step policy attached to it MUST be built, right after the attempt's `attempt_started` and before its inputs are resolved. All the hooks called for that attempt use those instances, including `on step failure` after `step_given_up`, and they are discarded when the attempt's hooks have returned. Nothing MUST carry over from one attempt to the next, and a step policy attached to two steps never shares an instance between them.
+6. **A step policy that fails while being built** aborts the journey with `policy could not be built`. `journey_aborted` names the step and the policy; the step's status becomes `Aborted`, and the attempt counts.
+7. **Hooks cannot change their policy.** A hook receives everything it needs as declared parameters, so it has no need to keep anything in its policy instance. Where the language can make the instance read-only inside a hook, an implementation MUST do so. Where it cannot, points 4 and 5 still guarantee that nothing a hook changes in its instance outlives the journey or the attempt.
 
 ## 6.2 Which step hooks run, and in what order
 
@@ -40,7 +44,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 
 2. **A lifecycle a hook may not return** MUST abort the journey with the abort reason `invalid lifecycle`. Implementations SHOULD make it impossible to express where their language allows it.
 3. **`FinishWorkflow`** ends the journey at once as succeeded; `journey_succeeded` is decided by the hook that returned it. The steps that did not run remain `NotExecuted`.
-4. **`FailWorkflow`** ends the journey at once as failed, and `journey_failed` is decided by the hook that returned it. It carries a reason: a code, an optional message and optional details. The result MUST name the step whose hook returned it, and that reason. No further step hook is called for that step.
+4. **`FailWorkflow`** ends the journey at once as failed, and `journey_failed` is decided by the hook that returned it. It carries a reason: a code, an optional message and optional details. The result MUST carry that reason, and `journey_failed` names the step whose hook returned it. No further step hook is called for that step.
    - From `on step success`, the step stays `Succeeded`, and its contributions are committed.
    - From `on step retry` or `on step abnormal termination`, the step becomes `Failed`: `step_given_up` is emitted with the cause `FailWorkflow`, decided by that policy and hook, and `on step failure` MUST NOT be called.
    - From `on step failure`, the step is `Failed`, and the result carries the lifecycle's reason.
@@ -52,10 +56,11 @@ The failure hook comes after `step_given_up` because it is called because the st
 3. Both run at the end, before the result is produced and before `journey_succeeded` or `journey_failed`.
 4. Neither runs when the journey is aborted.
 
-## 6.5 Hooks never throw
+## 6.5 Hooks that fail
 
-1. A hook that throws or panics MUST abort the journey with the abort reason `hook threw`.
-2. After an abort, no hook runs.
+1. A hook fails by throwing or by returning an error (chapter 5, 5.10). It cannot report an error and carry on, so a hook that fails, including through a role operation it calls, MUST abort the journey with the abort reason `hook failed`.
+2. A hook ended by the executor's signal, because a reporter failed on an event it emitted or because it contributed or emitted something that is not a value (chapter 2, 2.9), is aborted with that reason, `reporter failed` or `not a value`, never `hook failed`.
+3. After an abort, no hook runs.
 
 ## 6.6 What hooks can read
 
@@ -79,9 +84,10 @@ The failure hook comes after `step_given_up` because it is called because the st
 ## 6.7 What hooks can write
 
 1. A hook MAY request a **contributor**, as a step does. It never has direct access to the data bag.
-2. A hook's contributions MUST be committed as soon as it returns without throwing, whatever the step's outcome. A value is captured when it is contributed, and the last value for a key wins.
+2. A hook's contributions MUST be committed as soon as it returns without failing, whatever the step's outcome. A value is captured when it is contributed, and the last value for a key wins.
 3. A workflow hook's contributions are committed before the result is produced, so they are part of the journey's output.
 4. Overwriting a key is allowed and emits `data_overwritten`. `contribution_committed` and `data_overwritten` MUST say whether a contribution came from a hook, naming its policy and hook, or from a step.
+5. A hook's contributions MUST be values (chapter 4, 4.6), and its contributor and its means of emitting events are valid only until it returns (chapter 4, 4.6 point 7).
 
 ## 6.8 Workflow roles
 
@@ -99,4 +105,4 @@ Hooks MAY be synchronous or asynchronous, under the same executor rules as steps
 
 ## 6.10 Checked by
 
-In the conformance repository: [`0010-hooks-lifecycles-and-roles/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0010-hooks-lifecycles-and-roles), [`0041-hook-data-from-the-data-bag/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0041-hook-data-from-the-data-bag), [`0002-foundations/data-from-the-step.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0002-foundations/data-from-the-step.feature), and the hook cases of [`0008-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0008-steps), [`0011-events/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0011-events), [`0040-events-facts-and-decisions/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0040-events-facts-and-decisions), [`0024-abnormal-termination-retriable/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0024-abnormal-termination-retriable) and [`0027-received-data-read-only/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0027-received-data-read-only).
+In the conformance repository: [`0010-hooks-lifecycles-and-roles/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0010-hooks-lifecycles-and-roles), [`0041-hook-data-from-the-data-bag/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0041-hook-data-from-the-data-bag), [`0054-how-custom-code-fails/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0054-how-custom-code-fails), [`0058-building-policies/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0058-building-policies), [`0002-foundations/data-from-the-step.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0002-foundations/data-from-the-step.feature), and the hook cases of [`0008-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0008-steps), [`0011-events/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0011-events), [`0040-events-facts-and-decisions/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0040-events-facts-and-decisions), [`0024-abnormal-termination-retriable/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0024-abnormal-termination-retriable) and [`0027-received-data-read-only/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0027-received-data-read-only).

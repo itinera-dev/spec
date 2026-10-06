@@ -6,7 +6,7 @@ Nothing here is specific to one language. How each language implements these cha
 
 ## Version
 
-These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042 and 0049, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
+These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064 and 0065, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
 
 ## Chapters
 
@@ -24,7 +24,7 @@ Read chapter 1 first. The others are ordered so that each builds only on the cha
 This section is a suggestion, not part of the specification. Each language decides its own order in its tech specs. The order below gets a conformance runner asserting on events as early as possible, since every case observes a journey through its event stream.
 
 1. **The harness.** A conformance runner that loads the cases, implements the step catalogue in the conformance repository, records events with a reporter, and writes its report. No case passes yet, but every later stage is checked as soon as it exists.
-2. **Events** (chapter 2). The event type with its fixed fields, the reporter, the default dispatcher, and a dispatcher that can be given to the executor.
+2. **Events** (chapter 2). The event type with its fixed fields, the reporter, the default dispatcher, and dispatcher factories.
 3. **A minimal executor** (parts of chapters 3 and 5). A workflow with one synchronous step that succeeds, a workflow instance, journey IDs, and `run` returning a result. The first cases can then pass: most of `0011-events/reporters-and-dispatchers.feature`, the fixed-fields scenario of `0011-events/stream-and-catalogue.feature`, the journey ID scenarios of `0009-running-a-workflow/data-and-ids.feature`, and the statelessness scenarios of `0012-local-executor/`.
 4. **Workflow definitions and configuration errors** (chapter 3). Step descriptors, attaching policies and input adapters, listing, violations and admission: `0002-foundations/listing.feature`, the admission scenarios of `0002-foundations/policies.feature`, `0008-steps/identity.feature`, and the admission scenarios of `0032-configuration-errors/` and `0012-local-executor/`, tagged `@proposal-0042`.
 5. **Steps** (chapter 4). Building, input resolution, outcomes, contributions and read-only data: `0002-foundations/data-from-the-workflow.feature` and the scenarios of `0008-steps/` and `0027-received-data-read-only/` that use no hook.
