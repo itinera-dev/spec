@@ -3,6 +3,7 @@
 - Issue: [#49](https://github.com/itinera-dev/spec/issues/49)
 - Tier: 1
 - Amends: [0009: Running a workflow](0009-running-a-workflow.md) and [0011: Events](0011-events.md)
+- Amended by [#54](https://github.com/itinera-dev/spec/issues/54): how custom code fails.
 
 ## Summary
 
