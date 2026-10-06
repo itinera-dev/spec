@@ -26,6 +26,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0061: The workflow instance carries its journey ID and its reporters](0061-instance-carries-journey-id-and-reporters.md) (tier 1, amends 0009 and 0049). Accepted in [#74](https://github.com/itinera-dev/spec/pull/74).
 - [0062: Workflow descriptors, and executors independent of how workflows are written](0062-workflow-descriptors.md) (tier 1, amends 0009). Accepted in [#75](https://github.com/itinera-dev/spec/pull/75).
 - [0063: The executor is given a dispatcher factory](0063-dispatcher-factory.md) (tier 1, amends 0011 and 0012). Accepted in [#76](https://github.com/itinera-dev/spec/pull/76).
+- [0064: Event data and reason details are values, serialized only by reporters](0064-event-data-values.md) (tier 1, amends 0008 and 0011). Accepted in [#77](https://github.com/itinera-dev/spec/pull/77).
 
 ## Under evaluation
 
