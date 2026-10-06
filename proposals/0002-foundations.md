@@ -3,6 +3,7 @@
 - Issue: [#2](https://github.com/itinera-dev/spec/issues/2)
 - Tier: 1
 - Amended by [#27](https://github.com/itinera-dev/spec/issues/27): data a step or hook receives is read-only.
+- Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
 
 ## Summary
 

@@ -21,6 +21,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0055: A reporter that fails while a step or hook runs](0055-reporter-fails-while-custom-code-runs.md) (tier 1, amends 0011). Accepted in [#69](https://github.com/itinera-dev/spec/pull/69).
 - [0056: Everything in the data bag is a value](0056-data-bag-values.md) (tier 1, amends 0008 and 0009). Accepted in [#70](https://github.com/itinera-dev/spec/pull/70).
 - [0057: Contributors and step reporters are valid only during their attempt or hook](0057-handles-valid-during-their-attempt.md) (tier 1, amends 0008 and 0010). Accepted in [#71](https://github.com/itinera-dev/spec/pull/71).
+- [0058: Workflow policies are built per journey, step policies per attempt](0058-building-policies.md) (tier 1, amends 0002 and 0010 and 0049). Accepted in [#72](https://github.com/itinera-dev/spec/pull/72).
 
 ## Under evaluation
 
