@@ -4,6 +4,7 @@
 - Tier: 1
 - Amended by [#27](https://github.com/itinera-dev/spec/issues/27): data a step or hook receives is read-only.
 - Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
+- Amended by [#60](https://github.com/itinera-dev/spec/issues/60): input adapters are attached to steps, and leave unknown inputs to the data bag.
 
 ## Summary
 

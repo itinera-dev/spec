@@ -3,6 +3,7 @@
 - Issue: [#42](https://github.com/itinera-dev/spec/issues/42)
 - Tier: 1
 - Amends: [0032: Configuration errors found while running](0032-configuration-errors.md) and [0012: The local executor](0012-local-executor.md)
+- Amended by [#60](https://github.com/itinera-dev/spec/issues/60): input adapters are attached to steps, and leave unknown inputs to the data bag.
 
 ## Summary
 
