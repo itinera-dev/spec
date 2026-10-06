@@ -24,6 +24,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0058: Workflow policies are built per journey, step policies per attempt](0058-building-policies.md) (tier 1, amends 0002 and 0010 and 0049). Accepted in [#72](https://github.com/itinera-dev/spec/pull/72).
 - [0060: Input adapters are attached to steps, and leave unknown inputs to the data bag](0060-input-adapters-attached-to-steps.md) (tier 1, amends 0002 and 0042). Accepted in [#73](https://github.com/itinera-dev/spec/pull/73).
 - [0061: The workflow instance carries its journey ID and its reporters](0061-instance-carries-journey-id-and-reporters.md) (tier 1, amends 0009 and 0049). Accepted in [#74](https://github.com/itinera-dev/spec/pull/74).
+- [0062: Workflow descriptors, and executors independent of how workflows are written](0062-workflow-descriptors.md) (tier 1, amends 0009). Accepted in [#75](https://github.com/itinera-dev/spec/pull/75).
 
 ## Under evaluation
 
