@@ -5,6 +5,7 @@
 - Amended by [#41](https://github.com/itinera-dev/spec/issues/41): hooks read data from the workflow without input adapters.
 - Amended by [#57](https://github.com/itinera-dev/spec/issues/57): contributors and step reporters are valid only during their attempt or hook.
 - Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
+- Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 
 ## Summary
 

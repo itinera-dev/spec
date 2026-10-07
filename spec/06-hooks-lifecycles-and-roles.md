@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md) and [0065](../proposals/0065-business-result.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md) and [0083](../proposals/0083-what-failures-carry.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -66,9 +66,11 @@ The failure hook comes after `step_given_up` because it is called because the st
 
 1. **Data from the step.** A step hook MAY request, from the step it acts on:
    - its contributions, by key and type, as required or optional, including contributions not committed;
-   - the failure's reason;
+   - the failure's reason, as required or optional;
    - the cause of the call, for `on step failure` and `on step retry`;
-   - the error, for an abnormal termination.
+   - the error, as required or optional.
+
+   A reason exists when the attempt reported a failure, and an error when it ended in an abnormal termination, whatever the hook and the cause (5.8). A required request for one that does not exist MUST abort the journey with `required data missing`; an optional request is answered with it absent.
 
    Data from the step MUST be exactly what that step contributed under the key; there is no adapter in this direction. If the step did not contribute the key, a required request MUST abort the journey with `required data missing`, and an optional request is answered with the data absent, and `optional_input_absent` is emitted, naming the policy and hook. A value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional.
 2. **The step's name, the attempt number and the journey ID.** A step hook MAY request the name of the step it acts on and the attempt number. Every hook MAY request the journey ID.

@@ -4,6 +4,7 @@
 - Tier: 1
 - Amends: [0009: Running a workflow](0009-running-a-workflow.md)
 - Amended by [#42](https://github.com/itinera-dev/spec/issues/42): configuration errors are caught before a journey starts.
+- Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 
 ## Summary
 

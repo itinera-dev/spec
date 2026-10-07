@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -103,10 +103,20 @@ The diagram shows these transitions:
    1. the **journey ID**;
    2. the **final status**, with what explains it:
       - **succeeded**;
-      - **failed**, with why: the reason of the failure that failed the journey (code, message, details), or the cause `retries exhausted` with the reason of the last failure, or the error message of an abnormal termination, or the reason a hook gave with `FailWorkflow`;
-      - **aborted**, with the abort reason and its details;
+      - **failed**, with its **cause**, the **reason** when a step or hook gave one, and the **error** when an error ended the last attempt:
+
+        | Cause | Reason | Error |
+        |---|---|---|
+        | `failure` | the step's reason | none |
+        | `retries exhausted` | the reason of the last attempt, if it reported a retriable failure | the error of the last attempt, if it ended in an abnormal termination |
+        | `abnormal termination` | none | the error |
+        | `FailWorkflow` | the reason the hook gave | none |
+
+      - **aborted**, with the abort reason and its details, and the **error** when custom code caused the abort by failing (5.10);
    3. the **data bag** as it stood at the end: the initial data plus every committed contribution. The data bag is the journey's output.
-2. **Not in the result:** each step's status and attempt count, and the name of the step that failed or during which the journey was aborted. They are in the event stream: `attempt_started`, the outcome facts and the decisions give every step's status and attempt count, an attempt counting from its `attempt_started`, and `journey_failed` and `journey_aborted` name the step. Implementations MAY offer a way to derive step statuses from a journey's event stream, but it is not part of the result.
+2. **How an error is carried.** Wherever the result carries an error, it MUST carry its message, and SHOULD carry the error itself, so that the caller can inspect it, in every language that can hold any error in one value. An error's message is the language's own text for it; when the error comes from a failure scripted with a message, as conformance does, it is exactly that text.
+3. **Content, not shape.** This section lists what a result carries. Whether a language represents it with a tagged union, optional fields or anything else is its own choice.
+4. **Not in the result:** each step's status and attempt count, and the name of the step that failed or during which the journey was aborted. They are in the event stream: `attempt_started`, the outcome facts and the decisions give every step's status and attempt count, an attempt counting from its `attempt_started`, and `journey_failed` and `journey_aborted` name the step. Implementations MAY offer a way to derive step statuses from a journey's event stream, but it is not part of the result.
 
 ## 5.9 The executor
 
@@ -135,6 +145,7 @@ The diagram shows these transitions:
    | a reporter, or a dispatcher, while `journey_aborted` is being delivered | ignored: the first abort reason stands and no further event is emitted (chapter 2) |
 
 3. **The list is exhaustive for tier 1.** A later proposal that adds a call into custom code adds it here, with its outcome. Producing the journey ID and making the reporters happen while the instance is created, before the executor is involved (5.1).
+4. **The error travels with its consequence.** When custom code fails and the journey is aborted, the abort carries that error: in `journey_aborted`, as its message, and in the result, as 5.8 point 2 says. This covers `hook failed`, `reporter failed` (for a reporter, or a dispatcher while dispatching), and `step could not be built` and `policy could not be built` when a constructor, an input adapter or a policy failed. An abort that no error caused, such as `required data missing`, `wrong type`, `not a value`, or `step could not be built` because something supplied is not a value, carries no error. A refusal caused by failing custom code carries that error, with its message, as the result does.
 4. **Unrecoverable failures are outside the model.** In a language that separates unrecoverable failures from recoverable ones, as the language defines them (for example a panic in Rust, or an `Error` such as `OutOfMemoryError` on the JVM), an unrecoverable failure is not a recoverable failure. The journey stops as if the process had crashed: no further event is emitted, so the stream may end without `journey_succeeded`, `journey_failed` or `journey_aborted`, and `run` produces no result. Implementations MUST NOT catch it in order to continue the journey or turn it into an outcome; it propagates to whoever called `run`, as the language defines.
 
 ## 5.11 Execution modes
