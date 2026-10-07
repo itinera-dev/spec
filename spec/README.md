@@ -6,7 +6,7 @@ Nothing here is specific to one language. How each language implements these cha
 
 ## Version
 
-These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081 and 0083, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
+These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081, 0083 and 0085, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
 
 ## Chapters
 

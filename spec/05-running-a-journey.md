@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -82,7 +82,7 @@ The diagram shows these transitions:
 
 1. **Succeeded:** every step ended as `Succeeded` or `Skipped`, or a hook returned `FinishWorkflow` (chapter 6). Steps that did not run remain `NotExecuted`.
 2. **Failed:** a step ended as `Failed`, or a hook returned `FailWorkflow` (chapter 6). Later steps do not run, and remain `NotExecuted`.
-3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted`; later steps remain `NotExecuted`, and no hook runs afterwards. The abort reasons are:
+3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted`; later steps remain `NotExecuted`, and no hook runs afterwards. An abort means something illegal happened, typically code that did not handle an error as it should: an aborted journey has no business outcome, and it MUST NOT be resumed or continued, by any executor, in this tier or any later one. The abort reasons are:
 
    | Abort reason | When | Defined in |
    |---|---|---|
@@ -113,7 +113,7 @@ The diagram shows these transitions:
         | `FailWorkflow` | the reason the hook gave | none |
 
       - **aborted**, with the abort reason and its details, and the **error** when custom code caused the abort by failing (5.10);
-   3. the **data bag** as it stood at the end: the initial data plus every committed contribution. The data bag is the journey's output.
+   3. for a journey that succeeded or failed, the **data bag** as it stood at the end: the initial data plus every committed contribution. The data bag is the journey's output. An aborted journey's result carries no data bag: an abort is a fault, and the data bag may stand halfway through a change. When a journey is aborted while contributions are being committed, whether the remaining ones are committed is not observable, and is left to the implementation.
 2. **How an error is carried.** Wherever the result carries an error, it MUST carry its message, and SHOULD carry the error itself, so that the caller can inspect it, in every language that can hold any error in one value. An error's message is the language's own text for it; when the error comes from a failure scripted with a message, as conformance does, it is exactly that text.
 3. **Content, not shape.** This section lists what a result carries. Whether a language represents it with a tagged union, optional fields or anything else is its own choice.
 4. **Not in the result:** each step's status and attempt count, and the name of the step that failed or during which the journey was aborted. They are in the event stream: `attempt_started`, the outcome facts and the decisions give every step's status and attempt count, an attempt counting from its `attempt_started`, and `journey_failed` and `journey_aborted` name the step. Implementations MAY offer a way to derive step statuses from a journey's event stream, but it is not part of the result.

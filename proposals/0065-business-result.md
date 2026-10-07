@@ -4,6 +4,7 @@
 - Tier: 1
 - Amends: [0009](0009-running-a-workflow.md)
 - Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
+- Amended by [#85](https://github.com/itinera-dev/spec/issues/85): an aborted journey's result carries no data bag, and an abort is final.
 
 ## Summary
 
