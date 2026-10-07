@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md) and [0081](../proposals/0081-reporter-failure-stops-delivery.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md) and [0083](../proposals/0083-what-failures-carry.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -51,6 +51,7 @@ Custom code fails by throwing or by returning an error (chapter 5, 5.10). A repo
    - the **workflow name**.
 2. An event about a step MUST also carry the **step name** and the **attempt number**.
 3. An event from or about a hook MUST also carry the **policy name** and the **hook name**, and, for a step hook, the step name and attempt number that triggered it.
+4. `journey_failed` and `journey_aborted` are events about the journey, not about a step. They explain why the journey ended: `journey_failed` names the step that failed, and `journey_aborted` the step during which it was aborted, if any, but neither carries an attempt number.
 
 ## 2.6 Facts and decisions
 
@@ -82,7 +83,7 @@ Facts:
 | `contribution_committed` | a contribution reached the data bag | key, source: the step, or the policy and hook |
 | `contributions_discarded` | a skipped step's contributions were discarded | step, attempt |
 | `data_overwritten` | a committed key replaced an earlier value | key, source |
-| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook or an input adapter, the policy and hook, or the adapter, and the key; for `not a value`, the key or the event kind; for `policy could not be built`, the policy |
+| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook or an input adapter, the policy and hook, or the adapter, and the key; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
 
 Decisions:
 
@@ -91,7 +92,7 @@ Decisions:
 | `step_retrying` | the step goes to `MustRetry` and will be attempted again | step, the attempt that failed, the cause (`retriable failure` or `abnormal termination`), decided by |
 | `step_given_up` | the step will not be attempted again and ends `Failed` | step, the last attempt, the cause (`failure`, `abnormal termination`, `retries exhausted`, or `FailWorkflow` with its reason), decided by |
 | `journey_succeeded` | the journey succeeds | decided by: `default` when no step is left, or the hook that returned `FinishWorkflow` |
-| `journey_failed` | the journey fails | the step and its cause and reason, or the step whose hook returned `FailWorkflow` and its reason; decided by |
+| `journey_failed` | the journey fails | the step that failed, its cause, its reason when there is one, and the message of its error when there is one (5.8); or the step whose hook returned `FailWorkflow` and that reason; decided by |
 
 1. Each attempt has exactly one outcome fact: `step_succeeded`, `step_failed`, `step_skipped` or `step_abnormal_termination`.
 2. Exactly one step decision MUST follow every attempt that ended in `step_failed` or `step_abnormal_termination`: `step_retrying` or `step_given_up`. A success or a skip needs no step decision.

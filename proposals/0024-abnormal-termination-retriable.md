@@ -3,6 +3,7 @@
 - Issue: [#24](https://github.com/itinera-dev/spec/issues/24)
 - Tier: 1
 - Amends: [0008: Steps](0008-steps.md)
+- Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 
 ## Summary
 

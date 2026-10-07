@@ -6,6 +6,7 @@
 - Amended by [#56](https://github.com/itinera-dev/spec/issues/56): everything in the data bag is a value.
 - Amended by [#57](https://github.com/itinera-dev/spec/issues/57): contributors and step reporters are valid only during their attempt or hook.
 - Amended by [#64](https://github.com/itinera-dev/spec/issues/64): event data and reason details are values, serialized only by reporters.
+- Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 
 ## Summary
 

@@ -3,6 +3,7 @@
 - Issue: [#40](https://github.com/itinera-dev/spec/issues/40)
 - Tier: 1
 - Amends: [0011: Events](0011-events.md)
+- Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 
 ## Summary
 
