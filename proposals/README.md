@@ -30,6 +30,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0065: The journey result is a business outcome](0065-business-result.md) (tier 1, amends 0009). Accepted in [#78](https://github.com/itinera-dev/spec/pull/78).
 - [0081: A reporter that fails stops the delivery of the event it failed on](0081-reporter-failure-stops-delivery.md) (tier 1, amends 0049 and 0055). Accepted in [#82](https://github.com/itinera-dev/spec/pull/82).
 - [0083: What a failure, an abort and a refusal carry](0083-what-failures-carry.md) (tier 1, amends 0065, 0040, 0024, 0008, 0010 and 0032). Accepted in [#84](https://github.com/itinera-dev/spec/pull/84).
+- [0085: An aborted journey's result carries no data bag, and an abort is final](0085-aborted-result-has-no-data.md) (tier 1, amends 0065 and 0009). Accepted in [#86](https://github.com/itinera-dev/spec/pull/86).
 
 ## Under evaluation
 
