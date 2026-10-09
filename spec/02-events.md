@@ -83,7 +83,7 @@ Facts:
 | `contribution_committed` | a contribution reached the data bag | key, source: the step, or the policy and hook |
 | `contributions_discarded` | a skipped step's contributions were discarded | step, attempt |
 | `data_overwritten` | a committed key replaced an earlier value | key, source |
-| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook or an input adapter, the policy and hook, or the adapter, and the key; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
+| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
 
 Decisions:
 

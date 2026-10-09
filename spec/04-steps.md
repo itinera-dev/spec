@@ -20,13 +20,14 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 3. **Resolving an input.** Resolving inputs is part of building the step: every input is resolved, outside the step, before the step is created, so a built step has all its inputs. For each input:
    1. **If the step has an input adapter** (chapter 3, 3.4), the executor asks it, for each input in the order the step declares them. Its own requests for data from the workflow are resolved first, with the rules of chapter 6, 6.6 point 3; a failure there aborts the journey, naming the step, the adapter and the key. The adapter then either:
       - **returns a value**: the input takes it, and `input_adapter_supplied` is emitted, naming the adapter;
+      - **returns a value of the wrong type**: `input_adapter_supplied` is emitted, naming the adapter, and the journey is aborted with `wrong type`, naming the step, the adapter and the key;
       - **returns nothing**: the adapter does not supply this input, which is resolved from the data bag, as in point 2;
       - **fails, or returns something that is not a value**: `input_adapter_failed` is emitted, naming the adapter, and the journey is aborted with `step could not be built`.
    2. **Otherwise**, and for an input the adapter returned nothing for, the value MUST be read from the data bag under the key.
 4. **No value.** When the data bag has no value under the key:
-   - for a **required** input, the journey MUST be aborted with the abort reason `required data missing`;
+   - for a **required** input, the journey MUST be aborted with the abort reason `required data missing`, naming the step and the key. When the step has an input adapter that returned nothing for this input, the adapter is not named: it supplied nothing;
    - for an **optional** input, the step MUST be built with that input absent, and `optional_input_absent` is emitted.
-5. **Wrong type.** A value of the wrong type MUST abort the journey with the abort reason `wrong type`, whether the input is required or optional.
+5. **Wrong type.** A value of the wrong type MUST abort the journey with the abort reason `wrong type`, whether the input is required or optional, naming the step and the key, and the adapter when the adapter supplied the value.
 6. **Other build failures.** An input adapter that fails, a constructor that fails, or any other reason a step cannot be built MUST abort the journey with the abort reason `step could not be built`.
 7. **Building fails: the journey is aborted.** A step that cannot be built makes the run unsafe. Its status becomes `Aborted`, and it MUST NOT enter the retry loop.
 
