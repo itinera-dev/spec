@@ -3,6 +3,7 @@
 - Issue: [#60](https://github.com/itinera-dev/spec/issues/60)
 - Tier: 1
 - Amends: [0002](0002-foundations.md), [0042](0042-configuration-errors-before-the-journey.md)
+- Amended by [#91](https://github.com/itinera-dev/spec/issues/91): input adapters may read the data bag.
 
 ## Summary
 

@@ -1,6 +1,6 @@
 # 3. Workflow definitions and configuration errors
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md) and [0062](../proposals/0062-workflow-descriptors.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md).
 
 How a workflow is declared, and what happens when the declaration is wrong. How each language expresses a declaration (a builder, annotations, attributes, macros) is decided in its tech spec; this chapter defines only what a declaration contains and how it is checked.
 
@@ -46,7 +46,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 
 1. An **input adapter** is part of the workflow that declares it. It has a **name**, unique among the workflow's adapters, and is attached to one or more of the workflow's steps.
 2. **One adapter per step.** A step has at most one input adapter. Two adapters attached to the same step are the violation `step adapted twice`, and an adapter attached to a step the workflow does not have is the violation `input adapter for unknown step`.
-3. **What it may request**, each as a declared parameter, and only what it declares: the name of the step being built, the key being resolved, data from the workflow, read from the data bag and never through an adapter, with the rules of chapter 6, 6.6 point 3, and the journey ID. It does not request roles, receives no contributor and emits no events of its own: it only supplies values.
+3. **What it may request**, each as a declared parameter, and only what it declares: the name of the step being built, the key being resolved, data from the workflow, read from the data bag and never through an adapter, with the rules of chapter 6, 6.6 point 3, the journey ID, and read access to the data bag itself (chapter 4, 4.2 point 8). It does not request roles, receives no contributor and emits no events of its own: it only supplies values.
 4. What an input adapter does when a step is built is defined in chapter 4, 4.2.
 5. Adapters are declared on the workflow, never on the step: each workflow knows how to adapt its own data. There are no adapters for data from a step, and adapters never serve hooks.
 
@@ -91,11 +91,12 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    2. a policy attached to a workflow that does not provide a role it requests (3.5);
    3. a step, hook or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
    4. something that is not a value in the data bag, in event data or in a reason's details (chapter 4, 4.6; chapter 2, 2.9);
-   5. a contributor or step reporter used after its attempt or hook has ended (chapter 4, 4.6).
+   5. a contributor or step reporter used after its attempt or hook has ended, or an input adapter's access to the data bag used after its call (chapter 4, 4.6 and 4.2);
+   6. an input adapter writing through its access to the data bag (chapter 4, 4.2).
 
    For such a language, the rules of this specification about these situations do not apply.
 2. **Each exclusion is proven.** A language that makes a rule impossible MUST prove it in its own test suite: for every conformance scenario it excludes, a test shows that the forbidden code is rejected, for example by compiling it and expecting a compilation error. Its tech spec lists, for each excluded scenario, the test that replaces it.
-3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value` and `@late-handle`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
+3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value`, `@late-handle` and `@bag-write`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
 
 ## 3.9 Checked by
 

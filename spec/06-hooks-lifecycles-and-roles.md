@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md) and [0083](../proposals/0083-what-failures-carry.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -79,7 +79,7 @@ The failure hook comes after `step_given_up` because it is called because the st
    - A value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional.
    - An optional value not found is absent, and `optional_input_absent` is emitted, naming the policy and hook.
 4. **Everything a hook requests is resolved before it runs**, in the order the hook declares its requests, whatever their kind: data from the step, data from the workflow, the failure reason and the error. Resolving a hook's data is part of running the hook. If resolving a request aborts the journey, the requests after it are not resolved, and the hook does not run: it emits no event and has no `hook_called`, and `journey_aborted` names the policy, the hook and the key, or, for a request for the failure reason or the error, which of the two was requested.
-5. A hook MUST NOT be given the data bag itself.
+5. A hook of a policy MUST NOT be given the data bag itself. An input adapter, which is part of the workflow, MAY request read access to it (chapter 4, 4.2 point 8).
 6. **Received data is read-only.** Everything a hook receives (data from the step, data from the workflow, a reason, an error, the journey ID) is read-only for it. Changing it, where the language allows it at all, MUST NOT change the data bag, any contribution, or what any other step or hook receives.
 7. Business decisions belong in steps: hooks branch on what steps reported and contributed.
 

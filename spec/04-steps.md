@@ -1,6 +1,6 @@
 # 4. Steps
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md) and [0064](../proposals/0064-event-data-values.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md).
 
 What a step is, how it is built and run, the outcomes it reports, and what happens to the data it contributes. When a step runs, and what follows its outcome, are defined in chapters 5 and 6.
 
@@ -30,6 +30,11 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 5. **Wrong type.** A value of the wrong type MUST abort the journey with the abort reason `wrong type`, whether the input is required or optional, naming the step and the key, and the adapter when the adapter supplied the value.
 6. **Other build failures.** An input adapter that fails, a constructor that fails, or any other reason a step cannot be built MUST abort the journey with the abort reason `step could not be built`.
 7. **Building fails: the journey is aborted.** A step that cannot be built makes the run unsafe. Its status becomes `Aborted`, and it MUST NOT enter the retry loop.
+8. **An input adapter's access to the data bag.** An input adapter MAY request read access to the data bag, as one of its declared requests (chapter 3, 3.4 point 3), resolved in the order it declares them.
+   1. **What it shows.** For the call it is given to, it lets the adapter look up any key and read its value as a type the adapter names. It shows the data bag the step is being built from: everything committed before this attempt, including the contributions of the hooks of earlier attempts (chapter 6, 6.7), and never the contributions of an earlier attempt that did not succeed (4.6).
+   2. **Read-only.** Nothing the adapter does through the access, or with what it reads, may change the data bag. Implementations SHOULD make writing through the access impossible to express; where a write can be expressed, it MUST NOT reach the data bag, nor change what any step, hook or adapter receives afterwards. Every value read is the adapter's own copy (4.7).
+   3. **Reads are the adapter's own.** A read through the access is not a request resolved by the executor: a key not in the data bag is reported to the adapter as absent, and a value of another type than the one asked for is reported as such. Neither emits an event or aborts the journey. The adapter then returns a value, returns nothing, or fails, as point 3.1 says.
+   4. **Valid only during the call.** Used after the call it was given to, the access MUST NOT reveal anything of the data bag: every lookup reports the key absent. It does not fail, since a later use happens inside another call of the same journey.
 
 ## 4.3 Running a step: outcomes
 

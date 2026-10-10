@@ -6,6 +6,7 @@
 - Amended by [#57](https://github.com/itinera-dev/spec/issues/57): contributors and step reporters are valid only during their attempt or hook.
 - Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
 - Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
+- Amended by [#91](https://github.com/itinera-dev/spec/issues/91): input adapters may read the data bag.
 
 ## Summary
 
