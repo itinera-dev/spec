@@ -83,7 +83,7 @@ Facts:
 | `contribution_committed` | a contribution reached the data bag | key, source: the step, or the policy and hook |
 | `contributions_discarded` | a skipped step's contributions were discarded | step, attempt |
 | `data_overwritten` | a committed key replaced an earlier value | key, source |
-| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
+| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key, or, for a hook's request for the failure reason or the error, which of the two was requested; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
 
 Decisions:
 
@@ -112,7 +112,7 @@ Events MUST follow what happens, in this order:
    - on Success, one `contribution_committed` per committed key, each followed by `data_overwritten` when it replaced a value;
    - on Skipped, `contributions_discarded`.
 4. Then the hooks and the step decision, in the order chapter 6 defines. Each hook called contributes, in order:
-   1. `optional_input_absent` for each optional request it made, for data from the workflow or from the step, that had no value;
+   1. `optional_input_absent` for each optional request it made, for data from the workflow or from the step, that had no value, in the order its requests are resolved (chapter 6, 6.6 point 4);
    2. the `journey_*` events it emits, in the order emitted;
    3. its `hook_called`;
    4. its own `contribution_committed` events, each followed by `data_overwritten` when it replaced a value.

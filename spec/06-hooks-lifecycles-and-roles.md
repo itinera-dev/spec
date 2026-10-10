@@ -78,7 +78,7 @@ The failure hook comes after `step_given_up` because it is called because the st
    - A required value not found MUST abort the journey with `required data missing`.
    - A value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional.
    - An optional value not found is absent, and `optional_input_absent` is emitted, naming the policy and hook.
-4. **Everything a hook requests is resolved before it runs.** Resolving a hook's data is part of running the hook. If resolving a request aborts the journey, the hook does not run: it emits no event and has no `hook_called`, and `journey_aborted` names the policy, the hook and the key.
+4. **Everything a hook requests is resolved before it runs**, in the order the hook declares its requests, whatever their kind: data from the step, data from the workflow, the failure reason and the error. Resolving a hook's data is part of running the hook. If resolving a request aborts the journey, the requests after it are not resolved, and the hook does not run: it emits no event and has no `hook_called`, and `journey_aborted` names the policy, the hook and the key, or, for a request for the failure reason or the error, which of the two was requested.
 5. A hook MUST NOT be given the data bag itself.
 6. **Received data is read-only.** Everything a hook receives (data from the step, data from the workflow, a reason, an error, the journey ID) is read-only for it. Changing it, where the language allows it at all, MUST NOT change the data bag, any contribution, or what any other step or hook receives.
 7. Business decisions belong in steps: hooks branch on what steps reported and contributed.
