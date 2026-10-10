@@ -35,7 +35,7 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
    | `Succeeded` | the step succeeded |
    | `Failed` | the step failed and will not be tried again |
    | `Skipped` | the step skipped itself |
-   | `Aborted` | the journey was aborted during this step |
+   | `Aborted` | the journey was aborted while the step was `Executing` or `MustRetry` |
 
 2. Every step starts as `NotExecuted`. After an abort, the steps after the aborted one remain `NotExecuted`.
 3. **Run-once.** A step that ended as `Succeeded`, `Failed` or `Skipped` MUST NOT run again in the journey.
@@ -52,7 +52,7 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
 ```mermaid
 stateDiagram-v2
   accTitle: Step statuses in tier 1
-  accDescr: A step starts as NotExecuted and becomes Executing when an attempt starts. From Executing it becomes Succeeded, Skipped, Failed, MustRetry or Aborted. From MustRetry it becomes Executing again for the next attempt.
+  accDescr: A step starts as NotExecuted and becomes Executing when an attempt starts. From Executing it becomes Succeeded, Skipped, Failed, MustRetry or Aborted. From MustRetry it becomes Executing again for the next attempt, or Aborted if the journey is aborted first.
   [*] --> NotExecuted
   NotExecuted --> Executing: attempt starts
   MustRetry --> Executing: next attempt starts
@@ -61,13 +61,14 @@ stateDiagram-v2
   Executing --> MustRetry: retry allowed
   Executing --> Failed: no retry
   Executing --> Aborted: journey aborted
+  MustRetry --> Aborted: journey aborted
 ```
 
 The diagram shows these transitions:
 
 1. A step starts as `NotExecuted`, and becomes `Executing` when its first attempt starts.
-2. From `Executing`, it becomes `Succeeded` on success, `Skipped` on a skip, `MustRetry` when a retry is allowed (5.6), `Failed` when no retry is allowed, and `Aborted` when the journey is aborted during it.
-3. From `MustRetry`, it becomes `Executing` again when the next attempt starts.
+2. From `Executing`, it becomes `Succeeded` on success, `Skipped` on a skip, `MustRetry` when a retry is allowed (5.6), `Failed` when no retry is allowed, and `Aborted` when the journey is aborted while it is executing.
+3. From `MustRetry`, it becomes `Executing` again when the next attempt starts, or `Aborted` when the journey is aborted before that attempt starts.
 4. `Succeeded`, `Skipped`, `Failed` and `Aborted` are final.
 
 ## 5.6 Attempts and retries
@@ -82,7 +83,7 @@ The diagram shows these transitions:
 
 1. **Succeeded:** every step ended as `Succeeded` or `Skipped`, or a hook returned `FinishWorkflow` (chapter 6). Steps that did not run remain `NotExecuted`.
 2. **Failed:** a step ended as `Failed`, or a hook returned `FailWorkflow` (chapter 6). Later steps do not run, and remain `NotExecuted`.
-3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted`; later steps remain `NotExecuted`, and no hook runs afterwards. An abort means something illegal happened, typically code that did not handle an error as it should: an aborted journey has no business outcome, and it MUST NOT be resumed or continued, by any executor, in this tier or any later one. The abort reasons are:
+3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted` if it was `Executing` or `MustRetry`; a step whose status was already final keeps it. A status changes when the step's outcome or decision is final, before the event that records it is delivered (chapter 2, 2.6). Later steps remain `NotExecuted`, and no hook runs afterwards. An abort means something illegal happened, typically code that did not handle an error as it should: an aborted journey has no business outcome, and it MUST NOT be resumed or continued, by any executor, in this tier or any later one. The abort reasons are:
 
    | Abort reason | When | Defined in |
    |---|---|---|
