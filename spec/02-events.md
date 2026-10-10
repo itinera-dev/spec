@@ -131,7 +131,7 @@ Events MUST follow what happens, in this order:
    2. the event is not delivered to the reporters after it (2.3);
    3. the emit call ends the step or hook, by throwing an exception that belongs to the executor or, in a language without exceptions, by returning the executor's error, which the step or hook propagates. Implementations SHOULD make it impossible to catch by name;
    4. the abort stands whatever the step or hook does afterwards: nothing more it emits is delivered, and its outcome, lifecycle and contributions are ignored. There is no outcome fact, no `hook_called` and no commit, and it is never an abnormal termination;
-   5. when it returns, `journey_aborted` is delivered, naming the step, whose status becomes `Aborted`.
+   5. when it returns, `journey_aborted` is delivered, naming the step, whose status becomes `Aborted` if it was `Executing` or `MustRetry` (chapter 5, 5.7).
 6. Apart from point 5 and point 4, emitting an event never fails and never changes an outcome.
 
 ## 2.10 Tracing policies
