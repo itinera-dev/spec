@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md) and [0083](../proposals/0083-what-failures-carry.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md), [0083](../proposals/0083-what-failures-carry.md) and [0095](../proposals/0095-services-provided-to-steps.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -50,7 +50,7 @@ Custom code fails by throwing or by returning an error (chapter 5, 5.10). A repo
    - the **journey ID**;
    - the **workflow name**.
 2. An event about a step MUST also carry the **step name** and the **attempt number**.
-3. An event from or about a hook MUST also carry the **policy name** and the **hook name**, and, for a step hook, the step name and attempt number that triggered it.
+3. An event from or about a hook MUST also carry the **policy name** and the **hook name**, and, for a step hook, the step name and attempt number that triggered it. An event from or about a service provider MUST also carry the **provider name**, with the step name and attempt number of the step being built.
 4. `journey_failed` and `journey_aborted` are events about the journey, not about a step. They explain why the journey ended: `journey_failed` names the step that failed, and `journey_aborted` the step during which it was aborted, if any, but neither carries an attempt number.
 
 ## 2.6 Facts and decisions
@@ -74,7 +74,9 @@ Facts:
 | `attempt_started` | an attempt of a step starts | step, attempt |
 | `input_adapter_supplied` | an input adapter supplies a value for a step's input | step, key, adapter |
 | `input_adapter_failed` | an input adapter fails, or supplies something that is not a value, for a step's input | step, key, adapter |
-| `optional_input_absent` | an optional request has no value: a step's input, a hook's data from the workflow or from the step, a rescue step's data from the step it rescues (chapter 7), or an input adapter's data from the workflow | step, key; the policy and hook, or the adapter, when the request is theirs |
+| `optional_input_absent` | an optional request has no value: a step's input, a hook's data from the workflow or from the step, a rescue step's data from the step it rescues (chapter 7), or an input adapter's or a service provider's data from the workflow | step, key; the policy and hook, the adapter, or the provider, when the request is theirs |
+| `service_provided` | a service provider returned an instance for a step's service | step, attempt, key, provider |
+| `service_provider_failed` | a service provider failed, or returned nothing, for a step's service | step, attempt, key, provider |
 | `step_succeeded` | the attempt reported Success | step, attempt |
 | `step_failed` | the attempt reported Failure | step, attempt, retriable, reason (code, message, details) |
 | `step_skipped` | the attempt reported Skipped | step, attempt, the reason, if any |
@@ -83,7 +85,7 @@ Facts:
 | `contribution_committed` | a contribution reached the data bag | key, source: the step, or the policy and hook |
 | `contributions_discarded` | a skipped step's contributions were discarded | step, attempt |
 | `data_overwritten` | a committed key replaced an earlier value | key, source |
-| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key, or, for a hook's or a rescue step's request for the failure reason or the error, which of the two was requested; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
+| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, or for a service provider, the policy and hook, the adapter, or the provider, and the key, or, for a hook's or a rescue step's request for the failure reason or the error, which of the two was requested; for `not a value`, the policy and hook or the provider when the value was theirs, and the key or the event kind; for `policy could not be built`, the policy; for `step could not be built` because a service provider failed, the provider; and, when custom code caused the abort by failing, the message of its error (5.10) |
 
 Decisions:
 
@@ -108,8 +110,9 @@ Events MUST follow what happens, in this order:
 2. For each attempt of a step:
    1. `attempt_started`;
    2. the input events, in the order the step's inputs are resolved. For an input of an adapted step: the adapter's own `optional_input_absent` events, then `input_adapter_supplied` or `input_adapter_failed`, or, when the adapter returns nothing, the events of resolving it from the data bag;
-   3. the step's own `step_*` events, in the order emitted;
-   4. the outcome fact.
+   3. the service events, in the order the step's services are resolved (chapter 4, 4.9). For each service whose provider is called: the provider's own `optional_input_absent` events, then the `journey_*` events it emits, then `service_provided` or `service_provider_failed`. A service of journey scope made for an earlier attempt has no event;
+   4. the step's own `step_*` events, in the order emitted;
+   5. the outcome fact.
 3. After the outcome fact:
    - on Success, one `contribution_committed` per committed key, each followed by `data_overwritten` when it replaced a value;
    - on Skipped, `contributions_discarded`.
@@ -125,9 +128,9 @@ Events MUST follow what happens, in this order:
 ## 2.9 Events from steps and hooks
 
 1. A step MAY emit only `step_info`, `step_warning` and `step_error`, through its step reporter. These carry the step name and attempt number.
-2. A hook MAY emit only `journey_info`, `journey_warning` and `journey_error`. These carry the policy name and hook name, and, for a step hook, the step name and attempt number.
+2. A hook or a service provider MAY emit only `journey_info`, `journey_warning` and `journey_error`. These carry the policy name and hook name, and, for a step hook, the step name and attempt number; or, from a service provider, the provider name, with the step name and attempt number of the step being built. What this section says of a hook also holds for a service provider.
 3. The author supplies only a **message** and optional **data**. The data MUST be a value (chapter 4, 4.6). The event carries its own copy, captured when it is emitted, so changing the original afterwards changes nothing. The executor MUST NOT serialize it: serializing belongs to reporters, in whatever format each chooses.
-4. **Data that is not a value is illegal.** Where a language can express it, the event is not delivered, the journey is aborted with `not a value`, naming the step, or the policy and hook, and the event kind, and the emit call ends the step or hook as point 5 describes.
+4. **Data that is not a value is illegal.** Where a language can express it, the event is not delivered, the journey is aborted with `not a value`, naming the step, or the policy and hook, or the service provider and the step being built, and the event kind, and the emit call ends the step or hook as point 5 describes.
 5. **Delivery is blocking.** An event a step or hook emits MUST be delivered to every reporter before the emit call returns: it blocks for a synchronous step or hook and is awaited for an asynchronous one. If a reporter fails during that delivery:
    1. the journey is aborted with `reporter failed`, and the abort is recorded at once;
    2. the event is not delivered to the reporters after it (2.3);
@@ -138,7 +141,7 @@ Events MUST follow what happens, in this order:
 
 ## 2.10 Tracing policies
 
-Every effect of a policy is traceable in the stream: `hook_called` records each hook and the lifecycle it returned, every `journey_*` event carries the policy and hook that emitted it, every committed contribution records its source, and every decision says who decided it. There are no other policy events in tier 1.
+Every effect of a policy is traceable in the stream: `hook_called` records each hook and the lifecycle it returned, every `journey_*` event a hook emits carries its policy and hook, every committed contribution records its source, and every decision says who decided it. A `journey_*` event a service provider emits carries the provider's name instead (2.9 point 2). There are no other policy events in tier 1.
 
 ## 2.11 Checked by
 

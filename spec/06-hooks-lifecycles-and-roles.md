@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -99,7 +99,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 2. **Roles carry operations, not data.** A hook that needs data requests it as data from the workflow (6.6). Implementations MAY give every role a common base interface, without data access.
 3. **A hook requests each role it needs as a separate declared parameter**, the same way it declares the data it requests, and MAY request several. It reaches the workflow instance through those roles only, never as a whole, so a policy can be attached to any workflow that provides the roles it needs.
 4. A role MUST NOT expose the data bag, the executor or the steps.
-5. Step policies and workflow policies MAY request roles; steps MUST NOT.
+5. Step policies and workflow policies MAY request roles; steps MUST NOT. Steps request services instead, which hooks MUST NOT request (chapter 4, 4.9).
 6. A policy attached to a workflow that does not provide a role it requests is the violation `role not provided` (chapter 3). Implementations SHOULD detect it at compile time where their language allows it.
 7. **Role calls are the workflow's business.** The executor does not record them; a hook that wants them in the event stream emits a `journey_*` event itself.
 

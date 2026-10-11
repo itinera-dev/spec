@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -21,7 +21,7 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
 
 1. Each journey has one data bag, held by the workflow instance.
 2. It starts with the initial data. `journey_started` MUST list the initial keys and MUST NOT carry their values.
-3. It receives committed contributions, from steps (chapter 4) and hooks (chapter 6), and is read by input resolution (chapter 4) and by hooks' requests (chapter 6). Nothing else changes it.
+3. It receives committed contributions, from steps (chapter 4) and hooks (chapter 6), and is read by input resolution and service providers' requests (chapter 4) and by hooks' requests (chapter 6). Nothing else changes it.
 
 ## 5.4 Step statuses
 
@@ -93,12 +93,12 @@ The diagram shows these transitions:
 
    | Abort reason | When | Defined in |
    |---|---|---|
-   | `step could not be built` | a step's constructor, or the input adapter resolving one of its inputs, failed or supplied something that is not a value | chapter 4 |
+   | `step could not be built` | a step's constructor, the input adapter resolving one of its inputs, or the service provider for one of its services, failed, or the adapter supplied something that is not a value, or the provider returned nothing | chapter 4 |
    | `policy could not be built` | a step policy failed while being built for an attempt | chapter 6 |
    | `required data missing` | a required request has no value | chapters 4, 6 and 7 |
    | `wrong type` | a requested value has the wrong type | chapters 4, 6 and 7 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |
-   | `not a value` | a step or hook contributed, emitted or gave in a reason's details something that is not a value | chapters 2 and 4 |
+   | `not a value` | a step, hook or service provider contributed, emitted or gave in a reason's details something that is not a value | chapters 2 and 4 |
    | `hook failed` | a hook, or a role operation it called, failed | chapter 6 |
    | `reporter failed` | a reporter, or a dispatcher while dispatching, failed | chapter 2 |
    | `rescue skipped` | a rescue step reported Skipped | chapter 7 |
@@ -146,21 +146,21 @@ The diagram shows these transitions:
    | the dispatcher factory, or the dispatcher while the journey's reporters are added | a refusal: no journey and no event |
    | a workflow policy, while it is built | a refusal: no journey and no event |
    | a step policy, while it is built for an attempt | the journey is aborted with `policy could not be built` (chapter 6) |
-   | a step's constructor, a rescue step's included, or the input adapter for one of its inputs | the journey is aborted with `step could not be built` (chapter 4) |
+   | a step's constructor, a rescue step's included, the input adapter for one of its inputs, or the service provider for one of its services | the journey is aborted with `step could not be built` (chapter 4) |
    | a running step, a rescue step included | an abnormal termination of the attempt; the journey is not aborted (chapter 4, chapter 7) |
    | a hook, including a role operation the hook calls | the journey is aborted with `hook failed` (chapter 6) |
    | a reporter, or a dispatcher while dispatching, on any event except `journey_aborted` | the journey is aborted with `reporter failed` (chapter 2) |
    | a reporter, or a dispatcher, while `journey_aborted` is being delivered | ignored: the first abort reason stands and no further event is emitted (chapter 2) |
 
 3. **The list is exhaustive for tier 1.** A later proposal that adds a call into custom code adds it here, with its outcome. Producing the journey ID and making the reporters happen while the instance is created, before the executor is involved (5.1).
-4. **The error travels with its consequence.** When custom code fails and the journey is aborted, the abort carries that error: in `journey_aborted`, as its message, and in the result, as 5.8 point 2 says. This covers `hook failed`, `reporter failed` (for a reporter, or a dispatcher while dispatching), and `step could not be built` and `policy could not be built` when a constructor, an input adapter or a policy failed. An abort that no error caused, such as `required data missing`, `wrong type`, `not a value`, or `step could not be built` because something supplied is not a value, carries no error. A refusal caused by failing custom code carries that error, with its message, as the result does.
+4. **The error travels with its consequence.** When custom code fails and the journey is aborted, the abort carries that error: in `journey_aborted`, as its message, and in the result, as 5.8 point 2 says. This covers `hook failed`, `reporter failed` (for a reporter, or a dispatcher while dispatching), and `step could not be built` and `policy could not be built` when a constructor, an input adapter, a service provider or a policy failed. An abort that no error caused, such as `required data missing`, `wrong type`, `not a value`, or `step could not be built` because something supplied is not a value or a service provider returned nothing, carries no error. A refusal caused by failing custom code carries that error, with its message, as the result does.
 4. **Unrecoverable failures are outside the model.** In a language that separates unrecoverable failures from recoverable ones, as the language defines them (for example a panic in Rust, or an `Error` such as `OutOfMemoryError` on the JVM), an unrecoverable failure is not a recoverable failure. The journey stops as if the process had crashed: no further event is emitted, so the stream may end without `journey_succeeded`, `journey_failed` or `journey_aborted`, and `run` produces no result. Implementations MUST NOT catch it in order to continue the journey or turn it into an outcome; it propagates to whoever called `run`, as the language defines.
 
 ## 5.11 Execution modes
 
-1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks and reporters alike.
+1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks, service providers and reporters alike.
 2. Anything in a mode the executor does not accept is the violation `mode not accepted`, refused at admission when the instance is handed to `run`, before the journey starts (chapter 3).
-3. Whether an asynchronous executor also accepts synchronous steps, hooks and reporters is each language's choice, stated as a capability.
+3. Whether an asynchronous executor also accepts synchronous steps, hooks, service providers and reporters is each language's choice, stated as a capability.
 4. A language claims its capabilities, the modes its executors accept, alongside its tier, and its conformance runner runs the cases tagged with them.
 
 ## 5.12 Checked by

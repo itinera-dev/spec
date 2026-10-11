@@ -6,10 +6,10 @@ What is planned, in order. Status of individual proposals lives in their issues;
 
 Tiers are cumulative: each includes everything before it. See [PROCESS.md](PROCESS.md) for how tiers and capabilities are claimed.
 
-1. **Tier 1: a single workflow.** Steps, the data bag, a local executor, retries, rescue steps, step hooks with their default behaviour, the workflow result, workflow run IDs and the event model. Proposals: [#2](https://github.com/itinera-dev/spec/issues/2) and [#3](https://github.com/itinera-dev/spec/issues/3).
+1. **Tier 1: a single workflow.** Steps, the data bag, services provided to steps, a local executor, retries, rescue steps, step hooks with their default behaviour, the workflow result, workflow run IDs and the event model. Proposals: [#2](https://github.com/itinera-dev/spec/issues/2), [#3](https://github.com/itinera-dev/spec/issues/3) and [#95](https://github.com/itinera-dev/spec/issues/95).
 2. **Tier 2: transfers and switches.** Moving a journey to another workflow, with or without its data and execution state, late joining, transfer limits and re-entrancy protection. Recorded in [#2](https://github.com/itinera-dev/spec/issues/2).
 3. **Tier 3: sub workflows.** Running a workflow from within another. Recorded in [#2](https://github.com/itinera-dev/spec/issues/2); data flow and sub journeys still open.
-4. **Later tiers.** Durable runs (pending steps, checkpointing, resuming after a crash), services provided to steps, and others.
+4. **Later tiers.** Durable runs (pending steps, checkpointing, resuming after a crash), and others.
 
 ## Milestones
 
