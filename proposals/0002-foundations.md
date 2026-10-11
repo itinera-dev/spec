@@ -6,6 +6,7 @@
 - Amended by [#58](https://github.com/itinera-dev/spec/issues/58): workflow policies are built per journey, step policies per attempt.
 - Amended by [#60](https://github.com/itinera-dev/spec/issues/60): input adapters are attached to steps, and leave unknown inputs to the data bag.
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
+- Amended by [#95](https://github.com/itinera-dev/spec/issues/95): steps may request services provided by the workflow.
 
 ## Summary
 

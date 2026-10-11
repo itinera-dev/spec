@@ -1,6 +1,6 @@
 # 7. Rescue steps
 
-Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md), with the services of [0095](../proposals/0095-services-provided-to-steps.md).
 
 A rescue step fixes the cause of a step's failure, after which the failed step runs once more. This chapter defines how one is declared, when it runs, what it receives, and how its end decides the journey. Everything not said here follows the chapters before it: a rescue step is a step.
 
@@ -24,7 +24,7 @@ A rescue step fixes the cause of a step's failure, after which the failed step r
 
 ## 7.3 What the rescue step receives
 
-1. **Like any step**, the rescue step receives its inputs, a contributor and a step reporter (chapter 4, 4.1). Its inputs are read from the data bag; no input adapter is used. It sees everything committed so far, including what the hooks of the failed attempt contributed.
+1. **Like any step**, the rescue step receives its inputs, a contributor, a step reporter and its services (chapter 4, 4.1). Its inputs are read from the data bag; no input adapter is used. Its services come from the service providers attached to no step (chapter 3, 3.9 point 7). It sees everything committed so far, including what the hooks of the failed attempt contributed.
 2. **Data from the step it rescues.** A rescue step MAY also request, from the step it rescues, what a step hook may request from the step it acts on (chapter 6, 6.6 point 1): the failed attempt's contributions by key and type, the failure's reason and the error, each as required or optional, under the same rules:
    - a required request for something that does not exist MUST abort the journey with `required data missing`;
    - a value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional;

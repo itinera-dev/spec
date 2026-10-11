@@ -6,7 +6,7 @@ Nothing here is specific to one language. How each language implements these cha
 
 ## Version
 
-These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081, 0083, 0085 and 0091, and from proposal 0003, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
+These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081, 0083, 0085, 0091 and 0095, and from proposal 0003, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
 
 ## Chapters
 
@@ -14,8 +14,8 @@ Read chapter 1 first. The others are ordered so that each builds only on the cha
 
 1. [Concepts](01-concepts.md): what each concept is and how they relate. The single source of the vocabulary.
 2. [Events](02-events.md): reporters, the dispatcher, the event stream, fixed fields, the engine catalogue and the order of events.
-3. [Workflow definitions and configuration errors](03-workflow-definitions.md): step descriptors, policies, input adapters, roles, violations, and when configuration errors are caught.
-4. [Steps](04-steps.md): building a step and resolving its inputs, outcomes, abnormal termination, skipping, contributions, and read-only data.
+3. [Workflow definitions and configuration errors](03-workflow-definitions.md): step descriptors, policies, input adapters, roles, service providers, violations, and when configuration errors are caught.
+4. [Steps](04-steps.md): building a step and resolving its inputs and services, outcomes, abnormal termination, skipping, contributions, and read-only data.
 5. [Running a journey](05-running-a-journey.md): the workflow instance, journey IDs, the data bag, step statuses, the scan, retries, how a journey ends, the result, the executor and execution modes.
 6. [Hooks, lifecycles and workflow roles](06-hooks-lifecycles-and-roles.md): which hooks run and in what order, what they may return, what they read and write, and roles.
 7. [Rescue steps](07-rescue-steps.md): declaring a rescue step, when it runs, what it receives, and how its end decides the journey.
