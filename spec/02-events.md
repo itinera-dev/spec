@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md) and [0083](../proposals/0083-what-failures-carry.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) and [0009](../proposals/0009-running-a-workflow.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md) and [0083](../proposals/0083-what-failures-carry.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -74,7 +74,7 @@ Facts:
 | `attempt_started` | an attempt of a step starts | step, attempt |
 | `input_adapter_supplied` | an input adapter supplies a value for a step's input | step, key, adapter |
 | `input_adapter_failed` | an input adapter fails, or supplies something that is not a value, for a step's input | step, key, adapter |
-| `optional_input_absent` | an optional request has no value: a step's input, a hook's data from the workflow or from the step, or an input adapter's data from the workflow | step, key; the policy and hook, or the adapter, when the request is theirs |
+| `optional_input_absent` | an optional request has no value: a step's input, a hook's data from the workflow or from the step, a rescue step's data from the step it rescues (chapter 7), or an input adapter's data from the workflow | step, key; the policy and hook, or the adapter, when the request is theirs |
 | `step_succeeded` | the attempt reported Success | step, attempt |
 | `step_failed` | the attempt reported Failure | step, attempt, retriable, reason (code, message, details) |
 | `step_skipped` | the attempt reported Skipped | step, attempt, the reason, if any |
@@ -83,19 +83,21 @@ Facts:
 | `contribution_committed` | a contribution reached the data bag | key, source: the step, or the policy and hook |
 | `contributions_discarded` | a skipped step's contributions were discarded | step, attempt |
 | `data_overwritten` | a committed key replaced an earlier value | key, source |
-| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key, or, for a hook's request for the failure reason or the error, which of the two was requested; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
+| `journey_aborted` | the journey was aborted | the step, if any, the abort reason, and its details: for an abort while data was resolved for a hook, or by or for an input adapter, the policy and hook, or the adapter, and the key, or, for a hook's or a rescue step's request for the failure reason or the error, which of the two was requested; for `not a value`, the key or the event kind; for `policy could not be built`, the policy; and, when custom code caused the abort by failing, the message of its error (5.10) |
 
 Decisions:
 
 | Event | Decided | Also carries |
 |---|---|---|
 | `step_retrying` | the step goes to `MustRetry` and will be attempted again | step, the attempt that failed, the cause (`retriable failure` or `abnormal termination`), decided by |
+| `step_rescuing` | the step goes to `Rescuing`: its rescue step is inserted before it (chapter 7) | step, the attempt that failed, the cause (`failure`, `retriable failure` or `abnormal termination`), the rescue step's name, decided by |
+| `step_rescued` | the rescue step succeeded, and the step will be attempted again (chapter 7) | step, the attempt that failed, the rescue step's name, decided by |
 | `step_given_up` | the step will not be attempted again and ends `Failed` | step, the last attempt, the cause (`failure`, `abnormal termination`, `retries exhausted`, or `FailWorkflow` with its reason), decided by |
 | `journey_succeeded` | the journey succeeds | decided by: `default` when no step is left, or the hook that returned `FinishWorkflow` |
 | `journey_failed` | the journey fails | the step that failed, its cause, its reason when there is one, and the message of its error when there is one (5.8); or the step whose hook returned `FailWorkflow` and that reason; decided by |
 
 1. Each attempt has exactly one outcome fact: `step_succeeded`, `step_failed`, `step_skipped` or `step_abnormal_termination`.
-2. Exactly one step decision MUST follow every attempt that ended in `step_failed` or `step_abnormal_termination`: `step_retrying` or `step_given_up`. A success or a skip needs no step decision.
+2. Exactly one step decision MUST follow every attempt that ended in `step_failed` or `step_abnormal_termination`: `step_retrying`, `step_rescuing` or `step_given_up`. A success or a skip needs no step decision. `step_rescued` follows the success of a rescue step (chapter 7).
 3. `journey_aborted` is a fact: an abort is not decided, it happens, and no hook is consulted.
 
 ## 2.8 Order
@@ -117,7 +119,7 @@ Events MUST follow what happens, in this order:
    3. its `hook_called`;
    4. its own `contribution_committed` events, each followed by `data_overwritten` when it replaced a value.
 
-   The step decision (`step_retrying` or `step_given_up`) comes after every hook that could change it, and `step_given_up` comes before `on step failure`.
+   The step decision (`step_retrying`, `step_rescuing` or `step_given_up`) comes after every hook that could change it, and `step_given_up` comes before `on step failure`. After `step_rescuing`, the rescue step's attempt follows, in the same pattern as any attempt, then `step_rescued` once it succeeded (chapter 7, 7.6).
 5. Finally `journey_succeeded` or `journey_failed`, after the workflow hook and its events in the same pattern as in point 4; or `journey_aborted`, which MUST be the last event of an aborted journey.
 
 ## 2.9 Events from steps and hooks
@@ -131,7 +133,7 @@ Events MUST follow what happens, in this order:
    2. the event is not delivered to the reporters after it (2.3);
    3. the emit call ends the step or hook, by throwing an exception that belongs to the executor or, in a language without exceptions, by returning the executor's error, which the step or hook propagates. Implementations SHOULD make it impossible to catch by name;
    4. the abort stands whatever the step or hook does afterwards: nothing more it emits is delivered, and its outcome, lifecycle and contributions are ignored. There is no outcome fact, no `hook_called` and no commit, and it is never an abnormal termination;
-   5. when it returns, `journey_aborted` is delivered, naming the step, whose status becomes `Aborted` if it was `Executing` or `MustRetry` (chapter 5, 5.7).
+   5. when it returns, `journey_aborted` is delivered, naming the step, whose status becomes `Aborted` if it was `Executing` or `MustRetry` (chapter 5, 5.7); when the step is a rescue step, the step it rescues becomes `Aborted` too (chapter 7, 7.5).
 6. Apart from point 5 and point 4, emitting an event never fails and never changes an outcome.
 
 ## 2.10 Tracing policies

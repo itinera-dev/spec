@@ -1,13 +1,13 @@
 # 3. Workflow definitions and configuration errors
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How a workflow is declared, and what happens when the declaration is wrong. How each language expresses a declaration (a builder, annotations, attributes, macros) is decided in its tech spec; this chapter defines only what a declaration contains and how it is checked.
 
 ## 3.1 A workflow is declarative
 
 1. A workflow's steps, their order, and the policies and input adapters attached to them MUST be fixed before any journey starts, whatever the language's syntax.
-2. They MUST be listable without running anything: for each step, its name, its position, the names of its policies in declaration order, and the name of its input adapter, if any.
+2. They MUST be listable without running anything: for each step, its name, its position, the names of its policies in declaration order, the name of its input adapter, if any, and the name of its rescue step, if any (chapter 7).
 3. A workflow declares:
    - its **name**;
    - its **step descriptors**, in order (3.2);
@@ -25,7 +25,8 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    - its **retry budget**: the number of retries allowed after the first attempt, **0** unless the descriptor says otherwise;
    - **`abnormal termination retriable`**: whether an abnormal termination may be retried, **false** unless the descriptor says otherwise;
    - the **step policies** attached to the step, in declaration order;
-   - its **input adapter**, if any (3.4).
+   - its **input adapter**, if any (3.4);
+   - its **rescue step**, if any: how to build it, and nothing else (chapter 7). A step with a rescue step has a retry budget of 0.
 2. There is no workflow-wide default for the retry budget or for `abnormal termination retriable`: each step states its own, so the declaration shows everything.
 3. **Names.** A step's name is a non-empty, case-sensitive string. It MUST be unique within its workflow; two steps with the same name are the violation `duplicate step name`.
 4. **Execution mode.** Each step is synchronous or asynchronous.
@@ -59,8 +60,8 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.6 Configuration errors
 
 1. A **configuration error** is anything wrong with how a workflow is put together or supplied, which its author is responsible for. They fall into two groups:
-   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, an input adapter attached to a step that does not exist, a step, hook or reporter in an execution mode the executor does not accept, and initial data that is not a value. They are caught before any journey (3.7);
-   - **errors that can only show up during a journey**: a step or policy that cannot be built, required data missing, a value of the wrong type, something contributed or emitted that is not a value, and a hook returning a lifecycle it may not return. They abort the journey (chapters 4, 5 and 6).
+   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, an input adapter attached to a step that does not exist, a step with both a rescue step and a retry budget greater than 0, a step, hook or reporter in an execution mode the executor does not accept, and initial data that is not a value. They are caught before any journey (3.7);
+   - **errors that can only show up during a journey**: a step or policy that cannot be built, required data missing, a value of the wrong type, something contributed or emitted that is not a value, a hook returning a lifecycle it may not return, and a rescue step that skips. They abort the journey (chapters 4, 5, 6 and 7).
 2. **Violations named in this specification:**
 
    | Violation | Meaning |
@@ -71,6 +72,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    | `mode not accepted` | a step, hook or reporter runs in an execution mode the executor does not accept |
    | `step adapted twice` | two input adapters are attached to the same step |
    | `input adapter for unknown step` | an input adapter is attached to a step the workflow does not have |
+   | `rescued step retried` | a step has both a rescue step and a retry budget greater than 0 (chapter 7) |
 
 ## 3.7 Admission: refused before any journey
 
@@ -92,11 +94,12 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    3. a step, hook or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
    4. something that is not a value in the data bag, in event data or in a reason's details (chapter 4, 4.6; chapter 2, 2.9);
    5. a contributor or step reporter used after its attempt or hook has ended, or an input adapter's access to the data bag used after its call (chapter 4, 4.6 and 4.2);
-   6. an input adapter writing through its access to the data bag (chapter 4, 4.2).
+   6. an input adapter writing through its access to the data bag (chapter 4, 4.2);
+   7. a rescue step that skips (chapter 7, 7.4 point 4).
 
    For such a language, the rules of this specification about these situations do not apply.
 2. **Each exclusion is proven.** A language that makes a rule impossible MUST prove it in its own test suite: for every conformance scenario it excludes, a test shows that the forbidden code is rejected, for example by compiling it and expecting a compilation error. Its tech spec lists, for each excluded scenario, the test that replaces it.
-3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value`, `@late-handle` and `@bag-write`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
+3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value`, `@late-handle`, `@bag-write` and `@rescue-skip`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
 
 ## 3.9 Checked by
 

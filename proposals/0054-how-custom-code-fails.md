@@ -4,6 +4,7 @@
 - Tier: 1
 - Amends: [0049](0049-custom-code-that-throws.md)
 - Amended by [#91](https://github.com/itinera-dev/spec/issues/91): input adapters may read the data bag.
+- Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 
 ## Summary
 

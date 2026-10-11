@@ -35,4 +35,4 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 
 ## Under evaluation
 
-- [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps (tier 4).
+- [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps (tier 1, amends 0002, 0008, 0009, 0010, 0011, 0032, 0040, 0042 and 0054).

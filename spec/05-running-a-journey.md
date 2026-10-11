@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md) and [0024](../proposals/0024-abnormal-termination-retriable.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -32,27 +32,28 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
    | `NotExecuted` | the step has not run yet, or never ran |
    | `Executing` | an attempt of the step is running |
    | `MustRetry` | the last attempt failed and another will be made |
+   | `Rescuing` | the last attempt failed and was handed to the step's rescue step, which has not succeeded yet (chapter 7) |
    | `Succeeded` | the step succeeded |
    | `Failed` | the step failed and will not be tried again |
    | `Skipped` | the step skipped itself |
-   | `Aborted` | the journey was aborted while the step was `Executing` or `MustRetry` |
+   | `Aborted` | the journey was aborted while the step was `Executing`, `MustRetry` or `Rescuing` |
 
-2. Every step starts as `NotExecuted`. After an abort, the steps after the aborted one remain `NotExecuted`.
+2. Every step starts as `NotExecuted`. After an abort, the steps after the aborted one remain `NotExecuted`, except the step a rescue step rescues (chapter 7, 7.5). A rescue step starts as `NotExecuted` when it is inserted (chapter 7).
 3. **Run-once.** A step that ended as `Succeeded`, `Failed` or `Skipped` MUST NOT run again in the journey.
 
 ## 5.5 Order and the scan
 
-1. **Strict order.** Steps MUST run in the order of their step descriptors. Nothing can reorder steps, skip a step other than the step itself, or jump between steps.
+1. **Strict order.** Steps MUST run in the order of their step descriptors. Nothing can reorder steps, skip a step other than the step itself, or jump between steps. The one step the executor adds is a rescue step, inserted just before the step it rescues (chapter 7).
 2. **The scan.** The executor repeatedly considers the first step that is not finished:
    - a `Succeeded` or `Skipped` step is passed over;
-   - a `NotExecuted` or `MustRetry` step is built and run (chapter 4), as its next attempt;
+   - a `NotExecuted`, `MustRetry` or `Rescuing` step is built and run (chapter 4), as its next attempt;
    - a `Failed` step ends the journey as failed;
    - when no step is left, the journey succeeds.
 
 ```mermaid
 stateDiagram-v2
   accTitle: Step statuses in tier 1
-  accDescr: A step starts as NotExecuted and becomes Executing when an attempt starts. From Executing it becomes Succeeded, Skipped, Failed, MustRetry or Aborted. From MustRetry it becomes Executing again for the next attempt, or Aborted if the journey is aborted first.
+  accDescr: A step starts as NotExecuted and becomes Executing when an attempt starts. From Executing it becomes Succeeded, Skipped, Failed, MustRetry, Rescuing or Aborted. From MustRetry or Rescuing it becomes Executing again for the next attempt, or Aborted if the journey is aborted first; a step whose rescue step failed stays Rescuing, unless the journey is aborted afterwards.
   [*] --> NotExecuted
   NotExecuted --> Executing: attempt starts
   MustRetry --> Executing: next attempt starts
@@ -62,6 +63,9 @@ stateDiagram-v2
   Executing --> Failed: no retry
   Executing --> Aborted: journey aborted
   MustRetry --> Aborted: journey aborted
+  Executing --> Rescuing: rescue step inserted
+  Rescuing --> Executing: rescue succeeded, next attempt starts
+  Rescuing --> Aborted: journey aborted
 ```
 
 The diagram shows these transitions:
@@ -69,34 +73,37 @@ The diagram shows these transitions:
 1. A step starts as `NotExecuted`, and becomes `Executing` when its first attempt starts.
 2. From `Executing`, it becomes `Succeeded` on success, `Skipped` on a skip, `MustRetry` when a retry is allowed (5.6), `Failed` when no retry is allowed, and `Aborted` when the journey is aborted while it is executing.
 3. From `MustRetry`, it becomes `Executing` again when the next attempt starts, or `Aborted` when the journey is aborted before that attempt starts.
-4. `Succeeded`, `Skipped`, `Failed` and `Aborted` are final.
+4. From `Executing`, it becomes `Rescuing` when its rescue step is inserted, and from `Rescuing` it becomes `Executing` again when its next attempt starts, after the rescue step succeeded, or `Aborted` when the journey is aborted before that (chapter 7). A rescued step whose rescue step failed stays `Rescuing`, unless the journey is aborted afterwards (chapter 7, 7.5).
+5. `Succeeded`, `Skipped`, `Failed` and `Aborted` are final.
 
 ## 5.6 Attempts and retries
 
-1. **Attempts are counted from 1.** The first execution of a step is attempt 1. A step with a retry budget of N MUST be attempted at most N + 1 times.
+1. **Attempts are counted from 1.** The first execution of a step is attempt 1. A step with a retry budget of N MUST be attempted at most N + 1 times, plus one attempt after its rescue step succeeded (chapter 7).
 2. **What is retried.** A retriable failure, or an abnormal termination when the step descriptor sets `abnormal termination retriable`, MUST put the step in `MustRetry` while its retry budget allows another attempt. Both use the same budget. The decision is recorded by `step_retrying` (chapter 2).
 3. **When the budget is exhausted**, the step becomes `Failed`, and its failure hook is called with the cause `retries exhausted`. Whenever a step becomes `Failed`, the decision is recorded by `step_given_up`, with its cause (chapter 2).
 4. **What is not retried.** A failure that is not retriable makes the step `Failed` at once, with the cause `failure`. An abnormal termination that is not retriable makes the step `Failed` at once, with the cause `abnormal termination`.
 5. **A retry happens immediately.** The executor MUST NOT wait between attempts. A step that needs to wait before reporting a failure does so itself.
+6. **A step with a rescue step** has a retry budget of 0, and on its first failed attempt, whatever the outcome or the `abnormal termination retriable` setting, it is rescued instead of being given up, unless `on step abnormal termination` returns `FailWorkflow` (chapter 7).
 
 ## 5.7 How a journey ends
 
 1. **Succeeded:** every step ended as `Succeeded` or `Skipped`, or a hook returned `FinishWorkflow` (chapter 6). Steps that did not run remain `NotExecuted`.
-2. **Failed:** a step ended as `Failed`, or a hook returned `FailWorkflow` (chapter 6). Later steps do not run, and remain `NotExecuted`.
-3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted` if it was `Executing` or `MustRetry`; a step whose status was already final keeps it. A status changes when the step's outcome or decision is final, before the event that records it is delivered (chapter 2, 2.6). Later steps remain `NotExecuted`, and no hook runs afterwards. An abort means something illegal happened, typically code that did not handle an error as it should: an aborted journey has no business outcome, and it MUST NOT be resumed or continued, by any executor, in this tier or any later one. The abort reasons are:
+2. **Failed:** a step ended as `Failed`, or a hook returned `FailWorkflow` (chapter 6). Later steps do not run, and remain `NotExecuted`, except a step whose rescue step failed, which remains `Rescuing` (chapter 7).
+3. **Aborted:** something illegal happened. The step during which it happened, if any, becomes `Aborted` if it was `Executing` or `MustRetry`, and so does a step that was `Rescuing` (chapter 7, 7.5); a step whose status was already final keeps it. A status changes when the step's outcome or decision is final, before the event that records it is delivered (chapter 2, 2.6). Later steps remain `NotExecuted`, except the step a rescue step rescues (chapter 7, 7.5), and no hook runs afterwards. An abort means something illegal happened, typically code that did not handle an error as it should: an aborted journey has no business outcome, and it MUST NOT be resumed or continued, by any executor, in this tier or any later one. The abort reasons are:
 
    | Abort reason | When | Defined in |
    |---|---|---|
    | `step could not be built` | a step's constructor, or the input adapter resolving one of its inputs, failed or supplied something that is not a value | chapter 4 |
    | `policy could not be built` | a step policy failed while being built for an attempt | chapter 6 |
-   | `required data missing` | a required request has no value | chapters 4 and 6 |
-   | `wrong type` | a requested value has the wrong type | chapters 4 and 6 |
+   | `required data missing` | a required request has no value | chapters 4, 6 and 7 |
+   | `wrong type` | a requested value has the wrong type | chapters 4, 6 and 7 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |
    | `not a value` | a step or hook contributed, emitted or gave in a reason's details something that is not a value | chapters 2 and 4 |
    | `hook failed` | a hook, or a role operation it called, failed | chapter 6 |
    | `reporter failed` | a reporter, or a dispatcher while dispatching, failed | chapter 2 |
+   | `rescue skipped` | a rescue step reported Skipped | chapter 7 |
 
-   All but the last two are configuration errors that can only show up during a journey. `hook failed` and `reporter failed` are faults while running, with the same rules for the event stream.
+   All but `hook failed` and `reporter failed` are configuration errors that can only show up during a journey. `hook failed` and `reporter failed` are faults while running, with the same rules for the event stream.
 
 ## 5.8 The result
 
@@ -139,8 +146,8 @@ The diagram shows these transitions:
    | the dispatcher factory, or the dispatcher while the journey's reporters are added | a refusal: no journey and no event |
    | a workflow policy, while it is built | a refusal: no journey and no event |
    | a step policy, while it is built for an attempt | the journey is aborted with `policy could not be built` (chapter 6) |
-   | a step's constructor, or the input adapter for one of its inputs | the journey is aborted with `step could not be built` (chapter 4) |
-   | a running step | an abnormal termination of the attempt; the journey is not aborted (chapter 4) |
+   | a step's constructor, a rescue step's included, or the input adapter for one of its inputs | the journey is aborted with `step could not be built` (chapter 4) |
+   | a running step, a rescue step included | an abnormal termination of the attempt; the journey is not aborted (chapter 4, chapter 7) |
    | a hook, including a role operation the hook calls | the journey is aborted with `hook failed` (chapter 6) |
    | a reporter, or a dispatcher while dispatching, on any event except `journey_aborted` | the journey is aborted with `reporter failed` (chapter 2) |
    | a reporter, or a dispatcher, while `journey_aborted` is being delivered | ignored: the first abort reason stands and no further event is emitted (chapter 2) |
