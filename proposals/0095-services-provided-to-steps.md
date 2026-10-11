@@ -8,7 +8,7 @@
 
 A step may request **services**: objects of operations it uses to do its business, such as a payment client or a stock store, which are not values and so cannot reach it through the data bag. The workflow supplies each service through a **service provider**, part of the workflow like an input adapter, which the executor calls while a step is built. The provider declares a **scope**: an instance made once per journey and shared, or an instance made for every attempt. A provider may be attached to particular steps, replacing for them the provider of the same service that serves the others. The step requests a service by a key and a type, uses it for its attempt, and never knows where it came from, which implementation it got, or how long it lives.
 
-Amends proposal 0002 (what a step can access, design point 1), proposal 0003 (what a rescue step receives), proposal 0011 (the event catalogue and who emits `journey_*` events) and proposal 0042 (the configuration errors caught before a journey). In the chapters it changes 1.2, 1.3, 1.5, 2.5, 2.7, 2.8, 2.9, 2.10, 3.1, 3.2, 3.5, 3.6, 3.8, 4.1, 4.2, 5.3, 5.7, 5.10, 5.11, 6.8 and 7.3, and adds a section on service providers to chapter 3 and one on services to chapter 4. It moves "services provided to steps" from "Later tiers" into tier 1 in ROADMAP.md.
+Amends proposal 0002 (what a step can access, design point 1), proposal 0003 (what a rescue step receives), proposal 0011 (the event catalogue and who emits `journey_*` events) and proposal 0042 (the configuration errors caught before a journey). In the chapters it changes 1.2, 1.3, 1.5, 2.5, 2.7, 2.8, 2.9, 2.10, 3.1, 3.2, 3.5, 3.6, 3.8, 4.1, 4.2, 5.3, 5.7, 5.10, 5.11, 6.8 and 7.3 to 7.7, and adds a section on service providers to chapter 3 and one on services to chapter 4. It moves "services provided to steps" from "Later tiers" into tier 1 in ROADMAP.md.
 
 ## Motivation
 
@@ -89,7 +89,7 @@ Workflow authors also need to decide which implementation a step uses without th
 
 ### Rescue steps
 
-A rescue step (7.1) requests services as any step does, and only providers attached to no step serve it. The workflow declares no step under its name, so a provider attached to `<step name>_rescue` is `service provider for unknown step`, as an input adapter attached to that name is, and a rescue step requesting a key that no provider attached to no step supplies is `service not provided`. A provider of attempt scope serving a rescue step receives the rescue step's name and attempt 1; one of journey scope lends it the journey's instance, if it already made one.
+A rescue step (7.1) requests services as any step does, and only providers attached to no step serve it. The workflow declares no step under its name, so a provider attached to `<step name>_rescue` is `service provider for unknown step`, as an input adapter attached to that name is, and a rescue step requesting a key that no provider attached to no step supplies is `service not provided`. A provider of attempt scope serving a rescue step receives the rescue step's name and attempt 1; for one of journey scope, the executor lends it the instance that provider made for the journey, or calls the provider for it if none was made yet.
 
 ### Execution modes
 

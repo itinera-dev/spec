@@ -46,23 +46,23 @@ A rescue step fixes the cause of a step's failure, after which the failed step r
 2. **The rescue step's statuses** are those of any step: `NotExecuted` from its insertion, then `Executing`, then `Succeeded`, `Failed`, `Skipped` (7.4 point 4) or `Aborted`.
 3. **An abort while a step is being rescued**, for example because the rescue step cannot be built, a reporter fails on one of its events or it skips, names the rescue step in `journey_aborted`. The rescue step becomes `Aborted` if it was `Executing`, and keeps its status if it was already final. The rescued step becomes `Aborted`, since it was `Rescuing`, which is not final.
 4. **An abort on `step_rescuing` or `step_rescued`**, when a reporter fails while one of them is delivered, names the rescued step, which becomes `Aborted`. The rescue step keeps its status: `NotExecuted` after `step_rescuing`, `Succeeded` after `step_rescued`.
-5. **Custom code.** A rescue step's constructor, its requests and its run are a step's (chapter 5, 5.10): a constructor that fails aborts the journey with `step could not be built`, and an error that escapes its run is an abnormal termination of the rescue step (7.4 point 3).
+5. **Custom code.** A rescue step's constructor, its requests and its run are a step's (chapter 5, 5.10): a constructor that fails, or a service provider that fails for one of its services, aborts the journey with `step could not be built`, and an error that escapes its run is an abnormal termination of the rescue step (7.4 point 3).
 
 ## 7.6 Events
 
 1. **`step_rescuing`**, a decision: the step will be rescued. It carries the step, the attempt that failed, the cause (`failure`, `retriable failure` or `abnormal termination`), the rescue step's name, and decided by. It is the step decision that follows that attempt (chapter 2, 2.7 point 2), and comes after `on step abnormal termination` when that hook is called.
 2. **`step_rescued`**, a decision: the rescue succeeded and the step will run again. It carries the step, the attempt that failed, the rescue step's name, and decided by. It comes after the rescue step's `step_succeeded` and its `contribution_committed` events.
-3. **The rescue step's own events** are those of any step, carrying its own name and attempt 1: `attempt_started`, its input events, its `step_*` events, its outcome fact, its committed contributions, and `step_given_up` when it fails.
+3. **The rescue step's own events** are those of any step, carrying its own name and attempt 1: `attempt_started`, its input events, its service events, its `step_*` events, its outcome fact, its committed contributions, and `step_given_up` when it fails.
 
 A rescue that works reads, in order:
 
 1. the step's `attempt_started` (attempt 1), its events and its outcome fact;
 2. `on step abnormal termination`, if the attempt ended in an abnormal termination and a policy defines it;
 3. `step_rescuing`;
-4. the rescue step's `attempt_started` (attempt 1), its input events, its own events, `step_succeeded` and its `contribution_committed` events, each followed by `data_overwritten` when it replaced a value;
+4. the rescue step's `attempt_started` (attempt 1), its input events, its service events, its own events, `step_succeeded` and its `contribution_committed` events, each followed by `data_overwritten` when it replaced a value;
 5. `step_rescued`;
 6. the step's `attempt_started` (attempt 2), and the rest of the journey.
 
 ## 7.7 Checked by
 
-In the conformance repository: [`0003-rescue-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0003-rescue-steps).
+In the conformance repository: [`0003-rescue-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0003-rescue-steps), and [`0095-services-provided-to-steps/rescue-steps.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0095-services-provided-to-steps/rescue-steps.feature).
