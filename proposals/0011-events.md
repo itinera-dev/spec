@@ -7,6 +7,7 @@
 - Amended by [#55](https://github.com/itinera-dev/spec/issues/55): a reporter that fails while a step or hook runs.
 - Amended by [#63](https://github.com/itinera-dev/spec/issues/63): the executor is given a dispatcher factory.
 - Amended by [#64](https://github.com/itinera-dev/spec/issues/64): event data and reason details are values, serialized only by reporters.
+- Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 
 ## Summary
 

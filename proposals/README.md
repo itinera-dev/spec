@@ -5,6 +5,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 ## Accepted
 
 - [0002: Foundations](0002-foundations.md) (tier 1): step isolation, declarative workflows, policies and data flow. Accepted in [#18](https://github.com/itinera-dev/spec/pull/18).
+- [0003: Rescue steps](0003-rescue-steps.md) (tier 1, amends 0002, 0008, 0009, 0010, 0011, 0032, 0040, 0042 and 0054): a step that fixes the cause of a failure, after which the failed step runs once more. Accepted in [#96](https://github.com/itinera-dev/spec/pull/96).
 - [0008: Steps](0008-steps.md) (tier 1): building, outcomes (success, failure retriable or not, skipped), contributions and identity. Accepted in [#23](https://github.com/itinera-dev/spec/pull/23).
 - [0009: Running a workflow](0009-running-a-workflow.md) (tier 1): the workflow instance, journey IDs, step descriptors, the scan, retries and the result. Accepted in [#26](https://github.com/itinera-dev/spec/pull/26).
 - [0010: Hooks, lifecycles and workflow roles](0010-hooks-lifecycles-and-roles.md) (tier 1): the order of hooks, the lifecycles they return, what they read and write, and workflow roles. Accepted in [#31](https://github.com/itinera-dev/spec/pull/31).
@@ -35,4 +36,4 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 
 ## Under evaluation
 
-- [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps (tier 4).
+None.

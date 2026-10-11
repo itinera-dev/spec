@@ -9,6 +9,7 @@
 - Amended by [#62](https://github.com/itinera-dev/spec/issues/62): workflow descriptors, and executors independent of how workflows are written.
 - Amended by [#65](https://github.com/itinera-dev/spec/issues/65): the journey result is a business outcome.
 - Amended by [#85](https://github.com/itinera-dev/spec/issues/85): an aborted journey's result carries no data bag, and an abort is final.
+- Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 
 ## Summary
 

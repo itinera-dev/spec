@@ -6,7 +6,7 @@ Nothing here is specific to one language. How each language implements these cha
 
 ## Version
 
-These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081, 0083, 0085 and 0091, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
+These chapters are **specification 0.1.0**: tier 1, a single workflow, written from proposals 0002, 0008, 0009, 0010, 0011, 0012, 0024, 0027, 0032, 0040, 0041, 0042, 0049, 0054, 0055, 0056, 0057, 0058, 0060, 0061, 0062, 0063, 0064, 0065, 0081, 0083, 0085 and 0091, and from proposal 0003, with the spec defects corrected so far. Until a first implementation passes every tier 1 conformance case, the cases are released as candidates (`v0.1.0-rc.N`); then both repositories are tagged `v0.1.0`. See "The behaviour specification" in [PROCESS.md](../PROCESS.md).
 
 ## Chapters
 
@@ -18,6 +18,7 @@ Read chapter 1 first. The others are ordered so that each builds only on the cha
 4. [Steps](04-steps.md): building a step and resolving its inputs, outcomes, abnormal termination, skipping, contributions, and read-only data.
 5. [Running a journey](05-running-a-journey.md): the workflow instance, journey IDs, the data bag, step statuses, the scan, retries, how a journey ends, the result, the executor and execution modes.
 6. [Hooks, lifecycles and workflow roles](06-hooks-lifecycles-and-roles.md): which hooks run and in what order, what they may return, what they read and write, and roles.
+7. [Rescue steps](07-rescue-steps.md): declaring a rescue step, when it runs, what it receives, and how its end decides the journey.
 
 ## Suggested implementation order
 
@@ -30,5 +31,6 @@ This section is a suggestion, not part of the specification. Each language decid
 5. **Steps** (chapter 4). Building, input resolution, outcomes, contributions and read-only data: `0002-foundations/data-from-the-workflow.feature` and the scenarios of `0008-steps/` and `0027-received-data-read-only/` that use no hook.
 6. **The scan, retries and the result** (chapter 5): `0009-running-a-workflow/` and the rest of `0012-local-executor/` and `0032-configuration-errors/`.
 7. **Hooks, lifecycles and roles** (chapter 6): `0010-hooks-lifecycles-and-roles/`, `0041-hook-data-from-the-data-bag/`, `0040-events-facts-and-decisions/`, `0002-foundations/data-from-the-step.feature`, and every remaining scenario, many of which use a hook to observe what a step did.
+8. **Rescue steps** (chapter 7): `0003-rescue-steps/`.
 
-A language adds a proposal to its `conformance.json` only when every case of that proposal passes, so most proposals complete at stage 7; before then, the runner can be pointed at single files or scenarios locally.
+A language adds a proposal to its `conformance.json` only when every case of that proposal passes, so most proposals complete at stage 7, and 0003 at stage 8; before then, the runner can be pointed at single files or scenarios locally.

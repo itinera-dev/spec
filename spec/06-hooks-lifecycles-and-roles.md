@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md) and [0024](../proposals/0024-abnormal-termination-retriable.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -26,6 +26,7 @@ After each attempt's outcome, the executor MUST call the hooks and record the st
    - if the step descriptor does not set `abnormal termination retriable`: `step_given_up` with the cause `abnormal termination`, then `on step failure`;
    - if it does, by the rules of points 3 and 4: `on step retry` with the cause `abnormal termination`, then `step_retrying`, while the budget lasts; otherwise `step_given_up` with the cause `retries exhausted`, then `on step failure`.
 6. **Skipped:** no hook and no step decision (chapter 4).
+7. **A step with a rescue step**, on the attempt its rescue step will fix: after a failure, retriable or not, `step_rescuing` and no hook; after an abnormal termination, `on step abnormal termination`, then `step_rescuing`, unless that hook returns `FailWorkflow`. `on step retry` and `on step failure` are not called for that attempt. A rescue step has no policies, so no step hook is called for it (chapter 7).
 
 The failure hook comes after `step_given_up` because it is called because the step was given up; it decides only the journey's fate. Every decision here is `decided by` `default`, except where a hook returns a lifecycle (6.3).
 
@@ -38,7 +39,7 @@ The failure hook comes after `step_given_up` because it is called because the st
    | `on step success` | the next step, or success after the last | `FinishWorkflow`, `FailWorkflow` |
    | `on step failure` | the journey fails | `FailWorkflow` |
    | `on step retry` | the step is tried again | `FailWorkflow` |
-   | `on step abnormal termination` | continue as 6.2 point 5 says | `FailWorkflow` |
+   | `on step abnormal termination` | continue as 6.2 points 5 and 7 say | `FailWorkflow` |
    | `on workflow success` | nothing to decide | no lifecycle in tier 1 |
    | `on workflow failure` | nothing to decide | no lifecycle in tier 1 |
 
@@ -82,6 +83,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 5. A hook of a policy MUST NOT be given the data bag itself. An input adapter, which is part of the workflow, MAY request read access to it (chapter 4, 4.2 point 8).
 6. **Received data is read-only.** Everything a hook receives (data from the step, data from the workflow, a reason, an error, the journey ID) is read-only for it. Changing it, where the language allows it at all, MUST NOT change the data bag, any contribution, or what any other step or hook receives.
 7. Business decisions belong in steps: hooks branch on what steps reported and contributed.
+8. A rescue step MAY request from the step it rescues its contributions, the failure's reason and the error, as point 1 describes, but not a cause (chapter 7, 7.3).
 
 ## 6.7 What hooks can write
 

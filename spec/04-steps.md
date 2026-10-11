@@ -1,6 +1,6 @@
 # 4. Steps
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 What a step is, how it is built and run, the outcomes it reports, and what happens to the data it contributes. When a step runs, and what follows its outcome, are defined in chapters 5 and 6.
 
@@ -9,7 +9,8 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 1. A step MUST be able to access only what it declares it needs:
    - its **inputs**: data from the workflow;
    - a **contributor**, for the data it contributes back;
-   - a **step reporter**, for its own events (chapter 2).
+   - a **step reporter**, for its own events (chapter 2);
+   - for a rescue step only, **data from the step it rescues** (chapter 7, 7.3).
 2. A step MUST NOT have access to the workflow, the data bag, the executor, the input adapters, other steps, or anything else that runs it.
 3. A step does not know its own name: an implementation MUST NOT provide a step with its name. A step that needs a label receives it as an ordinary input.
 
@@ -63,6 +64,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 2. **A skipped step has no effect on data.** Everything it contributed MUST be discarded, and `contributions_discarded` is emitted. A later step that requires a key only the skipped step contributed is aborted with `required data missing`; one that requests it as optional is built with it absent.
 3. **A skipped step is final.** Its status is `Skipped`, and it MUST NOT run again in the journey.
 4. **Only the step decides to skip.** Hooks cannot skip steps.
+5. **A rescue step MUST NOT skip.** A rescue step that reports Skipped aborts the journey with `rescue skipped` (chapter 7, 7.4 point 4).
 
 ## 4.6 Contributions
 
