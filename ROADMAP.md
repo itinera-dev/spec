@@ -11,6 +11,16 @@ Tiers are cumulative: each includes everything before it. See [PROCESS.md](PROCE
 3. **Tier 3: sub workflows.** Running a workflow from within another. Recorded in [#2](https://github.com/itinera-dev/spec/issues/2); data flow and sub journeys still open.
 4. **Later tiers.** Durable runs (pending steps, checkpointing, resuming after a crash), and others.
 
+## Executors
+
+What an executor offers is claimed as a capability, independent of tiers (see [PROCESS.md](PROCESS.md)), and executors differ in capability, never in meaning ([VISION.md](VISION.md), principle 4). Tier 1 specifies the local executor, which runs a journey in process; the execution modes it accepts, sync and async, are capabilities. These executors are planned:
+
+1. **A task executor,** running each step as a separate task, still in order.
+2. **A distributed executor,** running each step as a job on whichever machine is free, for example with retries queued on a message queue.
+3. **A durable executor,** resuming a journey after a crash, once the durable runs tier defines what that means.
+
+Whether the task and distributed executors need new meaning of their own, and so a proposal or a tier, is decided when they are proposed.
+
 ## Milestones
 
 1. **Foundations.** Organisation, licences, process, organisation profile, the core model proposal.
