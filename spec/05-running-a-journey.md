@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0102](../proposals/0102-global-metadata.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -8,8 +8,9 @@ How an executor runs a workflow instance: the instance and its data, journey IDs
 
 1. **One workflow instance per journey.** The developer's own code creates a workflow instance from a workflow for each journey and hands it to an executor. Creating it produces, in this order, its initial data, its journey ID (5.2) and its reporters, which MAY receive the journey ID. A failure while creating the instance, including in producing the ID or making a reporter, happens before the executor is involved, and the specification defines nothing more about it.
 2. **Initial data.** The instance MAY be created with initial data, and MAY obtain more while it is created. Whatever it holds when handed to the executor MUST be the initial content of the data bag. Keys are strings, and every value MUST be a value (chapter 4, 4.6); initial data that is not a value is refused by `run`, listing each key concerned (chapter 3, 3.7).
-3. **The instance holds the journey's state.** The data bag and all other journey state belong to the instance. The instance provides its workflow descriptor (chapter 3, 3.1), the roles, its journey ID, its reporters and its data; the executor builds every step and policy from the descriptors, and an instance never builds, holds or orders them.
-4. **An instance runs at most one journey.** Handing an executor an instance that has already run, or is running, MUST be refused as a configuration error.
+3. **Initial global metadata.** The instance MAY be created with initial global metadata (chapter 2, 2.11). Keys are strings, every value MUST be a value, and a key set twice while the instance is created keeps its last value. The key `journey_id` is reserved for the journey ID. Initial global metadata that is not a value, or that sets `journey_id`, is refused by `run`, listing each key concerned (chapter 3, 3.7).
+4. **The instance holds the journey's state.** The data bag and all other journey state belong to the instance. The instance provides its workflow descriptor (chapter 3, 3.1), the roles, its journey ID, its reporters, its data and its initial global metadata; the executor builds every step and policy from the descriptors, and an instance never builds, holds or orders them.
+5. **An instance runs at most one journey.** Handing an executor an instance that has already run, or is running, MUST be refused as a configuration error.
 
 ## 5.2 Journey IDs
 
@@ -98,10 +99,11 @@ The diagram shows these transitions:
    | `required data missing` | a required request has no value | chapters 4, 6 and 7 |
    | `wrong type` | a requested value has the wrong type | chapters 4, 6 and 7 |
    | `invalid lifecycle` | a hook returned a lifecycle it may not return | chapter 6 |
-   | `not a value` | a step, hook or service provider contributed, emitted or gave in a reason's details something that is not a value | chapters 2 and 4 |
+   | `not a value` | a step, hook or service provider contributed, emitted, set as global metadata or gave in a reason's details something that is not a value | chapters 2 and 4 |
    | `hook failed` | a hook, or a role operation it called, failed | chapter 6 |
    | `reporter failed` | a reporter, or a dispatcher while dispatching, failed | chapter 2 |
    | `rescue skipped` | a rescue step reported Skipped | chapter 7 |
+   | `reserved metadata key` | a step, hook or service provider set global metadata under the key `journey_id` | chapter 2 |
 
    All but `hook failed` and `reporter failed` are configuration errors that can only show up during a journey. `hook failed` and `reporter failed` are faults while running, with the same rules for the event stream.
 
@@ -144,12 +146,13 @@ The diagram shows these transitions:
    | Custom code | When it fails |
    |---|---|
    | the dispatcher factory, or the dispatcher while the journey's reporters are added | a refusal: no journey and no event |
+   | a reporter, or the dispatcher, while the global metadata set before the journey starts is passed on | a refusal: no journey and no event (chapter 2, 2.11) |
    | a workflow policy, while it is built | a refusal: no journey and no event |
    | a step policy, while it is built for an attempt | the journey is aborted with `policy could not be built` (chapter 6) |
    | a step's constructor, a rescue step's included, the input adapter for one of its inputs, or the service provider for one of its services | the journey is aborted with `step could not be built` (chapter 4) |
    | a running step, a rescue step included | an abnormal termination of the attempt; the journey is not aborted (chapter 4, chapter 7) |
    | a hook, including a role operation the hook calls | the journey is aborted with `hook failed` (chapter 6) |
-   | a reporter, or a dispatcher while dispatching, on any event except `journey_aborted` | the journey is aborted with `reporter failed` (chapter 2) |
+   | a reporter, or a dispatcher while dispatching, on any event except `journey_aborted`, or on an entry of global metadata set while the journey runs | the journey is aborted with `reporter failed` (chapter 2) |
    | a reporter, or a dispatcher, while `journey_aborted` is being delivered | ignored: the first abort reason stands and no further event is emitted (chapter 2) |
 
 3. **The list is exhaustive for tier 1.** A later proposal that adds a call into custom code adds it here, with its outcome. Producing the journey ID and making the reporters happen while the instance is created, before the executor is involved (5.1).

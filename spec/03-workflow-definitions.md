@@ -1,6 +1,6 @@
 # 3. Workflow definitions and configuration errors
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0098](../proposals/0098-rescue-step-adapters-and-providers.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md), [0098](../proposals/0098-rescue-step-adapters-and-providers.md) and [0102](../proposals/0102-global-metadata.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How a workflow is declared, and what happens when the declaration is wrong. How each language expresses a declaration (a builder, annotations, attributes, macros) is decided in its tech spec; this chapter defines only what a declaration contains and how it is checked.
 
@@ -16,7 +16,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    - the **workflow roles** it provides (3.5);
    - its **service providers**, and the steps each is attached to (3.9).
 4. **The workflow descriptor.** Together, these make up the workflow's declaration, its **workflow descriptor**. It holds descriptions, and a way to build each step and policy, never instances. It MUST NOT change once built, is the same for every instance of the workflow, and is what the listing reads.
-5. **What belongs to each instance.** The journey ID, the reporters and the initial data belong to each workflow instance, not to the workflow descriptor (chapter 5, 5.1).
+5. **What belongs to each instance.** The journey ID, the reporters, the initial data and the initial global metadata belong to each workflow instance, not to the workflow descriptor (chapter 5, 5.1).
 
 ## 3.2 Step descriptors
 
@@ -61,8 +61,8 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.6 Configuration errors
 
 1. A **configuration error** is anything wrong with how a workflow is put together or supplied, which its author is responsible for. They fall into two groups:
-   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, an input adapter attached to a step or rescue step that does not exist, a step with both a rescue step and a retry budget greater than 0, a step requesting a service no provider serves for it or one key twice, two providers of one key serving one step, two service providers with the same name, a service provider attached to a step or rescue step that does not exist, a provider of another type than a step requests, a provider of journey scope requesting the step's name or the attempt number, a step, hook, service provider or reporter in an execution mode the executor does not accept, and initial data that is not a value. They are caught before any journey (3.7);
-   - **errors that can only show up during a journey**: a step or policy that cannot be built, required data missing, a value of the wrong type, something contributed or emitted that is not a value, a hook returning a lifecycle it may not return, and a rescue step that skips. They abort the journey (chapters 4, 5, 6 and 7).
+   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, an input adapter attached to a step or rescue step that does not exist, a step with both a rescue step and a retry budget greater than 0, a step requesting a service no provider serves for it or one key twice, two providers of one key serving one step, two service providers with the same name, a service provider attached to a step or rescue step that does not exist, a provider of another type than a step requests, a provider of journey scope requesting the step's name or the attempt number, a step, hook, service provider or reporter in an execution mode the executor does not accept, initial data that is not a value, and initial global metadata that is not a value or that sets `journey_id`. They are caught before any journey (3.7);
+   - **errors that can only show up during a journey**: a step or policy that cannot be built, required data missing, a value of the wrong type, something contributed or emitted that is not a value, a hook returning a lifecycle it may not return, a rescue step that skips, and global metadata set under the key `journey_id`. They abort the journey (chapters 4, 5, 6 and 7).
 2. **Violations named in this specification:**
 
    | Violation | Meaning |
@@ -85,7 +85,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.7 Admission: refused before any journey
 
 1. **When the workflow is built.** Errors in how a workflow is put together that need only its declaration MUST be reported when the workflow is built, by the compiler, the macros, the builder or the workflow's constructor. Implementations SHOULD report them at compile time where their language allows it.
-2. **When the instance is handed to an executor.** `mode not accepted` depends on the executor, so it MUST be reported when the instance is handed to the executor's `run`, before the journey starts, if it was not already caught when the workflow was built. Initial data that is not a value is also refused then, listing each key concerned. An implementation that does not guarantee, when a descriptor is built, that it was checked MUST check it at this point.
+2. **When the instance is handed to an executor.** `mode not accepted` depends on the executor, so it MUST be reported when the instance is handed to the executor's `run`, before the journey starts, if it was not already caught when the workflow was built. Initial data that is not a value is also refused then, listing each key concerned, and so is initial global metadata that is not a value or that sets `journey_id` (chapter 2, 2.11). An implementation that does not guarantee, when a descriptor is built, that it was checked MUST check it at this point.
 3. **In both cases:**
    - no journey MUST start;
    - no event MUST be emitted;
@@ -100,7 +100,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    1. a hook returning a lifecycle it may not return (chapter 6, 6.3);
    2. a policy attached to a workflow that does not provide a role it requests (3.5);
    3. a step, hook, service provider or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
-   4. something that is not a value in the data bag, in event data or in a reason's details (chapter 4, 4.6; chapter 2, 2.9);
+   4. something that is not a value in the data bag, in event data, in a reason's details or in global metadata (chapter 4, 4.6; chapter 2, 2.9 and 2.11);
    5. a contributor or step reporter used after its attempt or hook has ended, an input adapter's access to the data bag or a service provider's means of emitting events used after its call, or a service kept by a step after its attempt (chapter 4, 4.6, 4.2 and 4.9);
    6. an input adapter writing through its access to the data bag (chapter 4, 4.2);
    7. a rescue step that skips (chapter 7, 7.4 point 4);

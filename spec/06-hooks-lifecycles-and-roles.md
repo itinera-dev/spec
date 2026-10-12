@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md) and [0091](../proposals/0091-adapters-read-the-data-bag.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md), [0091](../proposals/0091-adapters-read-the-data-bag.md) and [0102](../proposals/0102-global-metadata.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -60,7 +60,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 ## 6.5 Hooks that fail
 
 1. A hook fails by throwing or by returning an error (chapter 5, 5.10). It cannot report an error and carry on, so a hook that fails, including through a role operation it calls, MUST abort the journey with the abort reason `hook failed`.
-2. A hook ended by the executor's signal, because a reporter failed on an event it emitted or because it contributed or emitted something that is not a value (chapter 2, 2.9), is aborted with that reason, `reporter failed` or `not a value`, never `hook failed`.
+2. A hook ended by the executor's signal, because a reporter failed on an event it emitted or an entry of global metadata it set, because it contributed, emitted or set as global metadata something that is not a value, or because it set the key `journey_id` (chapter 2, 2.9 and 2.11), is aborted with that reason, `reporter failed`, `not a value` or `reserved metadata key`, never `hook failed`.
 3. After an abort, no hook runs.
 
 ## 6.6 What hooks can read
@@ -92,6 +92,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 3. A workflow hook's contributions are committed before the result is produced, so they are part of the journey's output.
 4. Overwriting a key is allowed and emits `data_overwritten`. `contribution_committed` and `data_overwritten` MUST say whether a contribution came from a hook, naming its policy and hook, or from a step.
 5. A hook's contributions MUST be values (chapter 4, 4.6), and its contributor and its means of emitting events are valid only until it returns (chapter 4, 4.6 point 7).
+6. A hook MAY set global metadata through its means of emitting events (chapter 2, 2.11).
 
 ## 6.8 Workflow roles
 

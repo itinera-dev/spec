@@ -3,6 +3,7 @@
 - Issue: [#61](https://github.com/itinera-dev/spec/issues/61)
 - Tier: 1
 - Amends: [0009](0009-running-a-workflow.md), [0049](0049-custom-code-that-throws.md)
+- Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
 
 ## Summary
 

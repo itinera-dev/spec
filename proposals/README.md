@@ -35,6 +35,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0091: Input adapters may read the data bag](0091-adapters-read-the-data-bag.md) (tier 1, amends 0060, 0010 and 0054). Accepted in [#94](https://github.com/itinera-dev/spec/pull/94).
 - [0095: Services provided to steps](0095-services-provided-to-steps.md) (tier 1, amends 0002, 0003, 0011 and 0042): steps request services by key and type; the workflow's service providers supply them, once per journey or for every attempt, to every step or to the steps they are attached to. Accepted in [#97](https://github.com/itinera-dev/spec/pull/97).
 - [0098: Input adapters and service providers for rescue steps](0098-rescue-step-adapters-and-providers.md) (tier 1, amends 0003, 0060 and 0095): a rescue step may have its own input adapter and service providers, attached to `<step name>_rescue`, and the listing shows them in a rescue section of its step's entry. Accepted in [#99](https://github.com/itinera-dev/spec/pull/99).
+- [0102: Global metadata passed to every reporter](0102-global-metadata.md) (tier 1, amends 0008, 0010, 0011, 0054, 0061, 0063 and 0095): entries of a key and a value, the journey ID first, that the dispatcher passes to every reporter as each is set, by the workflow instance before the journey and by steps, hooks and service providers while it runs. Accepted in [#103](https://github.com/itinera-dev/spec/pull/103).
 
 ## Under evaluation
 

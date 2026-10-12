@@ -1,6 +1,6 @@
 # 4. Steps
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md), [0091](../proposals/0091-adapters-read-the-data-bag.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0102](../proposals/0102-global-metadata.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 What a step is, how it is built and run, the outcomes it reports, and what happens to the data it contributes. When a step runs, and what follows its outcome, are defined in chapters 5 and 6.
 
@@ -9,7 +9,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 1. A step MUST be able to access only what it declares it needs:
    - its **inputs**: data from the workflow;
    - a **contributor**, for the data it contributes back;
-   - a **step reporter**, for its own events (chapter 2);
+   - a **step reporter**, for its own events and for setting global metadata (chapter 2, 2.9 and 2.11);
    - its **services**: objects of operations the workflow provides for its business (4.9);
    - for a rescue step only, **data from the step it rescues** (chapter 7, 7.3).
 2. A step MUST NOT have access to the workflow, the data bag, the executor, the input adapters, the service providers, other steps, or anything else that runs it.
@@ -76,7 +76,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 4. **Captured when made.** A value passed to a contributor MUST be captured at that moment: changing the object afterwards MUST NOT change what was contributed.
 5. **Visible to hooks, committed only on success.** A step's contributions MUST be visible to the hooks of the attempt that made them, whatever its outcome, and MUST be committed to the data bag only when the attempt succeeds. The contributions of a failed attempt, retriable or not, MUST NOT reach later steps or the result.
 6. **Overwriting.** A committed contribution MAY replace a key already in the data bag, including one from the initial data. The last committed value wins, and `data_overwritten` is emitted.
-7. **Handles are valid only during their attempt.** During its attempt, a step contributes and emits freely, in any order. Its contributor and step reporter are made by the executor for that attempt and closed when the attempt ends; closing is idempotent. A call on a closed handle runs no custom code and has no effect on any journey: nothing is recorded, shown to hooks or committed, and no event is delivered. The call SHOULD fail where it is made, so the misuse is visible, but that failure MUST NOT change any journey. Implementations SHOULD make such a call impossible to express (chapter 3, 3.8). The same holds for a hook's contributor and its means of emitting events, until the hook returns.
+7. **Handles are valid only during their attempt.** During its attempt, a step contributes and emits freely, in any order. Its contributor and step reporter are made by the executor for that attempt and closed when the attempt ends; closing is idempotent. A call on a closed handle runs no custom code and has no effect on any journey: nothing is recorded, shown to hooks or committed, no event is delivered and no global metadata is set. The call SHOULD fail where it is made, so the misuse is visible, but that failure MUST NOT change any journey. Implementations SHOULD make such a call impossible to express (chapter 3, 3.8). The same holds for a hook's contributor and its means of emitting events, until the hook returns.
 
 ## 4.7 Received data is read-only
 
@@ -105,8 +105,8 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 6. **What a provider returns.**
    1. **An instance:** `service_provided` is emitted, naming the step, the attempt, the key and the provider. A step that receives an instance of journey scope made for an earlier attempt causes no event, so the event stream shows exactly when each instance was made.
    2. **A failure,** by throwing or returning an error (chapter 5, 5.10), **or nothing at all:** `service_provider_failed` is emitted, naming the step, the attempt, the key and the provider, and the journey is aborted with `step could not be built`, naming the step and the provider, with the message of the error when there is one. The step's status becomes `Aborted`, and the attempt counts (4.2 point 7).
-7. **A provider's events.** A provider MAY emit `journey_info`, `journey_warning` and `journey_error`, which carry its name and the step name and attempt number of the step being built (chapter 2, 2.9).
-   1. **A reporter that fails** on one ends the provider at its emit call, and the journey is aborted with `reporter failed`. Neither `service_provided` nor `service_provider_failed` follows, and whatever the provider returns afterwards is ignored.
+7. **A provider's events.** A provider MAY emit `journey_info`, `journey_warning` and `journey_error`, which carry its name and the step name and attempt number of the step being built (chapter 2, 2.9), and MAY set global metadata through the same means (chapter 2, 2.11).
+   1. **A reporter that fails** on one, or on an entry of global metadata the provider set, ends the provider at its call, and the journey is aborted with `reporter failed`. Neither `service_provided` nor `service_provider_failed` follows, and whatever the provider returns afterwards is ignored.
    2. **Event data that is not a value**, where a language can express it, aborts the journey with `not a value`, naming the step, the provider and the event kind, and ends the provider at its emit call in the same way.
    3. **Valid only during the call.** The provider's means of emitting events is made for one call and closed when the call returns, with the rules of 4.6 point 7 for a closed handle.
 8. **Using a service.**
