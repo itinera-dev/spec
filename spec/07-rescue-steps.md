@@ -1,16 +1,16 @@
 # 7. Rescue steps
 
-Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md), with the services of [0095](../proposals/0095-services-provided-to-steps.md).
+Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md), with the services of [0095](../proposals/0095-services-provided-to-steps.md) and the input adapters and service providers of [0098](../proposals/0098-rescue-step-adapters-and-providers.md).
 
 A rescue step fixes the cause of a step's failure, after which the failed step runs once more. This chapter defines how one is declared, when it runs, what it receives, and how its end decides the journey. Everything not said here follows the chapters before it: a rescue step is a step.
 
 ## 7.1 Declaring a rescue step
 
-1. **One rescue step per step, at most.** A step descriptor MAY hold a **rescue step**: how to build it, as for any step (chapter 4). That is all the workflow declares about it: the rescue step has no step descriptor of its own, no name chosen by the author, no step policies, no input adapter, no retry budget and no `abnormal termination retriable` setting.
-2. **Its name is `<step name>_rescue`**, for example `charge_rescue` for the step `charge`. A declared step with that name is the violation `duplicate step name`. An input adapter attached to that name is the violation `input adapter for unknown step`, since the workflow declares no such step.
+1. **One rescue step per step, at most.** A step descriptor MAY hold a **rescue step**: how to build it, as for any step (chapter 4). That is all the workflow declares about it: the rescue step has no step descriptor of its own, no name chosen by the author, no step policies, no retry budget and no `abnormal termination retriable` setting.
+2. **Its name is `<step name>_rescue`**, for example `charge_rescue` for the step `charge`. A declared step with that name is the violation `duplicate step name`. Where an input adapter or a service provider is attached to steps, that name MAY be named as if it were a step (chapter 3, 3.4 point 2 and 3.9 point 7); the rescue step stays undeclared. Attaching to `<step name>_rescue` when the step has no rescue step is the violation `input adapter for unknown step` for an adapter, and `service provider for unknown step` for a provider, as for any name the workflow does not have.
 3. **No retries.** A step with a rescue step MUST have a retry budget of 0. A step descriptor holding both a rescue step and a retry budget greater than 0 is the violation `rescued step retried`, caught when the workflow is built (chapter 3, 3.7). So neither the step's first attempt, nor its rescue step, nor its run after the rescue is ever retried.
 4. **Execution mode.** A rescue step is synchronous or asynchronous, like any step, and is checked for `mode not accepted` at admission with the others.
-5. **The listing** shows, for each step, the name of its rescue step, if it has one (chapter 3, 3.1).
+5. **The listing** shows, in the entry of each step that has a rescue step, a rescue section: the rescue step's name, the name of its input adapter, if any, and the services it requests, each with the name of the provider that serves it. The rescue section has no position and no policies (chapter 3, 3.1 point 2).
 6. The same kind of step MAY rescue several steps. Each rescue is its own step in the journey, named after the step it rescues.
 
 ## 7.2 When a step fails
@@ -24,14 +24,16 @@ A rescue step fixes the cause of a step's failure, after which the failed step r
 
 ## 7.3 What the rescue step receives
 
-1. **Like any step**, the rescue step receives its inputs, a contributor, a step reporter and its services (chapter 4, 4.1). Its inputs are read from the data bag; no input adapter is used. Its services come from the service providers attached to no step (chapter 3, 3.9 point 7). It sees everything committed so far, including what the hooks of the failed attempt contributed.
+1. **Like any step**, the rescue step receives its inputs, a contributor, a step reporter and its services (chapter 4, 4.1). It sees everything committed so far, including what the hooks of the failed attempt contributed. It gets only what is attached to its own name, `<step name>_rescue`, and, for services, the providers attached to no step, and nothing attached to the step it rescues:
+   - **its inputs** are resolved as for any step (chapter 4, 4.2): through the input adapter attached to `<step name>_rescue`, if there is one, then from the data bag. The same events and aborts apply, naming the rescue step. An input adapter attached to the step it rescues is never asked for the rescue step's inputs. When the rescue step's adapter requests the name of the step being built, it receives `<step name>_rescue`;
+   - **its services** come from the service provider of each key attached to `<step name>_rescue`, if there is one, and otherwise from the provider of that key attached to no step (chapter 3, 3.9 point 7).
 2. **Data from the step it rescues.** A rescue step MAY also request, from the step it rescues, what a step hook may request from the step it acts on (chapter 6, 6.6 point 1): the failed attempt's contributions by key and type, the failure's reason and the error, each as required or optional, under the same rules:
    - a required request for something that does not exist MUST abort the journey with `required data missing`;
    - a value of the wrong type MUST abort the journey with `wrong type`, whether the request is required or optional;
    - an optional request for a contribution the failed attempt did not make is absent, and `optional_input_absent` is emitted, naming the rescue step and the key; an optional request for a reason or an error that does not exist is answered absent, with no event, as for a hook;
    - an abort while resolving them names the rescue step and the key, or, for the failure reason or the error, which of the two was requested.
 
-   These requests are resolved while the rescue step is built, together with its inputs, in the order it declares them. Like every input, what they answer is read-only (chapter 4, 4.7).
+   These requests are resolved while the rescue step is built, together with its inputs, in the order it declares them. They are never asked of the rescue step's input adapter, which serves inputs only. Like every input, what they answer is read-only (chapter 4, 4.7).
 
 ## 7.4 How the rescue ends
 
@@ -46,7 +48,7 @@ A rescue step fixes the cause of a step's failure, after which the failed step r
 2. **The rescue step's statuses** are those of any step: `NotExecuted` from its insertion, then `Executing`, then `Succeeded`, `Failed`, `Skipped` (7.4 point 4) or `Aborted`.
 3. **An abort while a step is being rescued**, for example because the rescue step cannot be built, a reporter fails on one of its events or it skips, names the rescue step in `journey_aborted`. The rescue step becomes `Aborted` if it was `Executing`, and keeps its status if it was already final. The rescued step becomes `Aborted`, since it was `Rescuing`, which is not final.
 4. **An abort on `step_rescuing` or `step_rescued`**, when a reporter fails while one of them is delivered, names the rescued step, which becomes `Aborted`. The rescue step keeps its status: `NotExecuted` after `step_rescuing`, `Succeeded` after `step_rescued`.
-5. **Custom code.** A rescue step's constructor, its requests and its run are a step's (chapter 5, 5.10): a constructor that fails, or a service provider that fails for one of its services, aborts the journey with `step could not be built`, and an error that escapes its run is an abnormal termination of the rescue step (7.4 point 3).
+5. **Custom code.** A rescue step's constructor, its requests and its run are a step's (chapter 5, 5.10): a constructor that fails, an input adapter that fails for one of its inputs, or a service provider that fails for one of its services, aborts the journey with `step could not be built`, and an error that escapes its run is an abnormal termination of the rescue step (7.4 point 3).
 
 ## 7.6 Events
 
@@ -65,4 +67,4 @@ A rescue that works reads, in order:
 
 ## 7.7 Checked by
 
-In the conformance repository: [`0003-rescue-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0003-rescue-steps), and [`0095-services-provided-to-steps/rescue-steps.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0095-services-provided-to-steps/rescue-steps.feature).
+In the conformance repository: [`0003-rescue-steps/`](https://github.com/itinera-dev/conformance/tree/main/cases/tier-1/0003-rescue-steps), and [`0095-services-provided-to-steps/rescue-steps.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0095-services-provided-to-steps/rescue-steps.feature). The input adapters and service providers attached to a rescue step are checked by the scenarios tagged `@proposal-0098` in [`0003-rescue-steps/declaring.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0003-rescue-steps/declaring.feature), [`0003-rescue-steps/input-adapters.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0003-rescue-steps/input-adapters.feature) and [`0095-services-provided-to-steps/rescue-steps.feature`](https://github.com/itinera-dev/conformance/blob/main/cases/tier-1/0095-services-provided-to-steps/rescue-steps.feature).
