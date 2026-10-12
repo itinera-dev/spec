@@ -3,6 +3,7 @@
 - Issue: [#63](https://github.com/itinera-dev/spec/issues/63)
 - Tier: 1
 - Amends: [0011](0011-events.md), [0012](0012-local-executor.md)
+- Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
 
 ## Summary
 
