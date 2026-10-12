@@ -34,6 +34,7 @@ Accepted proposals, the PRDs of Itinera's features: why each feature exists and 
 - [0085: An aborted journey's result carries no data bag, and an abort is final](0085-aborted-result-has-no-data.md) (tier 1, amends 0065 and 0009). Accepted in [#86](https://github.com/itinera-dev/spec/pull/86).
 - [0091: Input adapters may read the data bag](0091-adapters-read-the-data-bag.md) (tier 1, amends 0060, 0010 and 0054). Accepted in [#94](https://github.com/itinera-dev/spec/pull/94).
 - [0095: Services provided to steps](0095-services-provided-to-steps.md) (tier 1, amends 0002, 0003, 0011 and 0042): steps request services by key and type; the workflow's service providers supply them, once per journey or for every attempt, to every step or to the steps they are attached to. Accepted in [#97](https://github.com/itinera-dev/spec/pull/97).
+- [0098: Input adapters and service providers for rescue steps](0098-rescue-step-adapters-and-providers.md) (tier 1, amends 0003, 0060 and 0095): a rescue step may have its own input adapter and service providers, attached to `<step name>_rescue`, and the listing shows them in a rescue section of its step's entry. Accepted in [#PR](https://github.com/itinera-dev/spec/pull/PR).
 
 ## Under evaluation
 

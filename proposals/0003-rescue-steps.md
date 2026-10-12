@@ -4,6 +4,7 @@
 - Tier: 1
 - Amends: [0002](0002-foundations.md), [0008](0008-steps.md), [0009](0009-running-a-workflow.md), [0010](0010-hooks-lifecycles-and-roles.md), [0011](0011-events.md), [0032](0032-configuration-errors.md), [0040](0040-events-facts-and-decisions.md), [0042](0042-configuration-errors-before-the-journey.md) and [0054](0054-how-custom-code-fails.md)
 - Amended by [#95](https://github.com/itinera-dev/spec/issues/95): steps may request services provided by the workflow.
+- Amended by [#98](https://github.com/itinera-dev/spec/issues/98): a rescue step may have its own input adapter and service providers.
 
 ## Summary
 
