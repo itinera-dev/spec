@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md), [0083](../proposals/0083-what-failures-carry.md) [0095](../proposals/0095-services-provided-to-steps.md) and [0102](../proposals/0102-global-metadata.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md), [0083](../proposals/0083-what-failures-carry.md) [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md) and [0104](../proposals/0104-service-implementation-on-events.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -60,7 +60,7 @@ Custom code fails by throwing or by returning an error (chapter 5, 5.10). A repo
    - **A decision** records what the executor decided to do next. It MUST be emitted only once the decision is final, after every hook that could change it has returned, and MUST carry **decided by**: either `default`, the executor's own rule, or the policy and hook whose returned lifecycle decided it.
 2. So the stream always reads: what happened, the hooks that were consulted, what was decided.
 3. There are no separate events for step status changes: every step status follows from the facts and decisions below.
-4. Engine events MUST NOT carry data values, only keys. Reasons and error messages are carried, because their authors wrote them.
+4. Engine events MUST NOT carry data values, only keys. Reasons and error messages are carried, because their authors wrote them, and so is the data a service provider supplies with an instance for `service_provided` (chapter 4, 4.9).
 
 ## 2.7 The engine catalogue
 
@@ -75,7 +75,7 @@ Facts:
 | `input_adapter_supplied` | an input adapter supplies a value for a step's input | step, key, adapter |
 | `input_adapter_failed` | an input adapter fails, or supplies something that is not a value, for a step's input | step, key, adapter |
 | `optional_input_absent` | an optional request has no value: a step's input, a hook's data from the workflow or from the step, a rescue step's data from the step it rescues (chapter 7), or an input adapter's or a service provider's data from the workflow | step, key; the policy and hook, the adapter, or the provider, when the request is theirs |
-| `service_provided` | a service provider returned an instance for a step's service | step, attempt, key, provider |
+| `service_provided` | a service provider returned an instance for a step's service | step, attempt, key, provider, the implementation it made, and the data it supplied with the instance, if any (chapter 4, 4.9) |
 | `service_provider_failed` | a service provider failed, or returned nothing, for a step's service | step, attempt, key, provider |
 | `global_metadata_set` | a step, hook or service provider set an entry of global metadata, after the reporters received it (2.11) | the key, never its value; the step and attempt, when there is one; and the policy and hook, or the provider, when they set it |
 | `step_succeeded` | the attempt reported Success | step, attempt |
