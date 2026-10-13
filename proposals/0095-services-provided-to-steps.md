@@ -5,6 +5,7 @@
 - Amends: [0002](0002-foundations.md), [0003](0003-rescue-steps.md), [0011](0011-events.md) and [0042](0042-configuration-errors-before-the-journey.md)
 - Amended by [#98](https://github.com/itinera-dev/spec/issues/98): service providers may be attached to rescue steps.
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
+- Amended by [#104](https://github.com/itinera-dev/spec/issues/104): `service_provided` names the implementation and carries the provider's data.
 
 ## Summary
 
