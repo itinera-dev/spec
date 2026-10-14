@@ -52,7 +52,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 
 1. If a built step lets a recoverable failure escape while running, an exception or an error returned through its signature, the attempt MUST end with an **abnormal termination**, and `step_abnormal_termination` is emitted. The error is all the hooks receive about it. An unrecoverable failure, such as a panic in Rust, is outside the model (chapter 5, 5.10).
 2. The executor's own signal that ends a step at an emit or contribute call (chapter 2, 2.9 point 5) is never an abnormal termination.
-3. It is retried like a failure, while the step's retry budget lasts, unless the step descriptor turns `retry on abnormal termination` off (chapter 5). A step turns it off when an error it did not anticipate may already have had side effects, such as a payment sent.
+3. It is retried like a failure, while the step's retry budget lasts, unless the step descriptor turns `retry on abnormal termination` off (chapter 5). The workflow turns it off for a step whose unanticipated errors may already have had side effects, such as a payment sent.
 4. An abnormal termination MUST NOT abort the journey. It always ends as a failure of the step, at once or after its retries.
 5. An abnormal termination carries no contributions.
 

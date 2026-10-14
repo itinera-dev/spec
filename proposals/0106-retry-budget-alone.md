@@ -8,7 +8,7 @@
 
 A failure no longer carries a **retriable** flag. Whether a step is tried again is decided by its **retry budget**, then by its hooks: a failure with budget left calls `on step retry` and the step is attempted again, unless a hook returns `FailWorkflow`; once the budget is spent the step is given up. A budget of 0 means the step is never retried.
 
-An abnormal termination follows the same rule. The step descriptor's setting `abnormal termination retriable`, false by default, becomes **`retry on abnormal termination`**, **true** by default: a step turns it off when retrying an error it did not anticipate is unsafe.
+An abnormal termination follows the same rule. The step descriptor's setting `abnormal termination retriable`, false by default, becomes **`retry on abnormal termination`**, **true** by default: the workflow turns it off for a step whose unanticipated errors make retrying unsafe.
 
 Amends proposal 0008 (the retriable flag, the causes hooks receive), proposal 0024 (the setting and its default), proposal 0009 (what is retried), proposal 0010 (which hooks run), proposal 0011 (`step_failed`), proposal 0040 (the causes of the step decisions), proposal 0083 (what `retries exhausted` carries) and proposal 0003 (the causes of a rescue). In the chapters it changes 1.2, 1.4, 2.7, 3.2, 4.3, 4.4, 4.6, 4.8, 5.6, 5.8, 6.2 and chapter 7.
 
@@ -94,7 +94,7 @@ The cases must check that:
 6. an abnormal termination that spends the budget is given up with the cause `retries exhausted`, carrying the error;
 7. with `retry on abnormal termination` off, an abnormal termination is not retried even with a budget, and the step is given up with the cause `abnormal termination`;
 8. `step_failed` carries the step, the attempt and the reason, and no retriable flag;
-9. a step with a rescue step is rescued after a failure, and after an abnormal termination even with `retry on abnormal termination` on; `step_rescuing` carries the cause `failure` or `abnormal termination`;
+9. a step with a rescue step is rescued after a failure, and after an abnormal termination whatever its `retry on abnormal termination` setting; `step_rescuing` carries the cause `failure` or `abnormal termination`;
 10. a rescue step that reports a failure is given up with the cause `failure`.
 
 Every existing scenario that scripts `retriable failure` scripts `failure` instead, and every scenario that relied on a failure not being retried despite a budget, or on an abnormal termination not being retried by default, states what it needs.

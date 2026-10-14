@@ -1,6 +1,6 @@
 # 7. Rescue steps
 
-Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md), with the services of [0095](../proposals/0095-services-provided-to-steps.md) and the input adapters and service providers of [0098](../proposals/0098-rescue-step-adapters-and-providers.md), as amended by [0106](../proposals/0106-retry-budget-alone.md).
+Specification 0.1. Written from proposal [0003](../proposals/0003-rescue-steps.md), as amended by [0106](../proposals/0106-retry-budget-alone.md), with the services of [0095](../proposals/0095-services-provided-to-steps.md) and the input adapters and service providers of [0098](../proposals/0098-rescue-step-adapters-and-providers.md).
 
 A rescue step fixes the cause of a step's failure, after which the failed step runs once more. This chapter defines how one is declared, when it runs, what it receives, and how its end decides the journey. Everything not said here follows the chapters before it: a rescue step is a step.
 
