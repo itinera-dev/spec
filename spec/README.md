@@ -19,6 +19,7 @@ Read chapter 1 first. The others are ordered so that each builds only on the cha
 5. [Running a journey](05-running-a-journey.md): the workflow instance, journey IDs, the data bag, step statuses, the scan, retries, how a journey ends, the result, the executor and execution modes.
 6. [Hooks, lifecycles and workflow roles](06-hooks-lifecycles-and-roles.md): which hooks run and in what order, what they may return, what they read and write, and roles.
 7. [Rescue steps](07-rescue-steps.md): declaring a rescue step, when it runs, what it receives, and how its end decides the journey.
+8. [Test support](08-test-support.md): the capability `testing`: the recording reporter and the path, fake providers, scripted runs and recorders.
 
 ## Suggested implementation order
 

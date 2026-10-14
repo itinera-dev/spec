@@ -164,7 +164,7 @@ The diagram shows these transitions:
 1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks, service providers and reporters alike.
 2. Anything in a mode the executor does not accept is the violation `mode not accepted`, refused at admission when the instance is handed to `run`, before the journey starts (chapter 3).
 3. Whether an asynchronous executor also accepts synchronous steps, hooks, service providers and reporters is each language's choice, stated as a capability.
-4. A language claims its capabilities, the modes its executors accept, alongside its tier, and its conformance runner runs the cases tagged with them.
+4. A language claims its capabilities alongside its tier: the modes its executors accept and, when it offers it, test support (chapter 8). Its conformance runner runs the cases tagged with them.
 
 ## 5.12 Checked by
 
