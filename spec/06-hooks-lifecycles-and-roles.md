@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md), [0091](../proposals/0091-adapters-read-the-data-bag.md) and [0102](../proposals/0102-global-metadata.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md) and [0095](../proposals/0095-services-provided-to-steps.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md), [0091](../proposals/0091-adapters-read-the-data-bag.md) and [0102](../proposals/0102-global-metadata.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -19,14 +19,14 @@ Which hooks the executor calls and in what order, what each may return, what hoo
 After each attempt's outcome, the executor MUST call the hooks and record the step decision (chapter 2) in this order:
 
 1. **Success:** `on step success`.
-2. **A failure that is not retriable:** `step_given_up` with the cause `failure`, then `on step failure`.
-3. **A retriable failure, with retry budget left:** `on step retry`, with the cause `retriable failure`; then `step_retrying` and the next attempt.
-4. **A retriable failure, with the budget exhausted:** `step_given_up` with the cause `retries exhausted`, then only `on step failure`. The retry hook MUST NOT be called when no retry is possible.
+2. **A failure, with retry budget left:** `on step retry`, with the cause `failure`; then `step_retrying` and the next attempt.
+3. **A failure, with a retry budget of 0:** `step_given_up` with the cause `failure`, then `on step failure`.
+4. **A failure, with a retry budget greater than 0 spent:** `step_given_up` with the cause `retries exhausted`, then only `on step failure`. The retry hook MUST NOT be called when no retry is possible.
 5. **An abnormal termination:** `on step abnormal termination` first. Then:
-   - if the step descriptor does not set `abnormal termination retriable`: `step_given_up` with the cause `abnormal termination`, then `on step failure`;
-   - if it does, by the rules of points 3 and 4: `on step retry` with the cause `abnormal termination`, then `step_retrying`, while the budget lasts; otherwise `step_given_up` with the cause `retries exhausted`, then `on step failure`.
+   - while the step descriptor's `retry on abnormal termination` is on, by the rules of points 2 to 4, with the cause `abnormal termination` in place of `failure`: `on step retry` then `step_retrying` while the budget lasts; otherwise `step_given_up` with the cause `abnormal termination` for a budget of 0, or `retries exhausted` for a budget spent, then `on step failure`;
+   - when it is off: `step_given_up` with the cause `abnormal termination`, then `on step failure`, whatever the budget.
 6. **Skipped:** no hook and no step decision (chapter 4).
-7. **A step with a rescue step**, on the attempt its rescue step will fix: after a failure, retriable or not, `step_rescuing` and no hook; after an abnormal termination, `on step abnormal termination`, then `step_rescuing`, unless that hook returns `FailWorkflow`. `on step retry` and `on step failure` are not called for that attempt. A rescue step has no policies, so no step hook is called for it (chapter 7).
+7. **A step with a rescue step**, on the attempt its rescue step will fix: after a failure, `step_rescuing` and no hook; after an abnormal termination, `on step abnormal termination`, then `step_rescuing`, unless that hook returns `FailWorkflow`. `on step retry` and `on step failure` are not called for that attempt. A rescue step has no policies, so no step hook is called for it (chapter 7).
 
 The failure hook comes after `step_given_up` because it is called because the step was given up; it decides only the journey's fate. Every decision here is `decided by` `default`, except where a hook returns a lifecycle (6.3).
 

@@ -9,6 +9,7 @@
 - Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
+- Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
 
 ## Summary
 
