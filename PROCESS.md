@@ -190,9 +190,9 @@ A tier's contents are the same across the patch versions of one minor version, s
 
 **Tiers** are cumulative levels of meaning. Each tier includes everything in the tiers before it. Every proposal states its tier, and every conformance case is tagged with its tier. The planned tiers are in [ROADMAP.md](ROADMAP.md).
 
-**Capabilities** are independent of tiers. They describe how and where workflows run: a synchronous executor, an asynchronous executor, a durable store. Not every language can offer every capability; TypeScript, for example, is naturally asynchronous.
+**Capabilities** are independent of tiers. They describe how and where workflows run, such as a synchronous executor, an asynchronous executor or a durable store, or what a language offers around them, such as test support. Not every language can offer every capability; TypeScript, for example, is naturally asynchronous.
 
-A language claims a tier for a specific version of the specification, plus a list of capabilities, for example "tier 2 of spec 0.3; capabilities: sync executor, async executor". It may claim a tier only when every conformance case of that tier and the tiers before it passes. Capabilities are checked by their own cases.
+A language claims a tier for a specific version of the specification, plus a list of capabilities, for example "tier 2 of spec 0.3; capabilities: sync executor, async executor". It may claim a tier only when every conformance case of that tier and the tiers before it passes. Capabilities are checked by their own cases. A proposal that only defines a capability, such as test support, does not count towards its tier: a language lists it, and runs its cases, only when it claims that capability.
 
 The contents of a tier are fixed for a given version of the specification. New features go into a new tier or a new version, so existing claims stay true.
 
