@@ -1,6 +1,6 @@
 # 2. Events
 
-Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md), [0083](../proposals/0083-what-failures-carry.md) [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md) and [0104](../proposals/0104-service-implementation-on-events.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposal [0011](../proposals/0011-events.md) as amended by [0040](../proposals/0040-events-facts-and-decisions.md) and [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0063](../proposals/0063-dispatcher-factory.md), [0064](../proposals/0064-event-data-values.md), [0081](../proposals/0081-reporter-failure-stops-delivery.md), [0083](../proposals/0083-what-failures-carry.md), [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md), [0104](../proposals/0104-service-implementation-on-events.md) and [0106](../proposals/0106-retry-budget-alone.md), with the event-stream rules of [0032](../proposals/0032-configuration-errors.md), the rules of [0049](../proposals/0049-custom-code-that-throws.md) for reporters that fail, and the events introduced by [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md) and [0003](../proposals/0003-rescue-steps.md).
 
 Events come first because every conformance case observes a journey through its event stream. The events about steps, hooks and data are listed here in full; what makes each happen is defined in the chapters that follow.
 
@@ -79,7 +79,7 @@ Facts:
 | `service_provider_failed` | a service provider failed, or returned nothing, for a step's service | step, attempt, key, provider |
 | `global_metadata_set` | a step, hook or service provider set an entry of global metadata, after the reporters received it (2.11) | the key, never its value; the step and attempt, when there is one; and the policy and hook, or the provider, when they set it |
 | `step_succeeded` | the attempt reported Success | step, attempt |
-| `step_failed` | the attempt reported Failure | step, attempt, retriable, reason (code, message, details) |
+| `step_failed` | the attempt reported Failure | step, attempt, reason (code, message, details) |
 | `step_skipped` | the attempt reported Skipped | step, attempt, the reason, if any |
 | `step_abnormal_termination` | an error escaped the running step | step, attempt, the error's message |
 | `hook_called` | a hook returned without throwing | policy, hook, step and attempt if any, the lifecycle returned or none |
@@ -92,8 +92,8 @@ Decisions:
 
 | Event | Decided | Also carries |
 |---|---|---|
-| `step_retrying` | the step goes to `MustRetry` and will be attempted again | step, the attempt that failed, the cause (`retriable failure` or `abnormal termination`), decided by |
-| `step_rescuing` | the step goes to `Rescuing`: its rescue step is inserted before it (chapter 7) | step, the attempt that failed, the cause (`failure`, `retriable failure` or `abnormal termination`), the rescue step's name, decided by |
+| `step_retrying` | the step goes to `MustRetry` and will be attempted again | step, the attempt that failed, the cause (`failure` or `abnormal termination`), decided by |
+| `step_rescuing` | the step goes to `Rescuing`: its rescue step is inserted before it (chapter 7) | step, the attempt that failed, the cause (`failure` or `abnormal termination`), the rescue step's name, decided by |
 | `step_rescued` | the rescue step succeeded, and the step will be attempted again (chapter 7) | step, the attempt that failed, the rescue step's name, decided by |
 | `step_given_up` | the step will not be attempted again and ends `Failed` | step, the last attempt, the cause (`failure`, `abnormal termination`, `retries exhausted`, or `FailWorkflow` with its reason), decided by |
 | `journey_succeeded` | the journey succeeds | decided by: `default` when no step is left, or the hook that returned `FinishWorkflow` |

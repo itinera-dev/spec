@@ -1,6 +1,6 @@
 # 5. Running a journey
 
-Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md) and [0104](../proposals/0104-service-implementation-on-events.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0009](../proposals/0009-running-a-workflow.md) as amended by [0032](../proposals/0032-configuration-errors.md), [0012](../proposals/0012-local-executor.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0049](../proposals/0049-custom-code-that-throws.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0063](../proposals/0063-dispatcher-factory.md), [0065](../proposals/0065-business-result.md), [0085](../proposals/0085-aborted-result-has-no-data.md), [0083](../proposals/0083-what-failures-carry.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md), [0104](../proposals/0104-service-implementation-on-events.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How an executor runs a workflow instance: the instance and its data, journey IDs, the scan, step statuses, retries, the result, and the executor itself. What the hooks called along the way may decide is defined in chapter 6; where this chapter says "by default", a hook may change it there.
 
@@ -80,11 +80,11 @@ The diagram shows these transitions:
 ## 5.6 Attempts and retries
 
 1. **Attempts are counted from 1.** The first execution of a step is attempt 1. A step with a retry budget of N MUST be attempted at most N + 1 times, plus one attempt after its rescue step succeeded (chapter 7).
-2. **What is retried.** A retriable failure, or an abnormal termination when the step descriptor sets `abnormal termination retriable`, MUST put the step in `MustRetry` while its retry budget allows another attempt. Both use the same budget. The decision is recorded by `step_retrying` (chapter 2).
-3. **When the budget is exhausted**, the step becomes `Failed`, and its failure hook is called with the cause `retries exhausted`. Whenever a step becomes `Failed`, the decision is recorded by `step_given_up`, with its cause (chapter 2).
-4. **What is not retried.** A failure that is not retriable makes the step `Failed` at once, with the cause `failure`. An abnormal termination that is not retriable makes the step `Failed` at once, with the cause `abnormal termination`.
+2. **What is retried.** A failure, or an abnormal termination while the step descriptor's `retry on abnormal termination` is on, MUST put the step in `MustRetry` while its retry budget allows another attempt, unless a hook returns `FailWorkflow` (chapter 6). Both use the same budget. The decision is recorded by `step_retrying` (chapter 2). Nothing a step reports asks for a retry or prevents one.
+3. **When a budget greater than 0 is spent**, the step becomes `Failed`, and its failure hook is called with the cause `retries exhausted`. Whenever a step becomes `Failed`, the decision is recorded by `step_given_up`, with its cause (chapter 2).
+4. **What is not retried.** With a retry budget of 0, a failure makes the step `Failed` at once with the cause `failure`, and an abnormal termination with the cause `abnormal termination`. With `retry on abnormal termination` off, an abnormal termination makes the step `Failed` at once with the cause `abnormal termination`, whatever its budget.
 5. **A retry happens immediately.** The executor MUST NOT wait between attempts. A step that needs to wait before reporting a failure does so itself.
-6. **A step with a rescue step** has a retry budget of 0, and on its first failed attempt, whatever the outcome or the `abnormal termination retriable` setting, it is rescued instead of being given up, unless `on step abnormal termination` returns `FailWorkflow` (chapter 7).
+6. **A step with a rescue step** has a retry budget of 0, and on its first failed attempt, whatever the outcome or the `retry on abnormal termination` setting, it is rescued instead of being given up, unless `on step abnormal termination` returns `FailWorkflow` (chapter 7).
 
 ## 5.7 How a journey ends
 
@@ -118,7 +118,7 @@ The diagram shows these transitions:
         | Cause | Reason | Error |
         |---|---|---|
         | `failure` | the step's reason | none |
-        | `retries exhausted` | the reason of the last attempt, if it reported a retriable failure | the error of the last attempt, if it ended in an abnormal termination |
+        | `retries exhausted` | the reason of the last attempt, if it reported a failure | the error of the last attempt, if it ended in an abnormal termination |
         | `abnormal termination` | none | the error |
         | `FailWorkflow` | the reason the hook gave | none |
 

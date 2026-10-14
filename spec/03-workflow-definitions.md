@@ -1,6 +1,6 @@
 # 3. Workflow definitions and configuration errors
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md), [0098](../proposals/0098-rescue-step-adapters-and-providers.md), [0102](../proposals/0102-global-metadata.md) and [0104](../proposals/0104-service-implementation-on-events.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md), [0009](../proposals/0009-running-a-workflow.md), [0010](../proposals/0010-hooks-lifecycles-and-roles.md), [0012](../proposals/0012-local-executor.md) and [0032](../proposals/0032-configuration-errors.md), as amended by [0042](../proposals/0042-configuration-errors-before-the-journey.md), [0054](../proposals/0054-how-custom-code-fails.md), [0056](../proposals/0056-data-bag-values.md), [0058](../proposals/0058-building-policies.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0061](../proposals/0061-instance-carries-journey-id-and-reporters.md), [0062](../proposals/0062-workflow-descriptors.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md), [0098](../proposals/0098-rescue-step-adapters-and-providers.md), [0102](../proposals/0102-global-metadata.md), [0104](../proposals/0104-service-implementation-on-events.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 How a workflow is declared, and what happens when the declaration is wrong. How each language expresses a declaration (a builder, annotations, attributes, macros) is decided in its tech spec; this chapter defines only what a declaration contains and how it is checked.
 
@@ -24,11 +24,11 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    - the step's **name**;
    - how to **build** the step, including the services it requests, by key and type (chapter 4);
    - its **retry budget**: the number of retries allowed after the first attempt, **0** unless the descriptor says otherwise;
-   - **`abnormal termination retriable`**: whether an abnormal termination may be retried, **false** unless the descriptor says otherwise;
+   - **`retry on abnormal termination`**: whether an abnormal termination is retried while the retry budget lasts, **true** unless the descriptor says otherwise;
    - the **step policies** attached to the step, in declaration order;
    - its **input adapter**, if any (3.4);
    - its **rescue step**, if any: how to build it, and nothing else (chapter 7). A step with a rescue step has a retry budget of 0. An input adapter or service provider for the rescue step is attached to its name, `<step name>_rescue`, as to a step (3.4, 3.9).
-2. There is no workflow-wide default for the retry budget or for `abnormal termination retriable`: each step states its own, so the declaration shows everything.
+2. There is no workflow-wide default for the retry budget or for `retry on abnormal termination`: each step states its own, so the declaration shows everything.
 3. **Names.** A step's name is a non-empty, case-sensitive string. It MUST be unique within its workflow; two steps with the same name are the violation `duplicate step name`.
 4. **Execution mode.** Each step is synchronous or asynchronous.
 

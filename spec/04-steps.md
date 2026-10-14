@@ -1,6 +1,6 @@
 # 4. Steps
 
-Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md) and [0104](../proposals/0104-service-implementation-on-events.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
+Specification 0.1. Written from proposals [0002](../proposals/0002-foundations.md), [0008](../proposals/0008-steps.md) as amended by [0024](../proposals/0024-abnormal-termination-retriable.md), and [0027](../proposals/0027-received-data-read-only.md), with the amendments [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0056](../proposals/0056-data-bag-values.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0060](../proposals/0060-input-adapters-attached-to-steps.md), [0064](../proposals/0064-event-data-values.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0095](../proposals/0095-services-provided-to-steps.md), [0102](../proposals/0102-global-metadata.md), [0104](../proposals/0104-service-implementation-on-events.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md).
 
 What a step is, how it is built and run, the outcomes it reports, and what happens to the data it contributes. When a step runs, and what follows its outcome, are defined in chapters 5 and 6.
 
@@ -45,18 +45,14 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
    - **Success**: the step completed;
    - **Failure**: the step could not complete;
    - **Skipped**: the step decided, from what it knows of its domain, not to do its work.
-2. **The retriable flag.** Every failure carries a **retriable** flag, false unless the step sets it:
-   - **not retriable**: trying again would not help;
-   - **retriable**: trying again might help.
-
-   The flag is the step's suggestion, not a decision: whether a retriable failure is tried again depends on the step's retry budget and the hooks (chapters 5 and 6).
+2. **No retry flag.** A failure says that the step could not complete, and why. It carries nothing that asks for a retry: whether the step is tried again is decided by its retry budget and its hooks (chapters 5 and 6), never by the step.
 3. **Reasons.** A failure MUST carry a **reason**: a **code** (a string), an optional **message**, and optional **details**, which MUST be a value (4.6) and are captured when the reason is made; the executor never serializes them. A skip MAY carry a reason of the same shape. A reason whose details are not a value aborts the journey with `not a value`.
 
 ## 4.4 Abnormal termination
 
 1. If a built step lets a recoverable failure escape while running, an exception or an error returned through its signature, the attempt MUST end with an **abnormal termination**, and `step_abnormal_termination` is emitted. The error is all the hooks receive about it. An unrecoverable failure, such as a panic in Rust, is outside the model (chapter 5, 5.10).
 2. The executor's own signal that ends a step at an emit or contribute call (chapter 2, 2.9 point 5) is never an abnormal termination.
-3. Whether it is retried depends on the step descriptor's `abnormal termination retriable` setting (chapter 5). By default it is not: an error the step did not anticipate may already have had side effects.
+3. It is retried like a failure, while the step's retry budget lasts, unless the step descriptor turns `retry on abnormal termination` off (chapter 5). The workflow turns it off for a step whose unanticipated errors may already have had side effects, such as a payment sent.
 4. An abnormal termination MUST NOT abort the journey. It always ends as a failure of the step, at once or after its retries.
 5. An abnormal termination carries no contributions.
 
@@ -74,7 +70,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 2. **Everything in the data bag is a value**: data that can be serialized (chapter 1, 1.3). Functions, closures, connections, handles and other objects that are not data never enter it. Tier 1 serializes nothing; the rule says what may be stored, so that a later executor can serialize it. Implementations SHOULD make storing a non-value impossible to express (chapter 3, 3.8). Where it can be expressed, contributing something that is not a value is illegal: the journey is aborted with `not a value`, naming the step, or the policy and hook, and the key, and the contribute call ends the step or hook with the executor's signal, as for a reporter that fails (chapter 2, 2.9 point 5).
 3. **The same key twice in one attempt:** the last value MUST win.
 4. **Captured when made.** A value passed to a contributor MUST be captured at that moment: changing the object afterwards MUST NOT change what was contributed.
-5. **Visible to hooks, committed only on success.** A step's contributions MUST be visible to the hooks of the attempt that made them, whatever its outcome, and MUST be committed to the data bag only when the attempt succeeds. The contributions of a failed attempt, retriable or not, MUST NOT reach later steps or the result.
+5. **Visible to hooks, committed only on success.** A step's contributions MUST be visible to the hooks of the attempt that made them, whatever its outcome, and MUST be committed to the data bag only when the attempt succeeds. The contributions of a failed attempt MUST NOT reach later steps or the result.
 6. **Overwriting.** A committed contribution MAY replace a key already in the data bag, including one from the initial data. The last committed value wins, and `data_overwritten` is emitted.
 7. **Handles are valid only during their attempt.** During its attempt, a step contributes and emits freely, in any order. Its contributor and step reporter are made by the executor for that attempt and closed when the attempt ends; closing is idempotent. A call on a closed handle runs no custom code and has no effect on any journey: nothing is recorded, shown to hooks or committed, no event is delivered and no global metadata is set. The call SHOULD fail where it is made, so the misuse is visible, but that failure MUST NOT change any journey. Implementations SHOULD make such a call impossible to express (chapter 3, 3.8). The same holds for a hook's contributor and its means of emitting events, until the hook returns.
 
@@ -89,7 +85,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
 
 1. **The executor never interrupts custom code that does nothing illegal.** It does not interrupt a step's execution at any stage (building it, running it, its events, or the hooks after it), and it does not cancel futures, stop threads or impose time limits on a step while it runs.
 2. **When custom code does something illegal** and the executor learns of it, the executor aborts the journey. Where an executor-owned signal, given at a call the step or hook itself made, is the only way to stop it, the executor ends it there (chapter 2, 2.9 point 5); whatever the code does afterwards is ignored, and the abort stands.
-3. A step handles its own time limits, for example a timeout on a call it makes, and reports a failure, retriable or not, when it runs out of time.
+3. A step handles its own time limits, for example a timeout on a call it makes, and reports a failure when it runs out of time.
 
 ## 4.9 Services
 
