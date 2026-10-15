@@ -116,9 +116,9 @@ In the conformance repository: [`0010-hooks-lifecycles-and-roles/`](https://gith
 
 This section is a suggestion, not part of the specification, as chapter 5, 5.13 is. Each language spells the names in its own casing, such as `keep_default` in Rust and `keepDefault` in TypeScript and Kotlin, and its tech spec says why when it keeps a different name or shape.
 
-1. **What a hook decides** (6.3). A hook returns a lifecycle, or nothing, and nothing means the default. It is suggested that:
-   1. a hook returns a **decision**, never a bare absence, and the default is a decision of its own, **keep default**;
-   2. there is one decision type for the hooks on step success, with `keep default`, `finish workflow` and `fail workflow`, and one for the hooks on step failure, on step retry and on step abnormal termination, with `keep default` and `fail workflow`, so that a lifecycle a hook may not return cannot be written where the language allows it (6.3 point 2);
-   3. a decision can be asked what it does: whether it `keeps default` or `finishes workflow`, and, through `fails workflow`, the reason when it fails the workflow, so that a test of a hook reads the decision without matching on it.
-2. **Reasons** (6.3 point 4). A reason is a code, an optional message and optional details. It is suggested that wherever an application gives a reason, in a step's failure (chapter 4) or a hook's `fail workflow`, its code alone is accepted, so that the common case is written as the code.
+1. **What a step hook returns** (6.3). A step hook returns a lifecycle, or nothing, and nothing means the default. It is suggested that:
+   1. a step hook never returns a bare absence: the default is a value of its own, **keep default**, returned like a lifecycle;
+   2. there are two types: **on success**, returned by `on step success`, with `keep default`, `finish workflow` and `fail workflow` with a reason; and **on failure**, returned by `on step failure`, `on step retry` and `on step abnormal termination`, with `keep default` and `fail workflow` with a reason. A lifecycle a hook may not return then cannot be written where the language allows it (6.3 point 2);
+   3. what a step hook returns can be asked what it does: whether it `keeps default` or `finishes workflow`, and, through `fails workflow`, the reason when it fails the workflow, so that a test of a hook reads it without matching on it.
+2. **Reasons** (6.3 point 4). A reason is a code, an optional message and optional details. It is suggested that wherever an application gives a reason, in a step's failure or skip (chapter 4, 4.3 point 3) or a hook's `fail workflow`, its code alone is accepted, so that the common case is written as the code.
 3. **Requests** (6.6). A hook's requests follow chapter 4, 4.11 point 2: the declaration says whether a request is required or optional, and the type of the answer follows from it.

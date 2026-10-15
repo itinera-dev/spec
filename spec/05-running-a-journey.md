@@ -188,5 +188,5 @@ Operations 5 and 6 also report what happened (which adapter supplied or failed, 
 
 This section is a suggestion, not part of the specification, as 5.13 is. Each language spells the names in its own casing, such as `is_first` in Rust and `isFirst` in TypeScript and Kotlin, and its tech spec says why when it keeps a different name or shape.
 
-1. **Attempts** (5.6 point 1). It is suggested that an attempt number is a type of its own, counted from 1, that says whether it `is first`, instead of a bare integer, wherever an application meets one: in hooks, providers, events and test support (chapter 8).
+1. **Attempts** (5.6 point 1). It is suggested that an attempt number is a type of its own, counted from 1, that says whether it `is first`, instead of a bare integer, wherever an application meets one: in hooks, service providers, events and test support (chapter 8).
 2. **The result** (5.8). The result's content is the specification's, and its shape the language's (5.8 point 3). It is suggested that the final status can be asked whether it `is succeeded`, `is failed` or `is aborted`, and gives its `failure`, with its `cause`, `reason` and `error`, or its `abort`, so that a caller reads what it needs without matching on the status.
