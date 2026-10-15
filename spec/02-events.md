@@ -171,4 +171,4 @@ Every effect of a policy is traceable in the stream: `hook_called` records each 
 
 This section is a suggestion, not part of the specification, as chapter 5, 5.13 is. Each language spells the names in its own casing, and its tech spec says why when it keeps a different name or shape.
 
-An event's **kind** is suggested to be a closed set, with one member for each kind of the engine catalogue (2.7) and of the events from steps and hooks (2.9). Each member displays as the kind in snake_case, as 2.5 writes it, and can be read back from that text. An application then compares kinds as values, and a reporter writes them as the specification names them.
+An event's **kind** is suggested to be a closed set, with one member for each kind of the engine catalogue (2.7) and of the events from steps and hooks (2.9). Each member is written as the kind in snake_case, as 2.5 writes it, and can be read back from that text. An application then compares kinds as values, and a reporter writes them as the specification names them.
