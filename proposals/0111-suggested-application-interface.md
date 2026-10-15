@@ -15,7 +15,7 @@ The Rust implementation reworked its application interface for 0.1.0-beta.3, in 
 
 ## Design
 
-Every suggestion is a suggestion, not part of the specification, as chapter 5, 5.13 and chapter 8, 8.7 are. Names are given in words, and each language spells them in its own casing, such as `keep_default` in Rust and `keepDefault` in TypeScript and Kotlin. A language's tech spec says why when it keeps a different name or shape.
+These are suggestions, not part of the specification, as chapter 5, 5.13 and chapter 8, 8.7 are. Names are given in words, and each language spells them in its own casing, such as `keep_default` in Rust and `keepDefault` in TypeScript and Kotlin. A language's tech spec says why when it keeps a different name or shape.
 
 1. **What a step hook returns** (chapter 6, 6.3). A step hook returns a lifecycle, or nothing, and nothing means the default. It is suggested that:
    1. a step hook never returns a bare absence: the default is a value of its own, **keep default**, returned like a lifecycle;
