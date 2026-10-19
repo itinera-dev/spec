@@ -6,6 +6,7 @@
 - Amended by [#91](https://github.com/itinera-dev/spec/issues/91): input adapters may read the data bag.
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
+- Amended by [#113](https://github.com/itinera-dev/spec/issues/113): value conversions are calls into custom code.
 
 ## Summary
 
