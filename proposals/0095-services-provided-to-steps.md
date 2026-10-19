@@ -6,6 +6,7 @@
 - Amended by [#98](https://github.com/itinera-dev/spec/issues/98): service providers may be attached to rescue steps.
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
 - Amended by [#104](https://github.com/itinera-dev/spec/issues/104): `service_provided` names the implementation and carries the provider's data.
+- Amended by [#116](https://github.com/itinera-dev/spec/issues/116): one provider naming a step twice provides its service twice.
 
 ## Summary
 
