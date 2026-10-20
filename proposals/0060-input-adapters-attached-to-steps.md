@@ -5,6 +5,7 @@
 - Amends: [0002](0002-foundations.md), [0042](0042-configuration-errors-before-the-journey.md)
 - Amended by [#91](https://github.com/itinera-dev/spec/issues/91): input adapters may read the data bag.
 - Amended by [#98](https://github.com/itinera-dev/spec/issues/98): input adapters may be attached to rescue steps.
+- Amended by [#116](https://github.com/itinera-dev/spec/issues/116): two adapters with the same name are `duplicate adapter name`, and one adapter naming a step twice adapts it twice.
 
 ## Summary
 
