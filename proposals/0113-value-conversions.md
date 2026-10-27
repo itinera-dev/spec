@@ -3,6 +3,7 @@
 - Issue: [#113](https://github.com/itinera-dev/spec/issues/113)
 - Tier: 1, as the capability `value-conversions`
 - Amends: [0054](0054-how-custom-code-fails.md)
+- Amended by [#121](https://github.com/itinera-dev/spec/issues/121): a copy that keeps a value read-only is not a value conversion.
 
 ## Summary
 

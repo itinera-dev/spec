@@ -3,6 +3,7 @@
 - Issue: [#91](https://github.com/itinera-dev/spec/issues/91)
 - Tier: 1
 - Amends: [0060](0060-input-adapters-attached-to-steps.md), [0010](0010-hooks-lifecycles-and-roles.md) and [0054](0054-how-custom-code-fails.md)
+- Amended by [#121](https://github.com/itinera-dev/spec/issues/121): a read through the access whose copy fails tells the adapter the value is of another type.
 
 ## Summary
 
