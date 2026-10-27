@@ -1,6 +1,6 @@
 # 6. Hooks, lifecycles and workflow roles
 
-Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md), [0091](../proposals/0091-adapters-read-the-data-bag.md) and [0102](../proposals/0102-global-metadata.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md). Its suggested names come from proposal [0111](../proposals/0111-suggested-application-interface.md).
+Specification 0.1. Written from proposals [0010](../proposals/0010-hooks-lifecycles-and-roles.md) as amended by [0041](../proposals/0041-hook-data-from-the-data-bag.md), [0040](../proposals/0040-events-facts-and-decisions.md), [0054](../proposals/0054-how-custom-code-fails.md), [0055](../proposals/0055-reporter-fails-while-custom-code-runs.md), [0057](../proposals/0057-handles-valid-during-their-attempt.md), [0058](../proposals/0058-building-policies.md), [0065](../proposals/0065-business-result.md), [0083](../proposals/0083-what-failures-carry.md), [0091](../proposals/0091-adapters-read-the-data-bag.md), [0102](../proposals/0102-global-metadata.md) and [0122](../proposals/0122-unexpected-results.md), [0002](../proposals/0002-foundations.md) as amended by [0027](../proposals/0027-received-data-read-only.md), [0008](../proposals/0008-steps.md), [0024](../proposals/0024-abnormal-termination-retriable.md), [0095](../proposals/0095-services-provided-to-steps.md) and [0106](../proposals/0106-retry-budget-alone.md), and from proposal [0003](../proposals/0003-rescue-steps.md). Its suggested names come from proposal [0111](../proposals/0111-suggested-application-interface.md).
 
 Which hooks the executor calls and in what order, what each may return, what hooks can read and write, and how policies reach a workflow through roles. How policies and hooks are declared and attached is defined in chapter 3.
 
@@ -32,7 +32,7 @@ The failure hook comes after `step_given_up` because it is called because the st
 
 ## 6.3 What each hook may return
 
-1. **A hook returns a lifecycle, or nothing.** Nothing means the default. The tier 1 lifecycles are `FailWorkflow` and `FinishWorkflow`.
+1. **A step hook returns a lifecycle, or nothing.** Nothing, in the language's form of nothing, means the default; anything else it returns is an unexpected result, which aborts the journey with `unexpected result` (chapter 5, 5.10 point 7). A workflow hook is void in tier 1: what it returns is never read (chapter 5, 5.10 point 6). The tier 1 lifecycles are `FailWorkflow` and `FinishWorkflow`.
 
    | Hook | Nothing means | May return |
    |---|---|---|
@@ -40,10 +40,10 @@ The failure hook comes after `step_given_up` because it is called because the st
    | `on step failure` | the journey fails | `FailWorkflow` |
    | `on step retry` | the step is tried again | `FailWorkflow` |
    | `on step abnormal termination` | continue as 6.2 points 5 and 7 say | `FailWorkflow` |
-   | `on workflow success` | nothing to decide | no lifecycle in tier 1 |
-   | `on workflow failure` | nothing to decide | no lifecycle in tier 1 |
+   | `on workflow success` | nothing to decide | nothing: it is void in tier 1 |
+   | `on workflow failure` | nothing to decide | nothing: it is void in tier 1 |
 
-2. **A lifecycle a hook may not return** MUST abort the journey with the abort reason `invalid lifecycle`. Implementations SHOULD make it impossible to express where their language allows it.
+2. **A tier 1 lifecycle a step hook may not return** MUST abort the journey with the abort reason `invalid lifecycle`. Implementations SHOULD make it impossible to express where their language allows it.
 3. **`FinishWorkflow`** ends the journey at once as succeeded; `journey_succeeded` is decided by the hook that returned it. The steps that did not run remain `NotExecuted`.
 4. **`FailWorkflow`** ends the journey at once as failed, and `journey_failed` is decided by the hook that returned it. It carries a reason: a code, an optional message and optional details. The result MUST carry that reason, and `journey_failed` names the step whose hook returned it. No further step hook is called for that step.
    - From `on step success`, the step stays `Succeeded`, and its contributions are committed.

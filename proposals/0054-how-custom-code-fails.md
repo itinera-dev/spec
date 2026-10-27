@@ -7,6 +7,7 @@
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
 - Amended by [#113](https://github.com/itinera-dev/spec/issues/113): value conversions are calls into custom code.
+- Amended by [#122](https://github.com/itinera-dev/spec/issues/122): custom code that returns an unexpected result aborts the journey with `unexpected result`, and a void call's return is never read.
 
 ## Summary
 
