@@ -3,6 +3,7 @@
 - Issue: [#27](https://github.com/itinera-dev/spec/issues/27)
 - Tier: 1
 - Amends: [0002: Foundations](0002-foundations.md)
+- Amended by [#121](https://github.com/itinera-dev/spec/issues/121): copies that call application code are custom code, made for each receiver.
 
 ## Summary
 
