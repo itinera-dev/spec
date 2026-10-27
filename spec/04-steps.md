@@ -25,7 +25,7 @@ What a step is, how it is built and run, the outcomes it reports, and what happe
       - **returns a value of the wrong type**: `input_adapter_supplied` is emitted, naming the adapter, and the journey is aborted with `wrong type`, naming the step, the adapter and the key;
       - **returns nothing**, in the language's form of nothing (chapter 5, 5.10 point 6): the adapter does not supply this input, which is resolved from the data bag, as in point 2;
       - **fails, or returns something that is not a value**: `input_adapter_failed` is emitted, naming the adapter, and the journey is aborted with `step could not be built`;
-      - **returns an unexpected result**, such as a null-like value: the journey is aborted with `unexpected result`, naming the step, the adapter and the key (chapter 5, 5.10 point 7).
+      - **returns an unexpected result**, something that is neither the language's form of nothing nor a value, such as `undefined` in JavaScript: the journey is aborted with `unexpected result`, naming the step, the adapter and the key (chapter 5, 5.10 point 7).
    2. **Otherwise**, and for an input the adapter returned nothing for, the value MUST be read from the data bag under the key.
 4. **No value.** When the data bag has no value under the key:
    - for a **required** input, the journey MUST be aborted with the abort reason `required data missing`, naming the step and the key. When the step has an input adapter that returned nothing for this input, the adapter is not named: it supplied nothing;
