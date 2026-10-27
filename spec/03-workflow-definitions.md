@@ -86,7 +86,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.7 Admission: refused before any journey
 
 1. **When the workflow is built.** Errors in how a workflow is put together that need only its declaration MUST be reported when the workflow is built, by the compiler, the macros, the builder or the workflow's constructor. Implementations SHOULD report them at compile time where their language allows it.
-2. **When the instance is handed to an executor.** `mode not accepted` depends on the executor, so it MUST be reported when the instance is handed to the executor's `run`, before the journey starts, if it was not already caught when the workflow was built. Initial data that is not a value is also refused then, listing each key concerned, and so is initial global metadata that is not a value or that sets `journey_id` (chapter 2, 2.11). An implementation that does not guarantee, when a descriptor is built, that it was checked MUST check it at this point.
+2. **When the instance is handed to an executor.** `mode not accepted` depends on the executor, so it MUST be reported when the instance is handed to the executor's `run`, before the journey starts, if it was not already caught when the workflow was built. Initial data that is not a value is also refused then, listing each key concerned, and so is initial global metadata that is not a value or that sets `journey_id` (chapter 2, 2.11). An instance whose dispatcher factory or workflow policy returns an unexpected result is refused at this point too (chapter 5, 5.10 point 7). An implementation that does not guarantee, when a descriptor is built, that it was checked MUST check it at this point.
 3. **In both cases:**
    - no journey MUST start;
    - no event MUST be emitted;
@@ -98,7 +98,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.8 Rules a language may make impossible to express
 
 1. Through its types or signatures, a language MAY make it impossible to write:
-   1. a hook returning a lifecycle it may not return (chapter 6, 6.3);
+   1. a step hook returning a tier 1 lifecycle it may not return (chapter 6, 6.3);
    2. a policy attached to a workflow that does not provide a role it requests (3.5);
    3. a step, hook, service provider or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
    4. something that is not a value in the data bag, in event data, in a reason's details, in global metadata or in the data a service provider supplies with an instance (chapter 4, 4.6 and 4.9; chapter 2, 2.9 and 2.11);
@@ -107,12 +107,13 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    7. a rescue step that skips (chapter 7, 7.4 point 4);
    8. a service provider of journey scope requesting the name of the step being built or the attempt number (3.9);
    9. a service provider returning nothing, neither an instance nor an error (chapter 4, 4.9);
-   10. custom code returning an unexpected result, including an ID generator producing a journey ID that is not a string (chapter 5, 5.2 and 5.10);
-   11. an ID generator producing an empty journey ID (chapter 5, 5.2).
+   10. custom code returning an unexpected result (chapter 5, 5.10 point 7);
+   11. an ID generator producing a journey ID that is not a string (chapter 5, 5.2 point 4);
+   12. an ID generator producing an empty journey ID (chapter 5, 5.2 point 4).
 
    For such a language, the rules of this specification about these situations do not apply. A value conversion or a copy that fails (chapter 5, 5.10) happens at run time, so a language that makes something that is not a value impossible to write still follows the rules for it.
 2. **Each exclusion is proven.** A language that makes a rule impossible MUST prove it in its own test suite: for every conformance scenario it excludes, a test shows that the forbidden code is rejected, for example by compiling it and expecting a compilation error. Its tech spec lists, for each excluded scenario, the test that replaces it.
-3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value`, `@late-handle`, `@bag-write`, `@rescue-skip`, `@journey-scope-request`, `@no-instance`, `@unexpected-result` and `@empty-journey-id`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
+3. **Conformance.** The scenarios that need these rules carry the tags `@invalid-lifecycle`, `@role-not-provided`, `@mode-not-accepted`, `@non-value`, `@late-handle`, `@bag-write`, `@rescue-skip`, `@journey-scope-request`, `@no-instance`, `@unexpected-result`, `@non-string-journey-id` and `@empty-journey-id`. A language lists the tags it makes impossible in its `conformance.json`, and still claims the tier: the excluded rules cannot occur in it.
 
 ## 3.9 Service providers
 
