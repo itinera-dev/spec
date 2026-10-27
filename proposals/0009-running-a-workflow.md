@@ -11,6 +11,7 @@
 - Amended by [#85](https://github.com/itinera-dev/spec/issues/85): an aborted journey's result carries no data bag, and an abort is final.
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
+- Amended by [#122](https://github.com/itinera-dev/spec/issues/122): a journey ID is a string that is not empty.
 
 ## Summary
 
