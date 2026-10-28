@@ -175,9 +175,9 @@ The diagram shows these transitions:
 
 ## 5.11 Execution modes
 
-1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks, service providers and reporters alike.
+1. The tier 1 execution modes are `sync` and `async`. An executor declares which modes it accepts, for steps, hooks, input adapters, service providers and reporters alike.
 2. Anything in a mode the executor does not accept is the violation `mode not accepted`, refused at admission when the instance is handed to `run`, before the journey starts (chapter 3).
-3. Whether an asynchronous executor also accepts synchronous steps, hooks, service providers and reporters is each language's choice, stated as a capability.
+3. Whether an asynchronous executor also accepts synchronous steps, hooks, input adapters, service providers and reporters is each language's choice, stated as a capability.
 4. A language claims its capabilities alongside its tier: the modes its executors accept, test support (chapter 8) when it offers it, and value conversions (5.10), which a language MUST claim when its executor calls, while a journey runs, code the application supplies or customises to turn its objects into values, or values into its types, or to check them (chapter 1, 1.8); a language whose executor calls application code only to copy values (chapter 4, 4.7) does not claim it. Its conformance runner runs the cases tagged with them.
 
 ## 5.12 Checked by

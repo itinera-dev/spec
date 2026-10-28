@@ -61,7 +61,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 ## 3.6 Configuration errors
 
 1. A **configuration error** is anything wrong with how a workflow is put together or supplied, which its author is responsible for. They fall into two groups:
-   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, or one input adapter attached to it more than once, two input adapters with the same name, an input adapter attached to a step or rescue step that does not exist, a step with both a rescue step and a retry budget greater than 0, a step requesting a service no provider serves for it or one key twice, two providers of one key serving one step, or one provider attached to it more than once, two service providers with the same name, a service provider attached to a step or rescue step that does not exist, a provider of another type than a step requests, a provider of journey scope requesting the step's name or the attempt number, a step, hook, service provider or reporter in an execution mode the executor does not accept, initial data that is not a value, and initial global metadata that is not a value or that sets `journey_id`. They are caught before any journey (3.7);
+   - **errors in how the workflow is put together**, which need only its declaration and the executor: a hook defined twice for one step or one workflow, two steps with the same name, a policy requesting a role the workflow does not provide, two input adapters attached to one step, or one input adapter attached to it more than once, two input adapters with the same name, an input adapter attached to a step or rescue step that does not exist, a step with both a rescue step and a retry budget greater than 0, a step requesting a service no provider serves for it or one key twice, two providers of one key serving one step, or one provider attached to it more than once, two service providers with the same name, a service provider attached to a step or rescue step that does not exist, a provider of another type than a step requests, a provider of journey scope requesting the step's name or the attempt number, a step, hook, input adapter, service provider or reporter in an execution mode the executor does not accept, initial data that is not a value, and initial global metadata that is not a value or that sets `journey_id`. They are caught before any journey (3.7);
    - **errors that can only show up during a journey**: a step or policy that cannot be built, required data missing, a value of the wrong type, something contributed or emitted that is not a value, a hook returning a lifecycle it may not return, a rescue step that skips, and global metadata set under the key `journey_id`. They abort the journey (chapters 4, 5, 6 and 7).
 2. **Violations named in this specification:**
 
@@ -70,7 +70,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
    | `hook defined twice` | two policies attached to the same step, or to the same workflow, define the same hook |
    | `duplicate step name` | two steps in one workflow have the same name |
    | `role not provided` | a policy attached to the workflow requests a role the workflow does not provide |
-   | `mode not accepted` | a step, hook, service provider or reporter runs in an execution mode the executor does not accept |
+   | `mode not accepted` | a step, hook, input adapter, service provider or reporter runs in an execution mode the executor does not accept |
    | `step adapted twice` | two input adapters are attached to the same step, or one input adapter is attached to it more than once |
    | `duplicate adapter name` | two input adapters of one workflow have the same name |
    | `input adapter for unknown step` | an input adapter is attached to a step or rescue step the workflow does not have |
@@ -100,7 +100,7 @@ How a workflow is declared, and what happens when the declaration is wrong. How 
 1. Through its types or signatures, a language MAY make it impossible to write:
    1. a step hook returning a tier 1 lifecycle it may not return (chapter 6, 6.3);
    2. a policy attached to a workflow that does not provide a role it requests (3.5);
-   3. a step, hook, service provider or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
+   3. a step, hook, input adapter, service provider or reporter in an execution mode the executor does not accept (chapter 5, 5.11);
    4. something that is not a value in the data bag, in event data, in a reason's details, in global metadata or in the data a service provider supplies with an instance (chapter 4, 4.6 and 4.9; chapter 2, 2.9 and 2.11);
    5. a contributor or step reporter used after its attempt or hook has ended, an input adapter's access to the data bag or a service provider's means of emitting events used after its call, or a service kept by a step after its attempt (chapter 4, 4.6, 4.2 and 4.9);
    6. an input adapter writing through its access to the data bag (chapter 4, 4.2);
