@@ -181,7 +181,7 @@ The specification has a version in three parts, for example `0.1.0`. A version i
 2. **Release candidates:** until the version is proven, defect corrections and accepted amendments go straight into the chapters and the cases. Each time the cases change, `conformance` is tagged with a new release candidate, `v0.1.0-rc.1`, then `v0.1.0-rc.2`, and so on, which implementations pin. A tag is never moved.
 3. **Proven:** the version is tagged `v0.1.0`, in both repositories, only when a first implementation passes every case of the version.
 4. **Fixed:** once tagged, a version's chapters and cases never change. After that:
-   - **a patch version**, such as `0.1.1`, holds defect corrections only: readings the text already allowed;
+   - **a patch version**, such as `0.1.1`, holds defect corrections, which are readings the text already allowed, and restatements of the cases: cases rewritten in the current form, and sentences added to the catalogue they use, without changing what any case checks. A restatement keeps every feature file's path and every scenario's name, so that what an implementation records about a case still applies. A patch that only restates the cases leaves the chapters as they are and is tagged in both repositories all the same;
    - **a minor version**, such as `0.2.0`, holds accepted proposals, including amendments and anything added to a tier. While the specification is below 1.0, every change of behaviour is a minor version.
 
 A tier's contents are the same across the patch versions of one minor version, so a claim such as "tier 1 of spec 0.1" stays true across `0.1.x`. Implementations SHOULD follow the latest patch.
