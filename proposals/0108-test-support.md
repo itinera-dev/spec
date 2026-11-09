@@ -3,6 +3,7 @@
 - Issue: [#108](https://github.com/itinera-dev/spec/issues/108)
 - Tier: 1, as the capability `testing`
 - Amended by [#119](https://github.com/itinera-dev/spec/issues/119): an attempt scripted twice, an attempt a step can never have, and reading the record of an unknown step.
+- Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 
 ## Summary
 

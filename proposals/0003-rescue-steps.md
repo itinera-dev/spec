@@ -6,6 +6,7 @@
 - Amended by [#95](https://github.com/itinera-dev/spec/issues/95): steps may request services provided by the workflow.
 - Amended by [#98](https://github.com/itinera-dev/spec/issues/98): a rescue step may have its own input adapter and service providers.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
+- Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 
 ## Summary
 
