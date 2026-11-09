@@ -213,6 +213,8 @@ A defect correction or an amendment may change cases that a language already run
 3. **It closes** when the language moves `cases` in its `conformance.json` to the new tag and every case passes.
 4. **The defect or amendment issue lists these issues**, by reference only, never with closing keywords, so anyone can see where the change has landed.
 
+A restatement of the cases (see "The behaviour specification") changes no behaviour, so it changes only what a language's conformance runner must read, never its published code. Such a patch needs no new release of the language: a version already published claims the patch as soon as its code, unchanged, passes the restated cases through the updated runner, which is not published. The language moves `cases` to the new tag as in item 3, and a later release carries the report for the patch. A language that has to change its published code to pass a restatement has found a defect, in the cases or in its code, and handles it as one.
+
 This is what lets a new language start late: the behaviour specification and the conformance cases already describe everything, and the language's work is to write its tech specs and make the cases pass, tier by tier.
 
 ### Implementation issues opened early
