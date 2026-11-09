@@ -13,6 +13,7 @@
 - Amended by [#104](https://github.com/itinera-dev/spec/issues/104): `service_provided` names the implementation and carries the provider's data.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
 - Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
+- Amended by [#134](https://github.com/itinera-dev/spec/issues/134): pending steps.
 
 ## Summary
 

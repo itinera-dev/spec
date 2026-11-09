@@ -3,6 +3,7 @@
 - Issue: [#106](https://github.com/itinera-dev/spec/issues/106)
 - Tier: 1
 - Amends: [0003](0003-rescue-steps.md), [0008](0008-steps.md), [0009](0009-running-a-workflow.md), [0010](0010-hooks-lifecycles-and-roles.md), [0011](0011-events.md), [0024](0024-abnormal-termination-retriable.md), [0040](0040-events-facts-and-decisions.md) and [0083](0083-what-failures-carry.md)
+- Amended by [#134](https://github.com/itinera-dev/spec/issues/134): pending steps.
 
 ## Summary
 

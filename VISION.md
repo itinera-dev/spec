@@ -22,7 +22,7 @@ Itinera makes the separation structural instead of a matter of discipline.
 
 1. The specification is the source of truth. Implementations follow it; they never quietly diverge.
 2. A step never depends on the workflow, the data store, the executor or anything else outside itself.
-3. Order is strict and visible. The list of steps you read is the order that runs.
+3. Order is strict and visible. Every step gets its first run in the order the workflow declares, retries included, unless it declares that it waits for a step still pending. Only steps that report pending, and those waiting for them, run after that pass, by a declared rule, and the event stream records each choice.
 4. Executors differ in capability, never in meaning.
 5. Anything a step did not anticipate is abnormal, and abnormal is rare by design.
 6. Documentation is readable with a screen reader: headings, lists and prose, with Mermaid diagrams that carry accessible descriptions and are always explained in text, and never ASCII-art diagrams.

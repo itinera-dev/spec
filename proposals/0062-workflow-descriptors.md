@@ -3,6 +3,7 @@
 - Issue: [#62](https://github.com/itinera-dev/spec/issues/62)
 - Tier: 1
 - Amends: [0009](0009-running-a-workflow.md)
+- Amended by [#134](https://github.com/itinera-dev/spec/issues/134): pending steps.
 
 ## Summary
 
