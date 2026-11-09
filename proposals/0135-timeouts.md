@@ -69,7 +69,7 @@ Part of one set with proposals 0133 (hooks before and after a journey, a step an
 
 ### Test support
 
-1. **The path** (8.3) gains the lines `<step> attempt <n> timed out`, `journey timed out at <step>: <checkpoint>` or `journey timed out: <checkpoint>`, and the causes `attempt timed out` and `journey timed out` for `<step> given up`. 8.3 point 2 is amended, since `attempt_timed_out` and `journey_timed_out` are neither outcomes nor decisions.
+1. **The path** (8.3) gains the lines `<step> attempt <n> timed out`, `journey timed out at <step>: <checkpoint>` or `journey timed out: <checkpoint>`, and the causes `attempt timed out` and `journey timed out` for `<step> given up`. As for every line of the path, the recording reporter assembles each one from the fields of its event; no event carries ready-made text. A journey failed by a timeout has neither a reason nor an error, so its `journey failed` line writes the cause instead: `journey failed at <step>: attempt timed out`, `journey failed at <step>: journey timed out`, or `journey failed: journey timed out` when no step is named (#133 gives the form with no step). This amends the `journey failed` line of 8.3 point 3, which does not repeat the cause: the cause is written only when there is neither a reason nor an error. 8.3 point 2 is amended, since `attempt_timed_out` and `journey_timed_out` are neither outcomes nor decisions.
 2. **Scripted runs** (8.5) gain `taking` a duration, after any ending: the executor's clock moves on by that duration during the attempt, as the runner's clock does in conformance (#134, "The clock").
 
 ### Relation to other rules
