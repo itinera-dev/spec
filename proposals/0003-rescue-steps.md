@@ -8,6 +8,7 @@
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
 - Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 - Amended by [#130](https://github.com/itinera-dev/spec/issues/130): cancelling a journey, and a hook when a journey is dropped.
+- Amended by [#135](https://github.com/itinera-dev/spec/issues/135): journey and attempt timeouts.
 
 ## Summary
 
