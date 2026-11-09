@@ -12,6 +12,7 @@
 - Amended by [#3](https://github.com/itinera-dev/spec/issues/3): rescue steps.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
 - Amended by [#122](https://github.com/itinera-dev/spec/issues/122): a journey ID is a string that is not empty.
+- Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 
 ## Summary
 

@@ -3,6 +3,7 @@
 - Issue: [#58](https://github.com/itinera-dev/spec/issues/58)
 - Tier: 1
 - Amends: [0002](0002-foundations.md), [0010](0010-hooks-lifecycles-and-roles.md), [0049](0049-custom-code-that-throws.md)
+- Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 
 ## Summary
 

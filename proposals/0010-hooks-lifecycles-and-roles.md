@@ -11,6 +11,7 @@
 - Amended by [#102](https://github.com/itinera-dev/spec/issues/102): global metadata passed to every reporter.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
 - Amended by [#122](https://github.com/itinera-dev/spec/issues/122): workflow hooks are void, and a step hook's unexpected result aborts the journey.
+- Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 
 ## Summary
 
