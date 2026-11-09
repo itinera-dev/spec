@@ -14,6 +14,7 @@
 - Amended by [#122](https://github.com/itinera-dev/spec/issues/122): a journey ID is a string that is not empty.
 - Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
 - Amended by [#134](https://github.com/itinera-dev/spec/issues/134): pending steps.
+- Amended by [#130](https://github.com/itinera-dev/spec/issues/130): cancelling a journey, and a hook when a journey is dropped.
 
 ## Summary
 

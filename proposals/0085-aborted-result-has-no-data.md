@@ -4,6 +4,7 @@
 - Tier: 1
 - Amends: [0065](0065-business-result.md) and [0009](0009-running-a-workflow.md)
 - Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
+- Amended by [#130](https://github.com/itinera-dev/spec/issues/130): cancelling a journey, and a hook when a journey is dropped.
 
 ## Summary
 
