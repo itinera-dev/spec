@@ -9,6 +9,7 @@
 - Amended by [#113](https://github.com/itinera-dev/spec/issues/113): value conversions are calls into custom code.
 - Amended by [#122](https://github.com/itinera-dev/spec/issues/122): custom code that returns an unexpected result aborts the journey with `unexpected result`, and a void call's return is never read.
 - Amended by [#133](https://github.com/itinera-dev/spec/issues/133): hooks before and after a journey, a step and an attempt.
+- Amended by [#130](https://github.com/itinera-dev/spec/issues/130): cancelling a journey, and a hook when a journey is dropped.
 
 ## Summary
 

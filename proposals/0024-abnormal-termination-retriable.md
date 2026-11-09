@@ -5,6 +5,7 @@
 - Amends: [0008: Steps](0008-steps.md)
 - Amended by [#83](https://github.com/itinera-dev/spec/issues/83): what a failure, an abort and a refusal carry.
 - Amended by [#106](https://github.com/itinera-dev/spec/issues/106): the retry budget alone decides retries.
+- Amended by [#130](https://github.com/itinera-dev/spec/issues/130): cancelling a journey, and a hook when a journey is dropped.
 
 ## Summary
 
