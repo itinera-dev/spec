@@ -144,7 +144,12 @@ A transaction through roles: a workflow instance runs at most one journey (5.1 p
 4. **New status `Bypassed`**, final; 1.2's list of statuses, 5.4 point 3 (run-once), 5.5 point 2 (the scan passes over it) and 5.7 point 1 (it counts as done) are amended for it. **New transitions** in 5.4 and the 5.5 diagram: `NotExecuted` to `Bypassed`, and `NotExecuted` to `Failed` when `before step` fails.
 5. **New causes** for `step_given_up` and the abnormal termination path: `before hook failed` and `after hook failed`; for `journey_failed`: `after hook failed`.
 6. `journey_failed` decided by `before journey`, or caused by a failing `after journey`, names no step.
-7. **Test support** (chapter 8): new path lines for `step_bypassed`, `before_hook_failed` and `after_hook_failed`, and a form of `journey failed` that names no step. 8.3 point 2 is amended, since `before_hook_failed` and `after_hook_failed` change the flow without being an outcome or a decision.
+7. **Test support** (chapter 8): the path (8.3) gains these lines. As for every line of the path, the recording reporter assembles each one from the fields of its event; no event carries ready-made text, and the wording belongs to the reporter.
+   1. `step_bypassed`: `<step> bypassed`, followed by `: <reason>` when it has one.
+   2. `before_hook_failed`: `<step> attempt <n> before hook failed: <error message>`, `<step> before hook failed: <error message>` at the step level, where there is no attempt, and `journey before hook failed: <error message>` for `before journey`.
+   3. `after_hook_failed`: `<step> attempt <n> after hook failed: <error message>`, `<step> after hook failed: <error message>` at the step level, and `journey after hook failed: <error message>` for `after journey`.
+   4. `journey_failed` with no step, as after `before journey` returns `FailWorkflow` or `after journey` fails: `journey failed: <reason>`, with the reason, or the error message when there is no reason, as in `journey failed: audit down`.
+   5. 8.3 point 2 is amended, since `before_hook_failed` and `after_hook_failed` change the flow without being an outcome or a decision.
 8. **Also amended:** 2.8 points 2, 4 and 5, where the six hooks and their events fall, as "When each runs" says; and 5.10 point 6, since `before journey` and `before step` are calls with a result: nothing, `FailWorkflow` or a bypass.
 
 ## Conformance
@@ -167,7 +172,8 @@ Cases, tagged with this proposal and `@tier-2`. A new runner sentence observes t
 14. an abort caused by an after hook in a normal flow;
 15. what the after hooks receive: the endings and the number of attempts;
 16. the violations `required request in after hook` and `invalid lifecycle` for the new hooks, and that `hook defined twice` does not apply to them;
-17. how often each policy is built: once at the step's turn for a policy with step-level hooks, and once for each attempt.
+17. how often each policy is built: once at the step's turn for a policy with step-level hooks, and once for each attempt;
+18. the new path lines: a bypass with and without a reason, a failing before and after hook at the attempt, step and journey levels, and a journey failed with no step.
 
 ## Alternatives considered
 
