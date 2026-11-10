@@ -167,7 +167,7 @@ When one report holds both, the part that needs a proposal moves to a proposal i
 
 1. **Opened** with the "Spec defect" issue template, labelled `spec defect`: where, what the text says, and a suggested correction.
 2. **Agreed.** A maintainer agrees the correction in the issue, whose body is then edited to hold only the agreed correction, as for proposals, and sets `status: ready`.
-3. **Cases first, when the correction is observable.** Its conformance issue "Cases for spec#NNNN" is opened and its cases pull request merged first, as for proposals.
+3. **Cases first, when the correction is observable.** A correction that changes behaviour MUST change or add cases. Its conformance issue "Cases for spec#NNNN" is opened and its cases pull request merged first, as for proposals. The only exception is behaviour that no conformance runner can observe: the conformance issue then says why, and the correction is listed in `conformance` as having no cases (see "Claiming a patch for a published release").
 4. **Fixed.** The pull request that corrects the chapters says `Closes #NNNN`. A correction that only changes wording needs no cases.
 5. **Released** according to the version rules below, and followed into the languages that already implemented the affected proposals (see "When the specification changes after a language implemented it").
 
@@ -181,7 +181,7 @@ The specification has a version in three parts, for example `0.1.0`. A version i
 2. **Release candidates:** until the version is proven, defect corrections and accepted amendments go straight into the chapters and the cases. Each time the cases change, `conformance` is tagged with a new release candidate, `v0.1.0-rc.1`, then `v0.1.0-rc.2`, and so on, which implementations pin. A tag is never moved.
 3. **Proven:** the version is tagged `v0.1.0`, in both repositories, only when a first implementation passes every case of the version.
 4. **Fixed:** once tagged, a version's chapters and cases never change. After that:
-   - **a patch version**, such as `0.1.1`, holds defect corrections only: readings the text already allowed;
+   - **a patch version**, such as `0.1.1`, holds defect corrections, which are readings the text already allowed, and restatements of the cases: cases rewritten in the current form, and sentences added to the catalogue they use, without changing what any case checks. A restatement keeps every feature file's path and every scenario's name, so that what an implementation records about a case still applies. A patch that only restates the cases leaves the chapters as they are and is tagged in both repositories all the same;
    - **a minor version**, such as `0.2.0`, holds accepted proposals, including amendments and anything added to a tier. While the specification is below 1.0, every change of behaviour is a minor version.
 
 A tier's contents are the same across the patch versions of one minor version, so a claim such as "tier 1 of spec 0.1" stays true across `0.1.x`. Implementations SHOULD follow the latest patch.
@@ -215,6 +215,18 @@ A defect correction or an amendment may change cases that a language already run
 
 This is what lets a new language start late: the behaviour specification and the conformance cases already describe everything, and the language's work is to write its tech specs and make the cases pass, tier by tier.
 
+### Claiming a patch for a published release
+
+A patch of the specification can be claimed by a release a language has already published, without a new release, when the release's code, unchanged, passes the patch's cases.
+
+1. **Each language repository keeps `compatibility.json` on `main`.** It maps each published release tag to the conformance tags that release passes, for example `"v0.1.0-beta.7": ["v0.1.0", "v0.1.1"]`. It names tags only, never commits, and only patches of the minor version the release already claims.
+2. **Its check runs every entry**, on each pull request that changes the file and on a schedule: it builds the library at the release tag with the conformance runner from `main`, runs the cases at each listed tag, and fails if any entry does not pass. A claim in the file is therefore proven again each time, not once.
+3. **The compatibility table** in `conformance` is built from the reports releases carry ("Releases", item 4) and from these files.
+4. **The check decides, not the kind of patch.** A restatement (see "The behaviour specification") changes no behaviour, so a release passes it unchanged once the runner reads its sentences: it is a patch of the cases, not of the library. A defect correction with cases is passed only by releases whose code already followed the corrected reading; the others claim it with a new release, after their `spec update` issue closes.
+5. **A patch with a correction that has no cases** (see "The life of a defect", item 3) cannot be claimed in `compatibility.json`, since its cases would pass code that does not follow it. `conformance` lists such corrections by version, and a language claims that patch only with a new release, after the `spec update` issue for the correction closes.
+
+A language that has to change its published code to pass a restatement has found a defect, in the cases or in its code, and handles it as one.
+
 ### Implementation issues opened early
 
 When language-specific design comes up while a proposal is still being discussed, the language's implementation issue may be opened before the proposal is accepted, so the design has a home outside the `spec` repository. It carries the extra label `waiting for spec`, and no pull request is opened for it until the proposal is accepted and the label is removed.
@@ -228,7 +240,7 @@ Package registries do not know about git tags: `cargo publish` and `npm publish`
 1. **A release is requested by pushing a version tag**, such as `v0.1.0`, on `main`. Only maintainers can create release tags.
 2. **A release workflow decides whether the tag becomes a release.** It checks that the tag matches the package version, that the commit is on `main`, that every proposal in `conformance.json` passes its cases, and that every proposal of the tier being claimed is listed. If anything fails, nothing is published and the run fails visibly.
 3. **Only that workflow can publish**, through the registry's trusted publishing for GitHub Actions wherever the registry allows it, with no long-lived publishing token. A manual `cargo publish` or `npm publish` simply fails. When a registry needs something else for a step it cannot do through trusted publishing, such as the first release of a package, the language's repository documents that exception, keeps any credential it needs as short-lived as possible, and still publishes only through the release workflow.
-4. **A release carries its conformance report** as an asset, which is the proof of what it claims, and the compatibility table in `conformance` is built from those reports.
+4. **A release carries its conformance report** as an asset, which is the proof of what it claims, and the compatibility table in `conformance` is built from those reports and from each language's `compatibility.json` (see "Claiming a patch for a published release").
 
 The release workflow is built with the first release of the first language ([itinera-dev/conformance#6](https://github.com/itinera-dev/conformance/issues/6)).
 
